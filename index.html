@@ -4,8 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0f172a">
-    <title>Akademik Asistan V3.6 - FINAL REPAIR</title>
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQWthZGVtaWsgQXNpc3RhbiIsInNob3J0X25hbWUiOiJBa2FkZW1payIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMGYxNzJhIiwidGhlbWVfY29sb3IiOiIjMGYxNzJhIiwicGVybWlzc2lvbnMiOlsibm90aWZpY2F0aW9ucyJdfQ==">
+    <title>Akademik Asistan V3.2 ULTIMATE</title>
     
+    <!-- APK Compatible CDN Loading -->
     <script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone@7.23.5/babel.min.js"></script>
@@ -15,41 +20,324 @@
     <link href="https://fonts.googleapis.com/css2?family=Sacramento&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; -webkit-tap-highlight-color: transparent; user-select: none; overflow-x: hidden; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .input-dark { background: #1e293b; border: 1px solid #334155; color: white; transition: all 0.3s; }
+        /* Klasik V21/V33 Teması */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0f172a; /* Slate 900 */
+            color: #e2e8f0; 
+            -webkit-tap-highlight-color: transparent; 
+            user-select: none;
+            overflow-x: hidden;
+        }
+        
+        .glass { 
+            background: rgba(30, 41, 59, 0.7); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+        }
+
+        .input-dark { 
+            background: #1e293b; 
+            border: 1px solid #334155; 
+            color: white; 
+            transition: all 0.3s; 
+        }
         .input-dark:focus { border-color: #3b82f6; outline: none; }
+
         .signature { font-family: 'Sacramento', cursive; letter-spacing: -1px; }
         
-        /* Renkler ve Tasarım - ORİJİNAL */
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        .urgent-pulse { animation: pulse-red 2s infinite; }
+        
+        /* Ekran Görüntüsü Modu - Mobil Uyumlu */
+        .screenshot-mode { 
+            background-color: #ffffff !important; 
+            color: #000000 !important;
+            position: fixed !important;
+            inset: 0 !important;
+            overflow: auto !important;
+            z-index: 9999 !important;
+        }
+        .screenshot-mode .app-container { 
+            background-color: #ffffff !important; 
+            box-shadow: none !important; 
+        }
+        .screenshot-mode .no-screenshot { display: none !important; }
+        .screenshot-mode .glass { 
+            background: white !important; 
+            border: 1px solid #000 !important; 
+            color: black !important; 
+            box-shadow: none !important; 
+            backdrop-filter: none !important;
+        }
+        .screenshot-mode th { 
+            background-color: #f3f4f6 !important; 
+            color: black !important; 
+            border: 1px solid #000 !important;
+        }
+        .screenshot-mode td { 
+            border: 1px solid #000 !important; 
+            color: black !important;
+        }
+        .screenshot-mode input { 
+            color: black !important; 
+            background: transparent !important; 
+            border: none !important; 
+            text-align: center;
+        }
+        /* Mobil için uyum */
+        @media (max-width: 768px) {
+            .screenshot-mode {
+                font-size: 12px !important;
+            }
+            .screenshot-mode th { 
+                font-size: 9px !important; 
+                padding: 4px 2px !important; 
+            }
+            .screenshot-mode td { 
+                font-size: 8px !important; 
+                padding: 3px 1px !important; 
+            }
+            .screenshot-mode .lesson-cell {
+                font-size: 8px !important;
+                line-height: 1.2 !important;
+            }
+        }
+
+        /* Ders Renkleri - Canlı */
         .lesson-lisans { background: linear-gradient(135deg, #0d9488 0%, #115e59 100%) !important; border-left: 3px solid #5eead4 !important; color: white !important; } 
         .lesson-yuksek { background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important; border-left: 3px solid #a5b4fc !important; color: white !important; } 
         .lesson-doktora { background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important; border-left: 3px solid #fda4af !important; color: white !important; } 
         .lesson-seminer { background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important; border-left: 3px solid #fcd34d !important; color: white !important; } 
+        
+        /* Buton Renkleri */
         .btn-lisans { background-color: #0d9488; color: white; border: 1px solid #5eead4; }
         .btn-yuksek { background-color: #4f46e5; color: white; border: 1px solid #a5b4fc; }
         .btn-doktora { background-color: #e11d48; color: white; border: 1px solid #fda4af; }
         .btn-seminer { background-color: #d97706; color: white; border: 1px solid #fcd34d; }
 
-        /* Yükleme Ekranı */
-        #loader { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s; }
-        .loader-spin { w: 50px; h: 50px; border: 4px solid #334155; border-top: 4px solid #3b82f6; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+        ::-webkit-calendar-picker-indicator { filter: invert(1); }
+#app-loader { position: fixed; inset: 0; background: #0f172a; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
+.spinner { width: 50px; height: 50px; border: 5px solid #1e293b; border-top: 5px solid #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <div id="loader">
-        <div class="loader-spin"></div>
-        <h2 class="text-white mt-4 font-bold tracking-widest">ZAPHYROS</h2>
-        <p class="text-slate-500 text-xs mt-2">Sistem Başlatılıyor...</p>
-    </div>
-
+<div id="app-loader">
+    <div class="spinner"></div>
+    <h2 style="color:white; margin-top:16px; font-weight:bold; letter-spacing:2px; font-size:20px;">ZAPHYROS</h2>
+    <p style="color:#64748b; font-size:12px; margin-top:8px;">Sistem Başlatılıyor...</p>
+</div>
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useRef, useCallback } = React;
 
-        // --- SABİT VERİLER (SİLİNENLER GERİ EKLENDİ) ---
+        const safeGet = (key, def) => { 
+            try { 
+                const val = localStorage.getItem(key);
+                return val ? JSON.parse(val) : def; 
+            } catch (e) { return def; } 
+        };
+
+        // ============ BİLDİRİM SİSTEMİ ============
+        const NOTIF_MINUTES_BEFORE = 5; // Kaç dakika önce bildirim gelsin
+        let notifTimers = {}; // Aktif zamanlayıcılar
+
+        // Service Worker kodu (blob olarak)
+        const swCode = `
+            const CACHE_NAME = 'akademik-asistan-v1';
+            
+            self.addEventListener('install', (e) => { self.skipWaiting(); });
+            self.addEventListener('activate', (e) => { e.waitUntil(self.clients.claim()); });
+            
+            // Push notification event
+            self.addEventListener('push', (e) => {
+                const data = e.data ? e.data.json() : { title: 'Hatırlatıcı', body: 'Yaklaşan etkinlik!' };
+                e.waitUntil(
+                    self.registration.showNotification(data.title, {
+                        body: data.body,
+                        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">📚</text></svg>',
+                        badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔔</text></svg>',
+                        vibrate: [200, 100, 200, 100, 200],
+                        tag: data.tag || 'reminder',
+                        requireInteraction: true,
+                        actions: [{ action: 'open', title: 'Aç' }, { action: 'dismiss', title: 'Kapat' }]
+                    })
+                );
+            });
+
+            // Message from main thread - show notification
+            self.addEventListener('message', (e) => {
+                if (e.data && e.data.type === 'SHOW_NOTIFICATION') {
+                    e.waitUntil(
+                        self.registration.showNotification(e.data.title, {
+                            body: e.data.body,
+                            icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">📚</text></svg>',
+                            vibrate: [200, 100, 200, 100, 200],
+                            tag: e.data.tag || 'reminder-' + Date.now(),
+                            requireInteraction: true,
+                            data: { url: self.location.origin }
+                        })
+                    );
+                }
+                
+                // Periodic check for reminders
+                if (e.data && e.data.type === 'CHECK_REMINDERS') {
+                    const tasks = e.data.tasks || [];
+                    const now = new Date();
+                    const nowMs = now.getTime();
+                    
+                    tasks.forEach(task => {
+                        if (!task.date || !task.time) return;
+                        const [h, m] = task.time.split(':').map(Number);
+                        const taskDate = new Date(task.date);
+                        taskDate.setHours(h, m, 0, 0);
+                        const triggerMs = taskDate.getTime() - (${NOTIF_MINUTES_BEFORE} * 60 * 1000);
+                        const diff = triggerMs - nowMs;
+                        
+                        if (diff > 0 && diff < 60000) {
+                            setTimeout(() => {
+                                self.registration.showNotification('⏰ ' + task.title, {
+                                    body: task.time + ' - ' + (task.desc || 'Yaklaşan etkinlik!'),
+                                    vibrate: [200, 100, 200, 100, 200],
+                                    tag: 'task-' + task.id,
+                                    requireInteraction: true
+                                });
+                            }, Math.max(0, diff));
+                        }
+                    });
+                }
+            });
+
+            // Notification click
+            self.addEventListener('notificationclick', (e) => {
+                e.notification.close();
+                if (e.action === 'dismiss') return;
+                e.waitUntil(
+                    self.clients.matchAll({ type: 'window' }).then(clients => {
+                        if (clients.length > 0) { clients[0].focus(); }
+                        else { self.clients.openWindow('/'); }
+                    })
+                );
+            });
+        `;
+
+        // Service Worker'ı blob URL ile kaydet
+        let swRegistration = null;
+        const registerServiceWorker = async () => {
+            if (!('serviceWorker' in navigator)) {
+                console.warn('Service Worker desteklenmiyor');
+                return null;
+            }
+            try {
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                const reg = await navigator.serviceWorker.register(swUrl, { scope: '/' });
+                swRegistration = reg;
+                console.log('Service Worker kaydedildi');
+                return reg;
+            } catch (err) {
+                console.warn('SW kayıt hatası (normal, blob URL kısıtlaması):', err.message);
+                return null;
+            }
+        };
+
+        // Bildirim izni iste
+        const requestNotificationPermission = async () => {
+            if (!('Notification' in window)) {
+                console.warn('Notification API desteklenmiyor');
+                return false;
+            }
+            if (Notification.permission === 'granted') return true;
+            if (Notification.permission === 'denied') return false;
+            const result = await Notification.requestPermission();
+            return result === 'granted';
+        };
+
+        // Bildirim zamanla
+        const scheduleNotification = (task) => {
+            if (!task.date || !task.time) return;
+            if (Notification.permission !== 'granted') return;
+
+            const [h, m] = task.time.split(':').map(Number);
+            const taskDate = new Date(task.date);
+            taskDate.setHours(h, m, 0, 0);
+            const triggerTime = taskDate.getTime() - (NOTIF_MINUTES_BEFORE * 60 * 1000);
+            const now = Date.now();
+            const delay = triggerTime - now;
+
+            if (delay <= 0) return; // Geçmiş event
+            if (delay > 7 * 24 * 60 * 60 * 1000) return; // 7 günden fazla ileri
+
+            // Varsa önceki zamanlayıcıyı temizle
+            if (notifTimers[task.id]) clearTimeout(notifTimers[task.id]);
+
+            notifTimers[task.id] = setTimeout(() => {
+                // Service Worker üzerinden bildirim gönder
+                if (swRegistration && swRegistration.active) {
+                    swRegistration.active.postMessage({
+                        type: 'SHOW_NOTIFICATION',
+                        title: '⏰ ' + task.title,
+                        body: task.time + ' - ' + (task.desc || 'Yaklaşan etkinlik!'),
+                        tag: 'task-' + task.id
+                    });
+                } else {
+                    // Fallback: doğrudan Notification API
+                    try {
+                        new Notification('⏰ ' + task.title, {
+                            body: task.time + ' - ' + (task.desc || 'Yaklaşan etkinlik!'),
+                            icon: '📚',
+                            vibrate: [200, 100, 200, 100, 200],
+                            requireInteraction: true
+                        });
+                    } catch (e) { console.warn('Bildirim hatası:', e); }
+                }
+                delete notifTimers[task.id];
+            }, delay);
+
+            console.log(`Bildirim zamanlandı: "${task.title}" - ${Math.round(delay/60000)} dk sonra`);
+        };
+
+        // Tüm görevler için bildirimleri zamanla
+        const scheduleAllNotifications = (tasks) => {
+            // Önceki tüm zamanlayıcıları temizle
+            Object.values(notifTimers).forEach(t => clearTimeout(t));
+            notifTimers = {};
+            
+            tasks.forEach(task => scheduleNotification(task));
+            
+            // Service Worker'a da gönder (arka plan kontrolü için)
+            if (swRegistration && swRegistration.active) {
+                swRegistration.active.postMessage({
+                    type: 'CHECK_REMINDERS',
+                    tasks: tasks
+                });
+            }
+        };
+
+        // Periyodik kontrol - Service Worker'a görevleri gönder (her 30 saniye)
+        const startPeriodicCheck = (getTasks) => {
+            setInterval(() => {
+                const tasks = getTasks();
+                if (swRegistration && swRegistration.active) {
+                    swRegistration.active.postMessage({
+                        type: 'CHECK_REMINDERS',
+                        tasks: tasks
+                    });
+                }
+                // Yakın zamanlı görevleri yeniden zamanla
+                scheduleAllNotifications(tasks);
+            }, 30000);
+        };
+
+        // Başlangıçta SW ve bildirim izni
+        // registerServiceWorker();
+        // ============ BİLDİRİM SİSTEMİ SONU ============
+
         const UNIVERSITIES = [
             { name: "Abant İzzet Baysal Üni.", city: "Bolu", url: "https://www.ibu.edu.tr/" },
             { name: "Adıyaman Üni.", city: "Adiyaman", url: "https://adiyaman.edu.tr/" },
@@ -160,274 +448,698 @@
         ].sort((a, b) => a.name.localeCompare(b.name));
 
         const TITLES = ["Arş. Gör.", "Öğr. Gör.", "Dr. Öğr. Üyesi", "Doç. Dr.", "Prof. Dr."];
+
+        const ACADEMIC_DATA = {
+            "default": [
+                { id: 1, event: "Güz Başlangıcı", date: "2024-09-23", category: "academic" },
+                { id: 2, event: "Vize Haftası", date: "2024-11-16", category: "academic" },
+                { id: 3, event: "Final Haftası", date: "2025-01-06", category: "academic" },
+                { id: 4, event: "Bahar Başlangıcı", date: "2025-02-17", category: "academic" },
+                { id: 5, event: "Doçentlik (Mart)", date: "2025-03-20", type: "critical", category: "academic" },
+                { id: 6, event: "Doçentlik (Ekim)", date: "2025-10-20", type: "critical", category: "academic" }
+            ]
+        };
+
         const LESSON_TYPES = {
             "lisans": { label: "Lisans", className: "lesson-lisans", btnClass: "btn-lisans", tag: "L" },
             "yuksek": { label: "Y. Lisans", className: "lesson-yuksek", btnClass: "btn-yuksek", tag: "YL" },
             "doktora": { label: "Doktora", className: "lesson-doktora", btnClass: "btn-doktora", tag: "DR" },
             "seminer": { label: "Seminer", className: "lesson-seminer", btnClass: "btn-seminer", tag: "SEM" }
         };
+
         const DAYS_TR = ["Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi", "Pazar"];
 
         const App = () => {
-            // --- STATE TANIMLARI (BAŞLANGIÇTA BOŞ, SONRADAN DOLACAK) ---
-            const [isLoaded, setIsLoaded] = useState(false); // YÜKLEME DURUMU
-            const [user, setUser] = useState(null);
-            const [academicCalendarLink, setAcademicCalendarLink] = useState('');
-            const [tasks, setTasks] = useState([]);
-            const [notes, setNotes] = useState([]);
-            const [schedule, setSchedule] = useState({
+            // STATE - v46 anahtarı ile taze başlangıç (Crash Fix)
+            const [user, setUser] = useState(() => safeGet('user_v46', null));
+            const [academicCalendarLink, setAcademicCalendarLink] = useState(() => safeGet('academic_calendar_link_v46', ''));
+            const [tasks, setTasks] = useState(() => safeGet('tasks_v46', []));
+            const [notes, setNotes] = useState(() => safeGet('notes_v46', []));
+            const [schedule, setSchedule] = useState(() => safeGet('schedule_v46', {
                 Pazartesi: Array(13).fill(null), Sali: Array(13).fill(null), Carsamba: Array(13).fill(null), Persembe: Array(13).fill(null), Cuma: Array(13).fill(null), Cumartesi: Array(13).fill(null), Pazar: Array(13).fill(null)
-            });
-            const [timeSlots, setTimeSlots] = useState(["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"]);
-            const [customScores, setCustomScores] = useState([{ id: 1, name: "Makale", value: 20, count: 0 }]);
-            const [targetScore, setTargetScore] = useState(100);
+            }));
+            const [timeSlots, setTimeSlots] = useState(() => safeGet('timeslots_v46', ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"]));
+            const [customScores, setCustomScores] = useState(() => safeGet('scores_v46', [{ id: 1, name: "Makale", value: 20, count: 0 }]));
+            const [targetScore, setTargetScore] = useState(() => safeGet('target_score_v46', 100));
+            const [calendarEvents, setCalendarEvents] = useState(() => safeGet('calendar_v46', ACADEMIC_DATA['default']));
             
-            // --- UI STATES ---
             const [view, setView] = useState("flow");
-            const [activeModal, setActiveModal] = useState(null);
+            
+            const [activeModal, setActiveModal] = useState(null); 
+            const [dayDetailData, setDayDetailData] = useState(null); 
+            const [selectedNode, setSelectedNode] = useState(null);
+            const [isScreenshotMode, setIsScreenshotMode] = useState(false);
+            const [alertState, setAlertState] = useState(null); 
+            const [conflictWarn, setConflictWarn] = useState(null);
+            const [dismissedAlerts, setDismissedAlerts] = useState([]);
+            
+            const [editingTask, setEditingTask] = useState(null);
             const [newTask, setNewTask] = useState({ title: "", date: "", time: "", desc: "", type: "task", category: "daily" });
             const [newNote, setNewNote] = useState("");
-            const [newLesson, setNewLesson] = useState({ name: "", type: "lisans", daySchedules: [] });
+            const [isRecurring, setIsRecurring] = useState(false);
+            const [recurringWeeks, setRecurringWeeks] = useState(14);
+            const [recurringPeriod, setRecurringPeriod] = useState("weekly"); // weekly, biweekly, monthly
             const [editingLesson, setEditingLesson] = useState(null);
+            
+            // Manuel ders ekleme state'leri - Her gün farklı saatlerde olabilir
+            const [newLesson, setNewLesson] = useState({
+                name: "",
+                type: "lisans",
+                daySchedules: [] // [{day, startTime, endTime, classroom}, ...]
+            });
+            
             const [prayerTimes, setPrayerTimes] = useState(null);
+            const [progress, setProgress] = useState(0);
             const [currentTimeStr, setCurrentTimeStr] = useState("00:00");
+            const [cursorColor, setCursorColor] = useState("bg-emerald-500 shadow-[0_0_10px_#10b981]");
             const [pomodoro, setPomodoro] = useState({ active: false, time: 25 * 60 });
-            const [isScreenshotMode, setIsScreenshotMode] = useState(false);
+            const [notifPermission, setNotifPermission] = useState(
+                typeof Notification !== 'undefined' ? Notification.permission : 'denied'
+            );
+            const [notifMinBefore, setNotifMinBefore] = useState(() => safeGet('notif_min_before_v46', 5));
+            
+            const fileInputRef = useRef(null);
+            const audioRef = useRef(null);
+            const [currentTime, setCurrentTime] = useState(new Date());
 
-            // --- GÜVENLİ VERİ YÜKLEME (AÇILIŞ KİLİTLENMESİNİ ÖNLER) ---
+            // SAVE - v46
+            useEffect(() => { localStorage.setItem('user_v46', JSON.stringify(user)); }, [user]);
+            useEffect(() => { localStorage.setItem('tasks_v46', JSON.stringify(tasks)); }, [tasks]);
+            useEffect(() => { localStorage.setItem('schedule_v46', JSON.stringify(schedule)); }, [schedule]);
+            useEffect(() => { localStorage.setItem('notes_v46', JSON.stringify(notes)); }, [notes]);
+            useEffect(() => { localStorage.setItem('calendar_v46', JSON.stringify(calendarEvents)); }, [calendarEvents]);
+            useEffect(() => { localStorage.setItem('scores_v46', JSON.stringify(customScores)); }, [customScores]);
+            useEffect(() => { localStorage.setItem('target_score_v46', JSON.stringify(targetScore)); }, [targetScore]);
+            useEffect(() => { localStorage.setItem('timeslots_v46', JSON.stringify(timeSlots)); }, [timeSlots]);
+            useEffect(() => { localStorage.setItem('academic_calendar_link_v46', JSON.stringify(academicCalendarLink)); }, [academicCalendarLink]);
+
+            // BİLDİRİM: İzin iste ve bildirimleri zamanla
             useEffect(() => {
-                const loadData = () => {
-                    try {
-                        const safeParse = (key, def) => {
-                            const val = localStorage.getItem(key);
-                            return val ? JSON.parse(val) : def;
-                        };
-                        // vFINAL: Temiz başlangıç anahtarları
-                        setUser(safeParse('user_vFINAL', null));
-                        setAcademicCalendarLink(safeParse('calendar_link_vFINAL', ''));
-                        setTasks(safeParse('tasks_vFINAL', []));
-                        setNotes(safeParse('notes_vFINAL', []));
-                        setSchedule(safeParse('schedule_vFINAL', {
-                            Pazartesi: Array(13).fill(null), Sali: Array(13).fill(null), Carsamba: Array(13).fill(null), Persembe: Array(13).fill(null), Cuma: Array(13).fill(null), Cumartesi: Array(13).fill(null), Pazar: Array(13).fill(null)
-                        }));
-                        setTimeSlots(safeParse('timeslots_vFINAL', ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"]));
-                        setCustomScores(safeParse('scores_vFINAL', [{ id: 1, name: "Makale", value: 20, count: 0 }]));
-                        setTargetScore(safeParse('target_score_vFINAL', 100));
-                    } catch (e) {
-                        console.error("Veri yükleme hatası:", e);
-                    } finally {
-                        // Veriler yüklendikten sonra loader'ı kaldır
-                        setTimeout(() => {
-                            const loader = document.getElementById('loader');
-                            if(loader) {
-                                loader.style.opacity = '0';
-                                setTimeout(() => { loader.style.display = 'none'; setIsLoaded(true); }, 500);
-                            } else {
-                                setIsLoaded(true);
-                            }
-                        }, 1000); // 1 Saniye güvenli bekleme
+                const init = async () => {
+                    const granted = await requestNotificationPermission();
+                    setNotifPermission(Notification.permission);
+                    if (granted) {
+                        scheduleAllNotifications(tasks);
+                        startPeriodicCheck(() => {
+                            try { return JSON.parse(localStorage.getItem('tasks_v46')) || []; }
+                            catch(e) { return []; }
+                        });
                     }
                 };
-                loadData();
-            }, []);
+                if (user) init();
+            }, [user]);
 
-            // --- KAYDETME (OTOMATİK) ---
-            useEffect(() => { if(isLoaded && user) localStorage.setItem('user_vFINAL', JSON.stringify(user)); }, [user, isLoaded]);
-            useEffect(() => { if(isLoaded) localStorage.setItem('tasks_vFINAL', JSON.stringify(tasks)); }, [tasks, isLoaded]);
-            useEffect(() => { if(isLoaded) localStorage.setItem('schedule_vFINAL', JSON.stringify(schedule)); }, [schedule, isLoaded]);
-            useEffect(() => { if(isLoaded) localStorage.setItem('notes_vFINAL', JSON.stringify(notes)); }, [notes, isLoaded]);
-            useEffect(() => { if(isLoaded) localStorage.setItem('scores_vFINAL', JSON.stringify(customScores)); }, [customScores, isLoaded]);
-            useEffect(() => { if(isLoaded) localStorage.setItem('target_score_vFINAL', JSON.stringify(targetScore)); }, [targetScore, isLoaded]);
-            useEffect(() => { if(isLoaded) localStorage.setItem('timeslots_vFINAL', JSON.stringify(timeSlots)); }, [timeSlots, isLoaded]);
-            useEffect(() => { if(isLoaded) localStorage.setItem('calendar_link_vFINAL', JSON.stringify(academicCalendarLink)); }, [academicCalendarLink, isLoaded]);
-
-            // --- BİLDİRİM (SERVICE WORKER YERİNE GÜVENLİ INTERVAL) ---
+            // BİLDİRİM: Tasks değiştiğinde yeniden zamanla
             useEffect(() => {
-                const checkNotifications = () => {
-                    if (!tasks.length) return;
-                    const now = new Date();
-                    tasks.forEach(task => {
-                        if (!task.date || !task.time) return;
-                        const [h, m] = task.time.split(':').map(Number);
-                        const tDate = new Date(task.date);
-                        tDate.setHours(h, m, 0, 0);
-                        const diff = tDate - now;
-                        // 5 dakika kala bildirim (bir kez çalması için basit kontrol)
-                        if (diff > 0 && diff < 60000 * 5 && diff > 60000 * 4.9) {
-                            if (Notification.permission === 'granted') {
-                                new Notification(`Hatırlatıcı: ${task.title}`, { body: task.desc || "Zaman yaklaşıyor!" });
-                            }
-                        }
-                    });
-                };
-                const interval = setInterval(checkNotifications, 10000); // Her 10 sn kontrol
-                if ('Notification' in window && Notification.permission !== 'granted') Notification.requestPermission();
-                return () => clearInterval(interval);
+                if (Notification.permission === 'granted') {
+                    scheduleAllNotifications(tasks);
+                }
             }, [tasks]);
 
-            // --- SAAT VE RENDER DÖNGÜSÜ ---
-            useEffect(() => {
-                const tick = () => {
-                    const now = new Date();
-                    setCurrentTimeStr(now.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}));
-                    if(pomodoro.active && pomodoro.time > 0) setPomodoro(prev => ({...prev, time: prev.time - 1}));
-                    else if (pomodoro.active && pomodoro.time === 0) { setPomodoro({active: false, time: 25 * 60}); alert("Süre Doldu!"); }
-                };
-                const timer = setInterval(tick, 1000);
-                if (user?.enablePrayer && user?.city && !prayerTimes) fetchPrayerTimes(user.city);
-                return () => clearInterval(timer);
-            }, [pomodoro.active, user]);
+            // Bildirim dakikası kaydet
+            useEffect(() => { localStorage.setItem('notif_min_before_v46', JSON.stringify(notifMinBefore)); }, [notifMinBefore]);
 
-            const fetchPrayerTimes = async (city) => { 
-                try { 
-                    const d = new Date(); 
-                    const res = await fetch(`https://api.aladhan.com/v1/timingsByCity/${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}?city=${city}&country=Turkey&method=13`); 
-                    const json = await res.json(); 
-                    if(json.data) setPrayerTimes(json.data.timings); 
-                } catch (e) { console.warn("Namaz vakitleri alınamadı"); } 
+            const getMinutes = (timeStr) => { if(!timeStr) return 0; const [h, m] = timeStr.split(':').map(Number); return h * 60 + m; };
+            const getDayKey = (dateStr) => { const d = new Date(dateStr); const map = ["Pazar", "Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi"]; return map[d.getDay()]; };
+
+            const checkConflict = (date, time) => {
+                const taskExists = tasks.find(t => t.date === date && t.time === time && t.id !== editingTask?.id);
+                if (taskExists) return `Çakışma: "${taskExists.title}"`;
+                const dayKey = getDayKey(date);
+                const daySchedule = schedule[dayKey];
+                if (daySchedule) {
+                    const taskMin = getMinutes(time);
+                    for(let i=0; i<daySchedule.length; i++) {
+                        if(daySchedule[i]) {
+                            const slotTime = timeSlots[i];
+                            const slotMin = getMinutes(slotTime);
+                            const duration = daySchedule[i].duration ? parseInt(daySchedule[i].duration) : 1;
+                            const lessonEndMin = slotMin + (duration * 60);
+                            if (taskMin >= slotMin && taskMin < lessonEndMin) return `Çakışma: "${daySchedule[i].name}" dersi!`;
+                        }
+                    }
+                }
+                return null;
             };
 
-            // --- TIMELINE MANTIĞI (ORİJİNAL) ---
+            const getTimeline = useCallback(() => {
+                const todayStr = new Date().toISOString().split('T')[0];
+                let list = tasks.filter(t => t.date === todayStr).map(t => ({ ...t, sortTime: t.time, displayType: t.category }));
+                if (prayerTimes && user?.enablePrayer) {
+                    const map = { Fajr: "İmsak", Sunrise: "Güneş", Dhuhr: "Öğle", Asr: "İkindi", Maghrib: "Akşam", Isha: "Yatsı" };
+                    Object.keys(map).forEach(k => {
+                        if(prayerTimes[k]) list.push({ id: `p-${k}`, title: map[k], time: prayerTimes[k], type: "prayer", displayType: "prayer", desc: "Vakit", sortTime: prayerTimes[k] });
+                    });
+                }
+                const dayKey = getDayKey(todayStr);
+                const dayLessons = schedule[dayKey];
+                if (dayLessons) {
+                    dayLessons.forEach((l, i) => {
+                        if (l && l.name) {
+                            const tStr = timeSlots[i] || "00:00";
+                            list.push({ id: `l-${i}`, title: l.name, time: tStr, type: "class", displayType: "class", lType: l.type, desc: LESSON_TYPES[l.type].label, classroom: l.classroom, sortTime: tStr });
+                        }
+                    });
+                }
+                return list.sort((a, b) => a.sortTime.localeCompare(b.sortTime));
+            }, [tasks, prayerTimes, user, schedule, timeSlots]);
+
+            // PANORAMIC TIMELINE - DEĞİŞİKLİK: 6 Saat Geri / 18 Saat İleri
             const getTimelineEvents = useCallback(() => {
                 const now = new Date();
                 const nowMinTotal = now.getHours() * 60 + now.getMinutes();
                 const windowStart = nowMinTotal - (6 * 60); 
                 const windowEnd = nowMinTotal + (18 * 60);
                 let events = [];
-
                 tasks.forEach(t => {
-                    if(!t.date || !t.time) return;
-                    const tDate = new Date(t.date); 
-                    const [h, m] = t.time.split(':').map(Number);
-                    const tMin = h*60 + m;
-                    const diffDays = Math.round((tDate.setHours(0,0,0,0) - new Date().setHours(0,0,0,0)) / (1000*60*60*24));
+                    const tDate = new Date(t.date); const tMin = getMinutes(t.time); const diffDays = Math.round((tDate.setHours(0,0,0,0) - new Date().setHours(0,0,0,0)) / (1000*60*60*24));
                     let relativeMin = tMin + (diffDays * 1440);
                     if (relativeMin >= windowStart && relativeMin <= windowEnd) {
                         events.push({ ...t, relativeMin, displayType: t.category });
                     }
                 });
-                
                 if (prayerTimes && user?.enablePrayer) {
                     const map = { Fajr: "İmsak", Sunrise: "Güneş", Dhuhr: "Öğle", Asr: "İkindi", Maghrib: "Akşam", Isha: "Yatsı" };
                     [-1, 0, 1].forEach(dayOffset => {
                         Object.keys(map).forEach(k => {
                             if(prayerTimes[k]) {
-                                const [h, m] = prayerTimes[k].split(':').map(Number);
-                                const tMin = (h*60+m) + (dayOffset * 1440);
+                                const tMin = getMinutes(prayerTimes[k]) + (dayOffset * 1440);
                                 if (tMin >= windowStart && tMin <= windowEnd) {
-                                    events.push({ id: `p-${k}-${dayOffset}`, title: map[k], time: prayerTimes[k], relativeMin: tMin, displayType: "prayer" });
+                                    events.push({ id: `p-${k}-${dayOffset}`, title: map[k], time: prayerTimes[k], relativeMin: tMin, displayType: "prayer", desc: dayOffset === 0 ? "Bugün" : (dayOffset === 1 ? "Yarın" : "Dün") });
                                 }
                             }
                         });
                     });
                 }
-                return events.sort((a, b) => a.relativeMin - b.relativeMin);
-            }, [tasks, prayerTimes, user]);
-
-            // --- FONKSİYONLAR ---
-            const handleAddTask = () => { 
-                if(!newTask.title) return; 
-                setTasks([...tasks, { ...newTask, id: Date.now() }]); 
-                setActiveModal(null); 
-                setNewTask({ title: "", date: "", time: "", desc: "", type: "task", category: "daily" }); 
-            };
-            const handleAddNote = () => { 
-                if(!newNote) return; 
-                setNotes([{id: Date.now(), text: newNote, date: new Date().toLocaleDateString()}, ...notes]); 
-                setNewNote(""); 
-            };
-            
-            const handleAddLesson = () => {
-                if(!newLesson.name || newLesson.daySchedules.length === 0) return alert("Ders adı ve günü giriniz.");
-                const newSchedule = {...schedule};
-                const batchId = Date.now();
-                newLesson.daySchedules.forEach(ds => {
-                    const startIdx = timeSlots.findIndex(t => t >= ds.startTime);
-                    const endIdx = timeSlots.findIndex(t => t >= ds.endTime);
-                    if(startIdx === -1) return;
-                    const duration = (endIdx === -1 ? timeSlots.length : endIdx) - startIdx;
-                    for(let i=0; i<duration; i++) {
-                        if(startIdx+i < 13) newSchedule[ds.day][startIdx+i] = {
-                            name: newLesson.name, type: newLesson.type, classroom: ds.classroom, batchId,
-                            startTime: ds.startTime, endTime: ds.endTime
-                        };
+                [-1, 0, 1].forEach(dayOffset => {
+                    const d = new Date(); d.setDate(d.getDate() + dayOffset);
+                    const dayKey = ["Pazar", "Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi"][d.getDay()];
+                    const dayLessons = schedule[dayKey];
+                    if (dayLessons) {
+                        dayLessons.forEach((l, i) => {
+                            if (l) {
+                                const tMin = getMinutes(timeSlots[i]) + (dayOffset * 1440);
+                                if (tMin >= windowStart && tMin <= windowEnd) events.push({ id: `l-${dayOffset}-${i}`, title: l.name, time: timeSlots[i], relativeMin: tMin, displayType: "class", lType: l.type, desc: LESSON_TYPES[l.type].label, classroom: l.classroom });
+                            }
+                        });
                     }
                 });
-                setSchedule(newSchedule);
-                setActiveModal(null);
-                setNewLesson({ name: "", type: "lisans", daySchedules: [] });
+                return events.sort((a, b) => a.relativeMin - b.relativeMin);
+            }, [tasks, prayerTimes, user, schedule, timeSlots]);
+
+            // LIST VIEW - DEĞİŞİKLİK: Geçmiş eventleri de dahil et (sönük göstermek için)
+             const getTimelineList = () => {
+                const events = getTimelineEvents();
+                // Eski filtreyi kaldırdım, sadece sayı limiti koydum
+                return events.slice(0, 25); 
             };
 
-            const exportData = () => {
-                const data = JSON.stringify({ version: "3.6", user, tasks, schedule, timeSlots, customScores, targetScore, notes, academicCalendarLink }, null, 2); 
+            useEffect(() => {
+                const tick = () => {
+                    const now = new Date(); setCurrentTime(now);
+                    setCurrentTimeStr(now.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}));
+                    
+                    const events = getTimelineEvents();
+                    const nowTotalMin = now.getHours() * 60 + now.getMinutes();
+
+                    // Cursor Color
+                    const nextEvent = events.find(ev => ev.relativeMin > nowTotalMin && ev.displayType !== 'prayer');
+                    if (nextEvent) {
+                        const diff = nextEvent.relativeMin - nowTotalMin;
+                        if (diff <= 60) setCursorColor("bg-red-500 shadow-[0_0_15px_red]");
+                        else if (diff <= 120) setCursorColor("bg-yellow-500 shadow-[0_0_10px_yellow]");
+                        else setCursorColor("bg-emerald-500 shadow-[0_0_10px_#10b981]");
+                    } else setCursorColor("bg-emerald-500 shadow-[0_0_10px_#10b981]");
+
+                    setProgress(50); 
+
+                    // Alarm
+                    const upcoming = events.find(ev => {
+                        const diff = ev.relativeMin - nowTotalMin;
+                        return diff > 0 && diff <= 5 && ev.displayType !== 'prayer';
+                    });
+                    if (upcoming && !dismissedAlerts.includes(upcoming.id)) {
+                        if (!alertState || alertState.id !== upcoming.id) {
+                            setAlertState(upcoming);
+                            try{ audioRef.current.play(); } catch(e){}
+                        }
+                    } else { if(alertState) setAlertState(null); }
+
+                    if(pomodoro.active && pomodoro.time > 0) setPomodoro(prev => ({...prev, time: prev.time - 1}));
+                    else if (pomodoro.active && pomodoro.time === 0) { setPomodoro({active: false, time: 25 * 60}); alert("Odaklanma Bitti!"); }
+                };
+                tick(); const timer = setInterval(tick, 1000); 
+                if (user?.enablePrayer && user?.city && !prayerTimes) fetchPrayerTimes(user.city);
+                return () => clearInterval(timer);
+            }, [getTimelineEvents, alertState, pomodoro.active, user, dismissedAlerts]);
+
+            const dismissAlert = () => { if (alertState) { setDismissedAlerts(prev => [...prev, alertState.id]); setAlertState(null); if(audioRef.current) { audioRef.current.pause(); audioRef.current.currentTime = 0; } } };
+            const fetchPrayerTimes = async (city) => { try { const d = new Date(); const res = await fetch(`https://api.aladhan.com/v1/timingsByCity/${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}?city=${city}&country=Turkey&method=13`); const json = await res.json(); if(json.data) setPrayerTimes(json.data.timings); } catch (e) { console.error(e); } };
+            const updateAcademicCalendar = (uniName) => { const newData = ACADEMIC_DATA[uniName] || ACADEMIC_DATA['default']; setCalendarEvents(newData); };
+            const handleUpdateUser = (e) => { e.preventDefault(); const fd = new FormData(e.target); const u = UNIVERSITIES.find(x => x.name === fd.get('uni')); if (!u) return; updateAcademicCalendar(u.name); setUser({ ...user, title: fd.get('title'), name: fd.get('name'), uni: u.name, city: u.city, url: u.url, enablePrayer: fd.get('enablePrayer') === 'on' }); setActiveModal(null); };
+            
+            const handleAddTask = () => { 
+                if(!newTask.title || !newTask.date) return;
+                
+                if (!conflictWarn) {
+                    let msg = checkConflict(newTask.date, newTask.time);
+                    if (isRecurring && !editingTask) { 
+                        const d = new Date(newTask.date);
+                        const check = checkConflict(d.toISOString().split('T')[0], newTask.time);
+                        if(check) msg = "Rutin Başlangıcında: " + check;
+                    }
+                    if (msg) { setConflictWarn(msg); return; }
+                }
+
+                if (editingTask) {
+                    setTasks(prev => prev.map(t => t.id === editingTask.id ? { ...newTask, id: t.id } : t));
+                    setEditingTask(null);
+                } else {
+                    let newTasks = []; 
+                    if (isRecurring) { 
+                        let currentDate = new Date(newTask.date);
+                        let increment = recurringPeriod === "weekly" ? 7 : recurringPeriod === "biweekly" ? 14 : 30;
+                        for(let i=0; i<recurringWeeks; i++) { 
+                            newTasks.push({...newTask, id: Date.now()+i, date: currentDate.toISOString().split('T')[0], category: newTask.category, title: newTask.title, time: newTask.time, desc: newTask.desc }); 
+                            currentDate.setDate(currentDate.getDate() + increment); 
+                        } 
+                    } else { newTasks.push({...newTask, id: Date.now()}); } 
+                    setTasks(prev => [...prev, ...newTasks]); 
+                }
+                
+                setActiveModal(null); setConflictWarn(null); setNewTask({title:"", date:"", time:"", desc:"", type:"task", category:"daily"}); setIsRecurring(false);
+                
+                // Yeni eklenen/güncellenen görev için bildirim zamanla
+                setTimeout(() => {
+                    const currentTasks = JSON.parse(localStorage.getItem('tasks_v46')) || [];
+                    scheduleAllNotifications(currentTasks);
+                }, 500);
+            };
+
+            const openEditTask = (task) => {
+                setNewTask(task);
+                setEditingTask(task);
+                setActiveModal('task');
+                setConflictWarn(null);
+            };
+
+            const deleteTask = (e, id) => { 
+                e.stopPropagation();
+                if(confirm("Görevi silmek istediğinize emin misiniz?")) { 
+                    setTasks(prev => prev.filter(t => t.id !== id)); 
+                    if (dayDetailData) {
+                         setDayDetailData(prev => ({...prev, events: prev.events.filter(ev => ev.id !== id)}));
+                    }
+                } 
+            };
+
+            const handleAddNote = () => { if(!newNote) return; setNotes([{id: Date.now(), text: newNote, date: new Date().toLocaleDateString()}, ...notes]); setNewNote(""); };
+            const exportData = () => { 
+                const data = JSON.stringify({ 
+                    version: "3.2",
+                    user, 
+                    tasks, 
+                    schedule, 
+                    timeSlots, 
+                    customScores, 
+                    targetScore, 
+                    notes, 
+                    calendarEvents 
+                }, null, 2); 
                 const blob = new Blob([data], {type: "text/plain"}); 
                 const url = URL.createObjectURL(blob); 
-                const a = document.createElement('a'); a.href = url; a.download = `akademik_yedek_${new Date().toISOString().split('T')[0]}.txt`; a.click(); 
+                const a = document.createElement('a'); 
+                a.href = url; 
+                a.download = `akademik_yedek_${new Date().toISOString().split('T')[0]}.txt`; 
+                a.click(); 
             };
-            
-            const importData = () => {
-                const input = document.createElement('input'); input.type = 'file'; input.accept = '.txt,.json'; 
+            const importData = () => { 
+                const input = document.createElement('input'); 
+                input.type = 'file'; 
+                input.accept = '.txt,.json'; 
                 input.onchange = (e) => { 
                     const file = e.target.files[0]; 
                     const reader = new FileReader(); 
                     reader.onload = (ev) => { 
                         try { 
                             const data = JSON.parse(ev.target.result); 
+                            console.log("Yüklenen veri:", data);
+                            
                             if(data.user) setUser(data.user); 
                             if(data.tasks) setTasks(data.tasks); 
-                            if(data.schedule) setSchedule(data.schedule);
+                            if(data.schedule) {
+                                console.log("Schedule yükleniyor:", data.schedule);
+                                setSchedule(data.schedule);
+                            }
+                            if(data.timeSlots) setTimeSlots(data.timeSlots); 
+                            if(data.customScores) setCustomScores(data.customScores); 
+                            if(data.targetScore) setTargetScore(data.targetScore); 
                             if(data.notes) setNotes(data.notes); 
-                            if(data.academicCalendarLink) setAcademicCalendarLink(data.academicCalendarLink);
-                            alert("Yedek başarıyla yüklendi!"); 
-                        } catch(err) { alert("Dosya bozuk."); } 
+                            if(data.calendarEvents) setCalendarEvents(data.calendarEvents); 
+                            
+                            alert("✅ Yedek başarıyla yüklendi!\n\n" +
+                                  "✔ Kullanıcı bilgileri\n" +
+                                  "✔ Görevler ve hatırlatıcılar\n" +
+                                  "✔ Ders programı (saat bilgileriyle)\n" +
+                                  "✔ Saat dilimleri\n" +
+                                  "✔ Puan cetveli\n" +
+                                  "✔ Notlar\n" +
+                                  "✔ Takvim etkinlikleri\n\n" +
+                                  "Sayfa yenileniyor...");
+                            setTimeout(() => window.location.reload(), 2000); 
+                        } catch(err) { 
+                            console.error("Yükleme hatası:", err);
+                            alert("❌ Hata! Dosya bozuk veya okunamıyor.\n\n" + err.message); 
+                        } 
                     }; 
                     reader.readAsText(file); 
                 }; 
                 input.click(); 
             };
-
+            
+            // PDF Export - RENKLİ
             const exportToPDF = () => {
                 try {
                     const { jsPDF } = window.jspdf;
                     const doc = new jsPDF();
-                    doc.setFontSize(16); doc.text(`${user.name} - Haftalık Program`, 105, 15, { align: 'center' });
-                    doc.setFontSize(10); doc.text(`${user.uni}`, 105, 22, { align: 'center' });
-                    let yPos = 35; const colWidth = 24; const rowHeight = 12;
-                    doc.setFontSize(8); doc.text('Saat', 15, yPos);
-                    Object.keys(schedule).forEach((day, i) => doc.text(day.substring(0, 3), 42 + (i * colWidth), yPos));
+                    
+                    // Başlık
+                    doc.setFontSize(16);
+                    doc.setTextColor(15, 23, 42); // Slate 900
+                    doc.text(`${user.name} - Haftalik Ders Programi`, 105, 15, { align: 'center' });
+                    doc.setFontSize(10);
+                    doc.text(`${user.uni}`, 105, 22, { align: 'center' });
+                    
+                    let yPos = 35;
+                    const colWidth = 24;
+                    const rowHeight = 12;
+                    
+                    // Tablo başlıkları
+                    doc.setFontSize(8);
+                    doc.setTextColor(0, 0, 0);
+                    doc.text('Saat', 15, yPos);
+                    const days = Object.keys(schedule);
+                    days.forEach((day, i) => {
+                        doc.text(day.substring(0, 3), 42 + (i * colWidth), yPos);
+                    });
+                    
                     yPos += 6;
+                    
+                    // Dersler - RENKLİ
                     timeSlots.forEach((time, slotIndex) => {
+                        doc.setTextColor(0, 0, 0);
+                        doc.setFontSize(8);
                         doc.text(time, 15, yPos);
-                        Object.keys(schedule).forEach((day, dayIndex) => {
+                        
+                        days.forEach((day, dayIndex) => {
                             const lesson = schedule[day][slotIndex];
                             if (lesson) {
                                 const x = 40 + (dayIndex * colWidth);
                                 const y = yPos - 4;
-                                if (lesson.type === 'lisans') doc.setFillColor(13, 148, 136);
-                                else if (lesson.type === 'yuksek') doc.setFillColor(79, 70, 229);
-                                else if (lesson.type === 'doktora') doc.setFillColor(147, 51, 234);
-                                else doc.setFillColor(245, 158, 11);
+                                
+                                // Ders tipine göre renk
+                                if (lesson.type === 'lisans') {
+                                    doc.setFillColor(13, 148, 136); // Teal
+                                } else if (lesson.type === 'yuksek') {
+                                    doc.setFillColor(79, 70, 229); // Indigo
+                                } else if (lesson.type === 'doktora') {
+                                    doc.setFillColor(147, 51, 234); // Purple
+                                } else if (lesson.type === 'seminer') {
+                                    doc.setFillColor(245, 158, 11); // Amber
+                                }
+                                
+                                // Renkli kutu
                                 doc.rect(x, y, colWidth - 2, rowHeight - 2, 'F');
-                                doc.setTextColor(255, 255, 255); doc.setFontSize(7);
+                                
+                                // Beyaz text
+                                doc.setTextColor(255, 255, 255);
+                                doc.setFontSize(7);
                                 doc.text(lesson.name.substring(0, 10), x + 1, yPos);
+                                
+                                if (lesson.classroom) {
+                                    doc.setFontSize(6);
+                                    doc.text(lesson.classroom, x + 1, yPos + 3);
+                                }
                             }
                         });
+                        
                         yPos += rowHeight;
-                        if (yPos > 270) { doc.addPage(); yPos = 20; }
+                        if (yPos > 270) {
+                            doc.addPage();
+                            yPos = 20;
+                        }
                     });
+                    
                     doc.save(`${user.name}_program.pdf`);
-                } catch (err) { alert('PDF hatası: ' + err.message); }
+                    alert('✅ RENKLİ PDF indirildi!');
+                } catch (err) {
+                    alert('❌ PDF hatası: ' + err.message);
+                }
+            };
+            
+            // ICS Export
+            const exportToICS = () => {
+                try {
+                    let ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Akademik Asistan'];
+                    
+                    tasks.forEach(task => {
+                        const d = task.date.replace(/-/g, '');
+                        const t = task.time ? task.time.replace(':', '') + '00' : '090000';
+                        ics.push('BEGIN:VEVENT');
+                        ics.push(`UID:${task.id}@app`);
+                        ics.push(`DTSTART:${d}T${t}`);
+                        ics.push(`SUMMARY:${task.title}`);
+                        if (task.desc) ics.push(`DESCRIPTION:${task.desc}`);
+                        ics.push('END:VEVENT');
+                    });
+                    
+                    const dayMap = {
+                        'Pazartesi': 'MO', 'Sali': 'TU', 'Carsamba': 'WE',
+                        'Persembe': 'TH', 'Cuma': 'FR', 'Cumartesi': 'SA', 'Pazar': 'SU'
+                    };
+                    
+                    Object.keys(schedule).forEach(day => {
+                        schedule[day].forEach((lesson) => {
+                            if (lesson && lesson.startTime) {
+                                const st = lesson.startTime.replace(':', '') + '00';
+                                const et = lesson.endTime.replace(':', '') + '00';
+                                const d = new Date().toISOString().split('T')[0].replace(/-/g, '');
+                                ics.push('BEGIN:VEVENT');
+                                ics.push(`UID:${lesson.batchId}-${day}@app`);
+                                ics.push(`DTSTART:${d}T${st}`);
+                                ics.push(`DTEND:${d}T${et}`);
+                                ics.push(`SUMMARY:${lesson.name}`);
+                                if (lesson.classroom) ics.push(`LOCATION:${lesson.classroom}`);
+                                ics.push(`RRULE:FREQ=WEEKLY;BYDAY=${dayMap[day]};COUNT=30`);
+                                ics.push('END:VEVENT');
+                            }
+                        });
+                    });
+                    
+                    ics.push('END:VCALENDAR');
+                    
+                    const blob = new Blob([ics.join('\r\n')], { type: 'text/calendar' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `takvim_${new Date().toISOString().split('T')[0]}.ics`;
+                    a.click();
+                    
+                    alert('✅ ICS indirildi!\n\nGoogle Calendar: Import\niPhone: Dosyayı aç');
+                } catch (err) {
+                    alert('❌ ICS hatası: ' + err.message);
+                }
+            };
+            
+            const handleFileUpload = (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { const content = e.target.result; const lines = content.split(/\r\n|\n|\r/); let events = []; let currentEvent = null; lines.forEach(line => { if (line.startsWith('BEGIN:VEVENT')) currentEvent = {}; else if (line.startsWith('END:VEVENT')) { if (currentEvent && currentEvent.SUMMARY && currentEvent.DTSTART) { const rawDate = currentEvent.DTSTART.replace('VALUE=DATE:',''); const y = rawDate.substring(0,4); const m = rawDate.substring(4,6); const d = rawDate.substring(6,8); const h = rawDate.length > 8 ? rawDate.substring(9,11) : "08"; const min = rawDate.length > 8 ? rawDate.substring(11,13) : "00"; events.push({ id: Date.now() + Math.random(), title: currentEvent.SUMMARY, date: `${y}-${m}-${d}`, time: `${h}:${min}`, desc: "Takvimden", type: "task", category: "official", origin: "imported" }); } currentEvent = null; } else if (currentEvent) { const [key, val] = line.split(':'); if(key) currentEvent[key.split(';')[0]] = val; } }); setTasks([...tasks, ...events]); alert(`${events.length} etkinlik eklendi.`); }; reader.readAsText(file); };
+            const handleDayClick = (dateStr, events) => { if (events.length > 0) { setDayDetailData({date: dateStr, events}); setActiveModal('dayDetail'); } else { setNewTask({ title: "", date: dateStr, time: "09:00", desc: "", type: "task", category: "daily" }); setActiveModal('task'); } };
+            
+            // YENİ: Özel günleri her yıl tekrarlayan fonksiyon
+            const getAllEvents = () => { 
+                const academicEvents = calendarEvents.map(e => ({ ...e, origin: 'academic', title: e.event, category: 'academic' })); 
+                const userEvents = tasks.map(t => ({ ...t, event: t.title, origin: t.origin || 'personal', category: t.category }));
+                
+                // Özel günleri döngüsel olarak ekle
+                const recurringSpecialEvents = [];
+                const currentYear = new Date().getFullYear();
+                const specialDays = tasks.filter(t => t.category === 'special');
+                
+                // 3 yıl öncesinden 3 yıl sonrasına kadar göster
+                for (let yearOffset = -3; yearOffset <= 3; yearOffset++) {
+                    specialDays.forEach(day => {
+                        const originalDate = new Date(day.date);
+                        const month = String(originalDate.getMonth() + 1).padStart(2, '0');
+                        const dayNum = String(originalDate.getDate()).padStart(2, '0');
+                        const newYear = currentYear + yearOffset;
+                        const newDate = `${newYear}-${month}-${dayNum}`;
+                        
+                        // Orijinal tarihi ekleme (zaten userEvents'te var)
+                        if (newDate !== day.date) {
+                            recurringSpecialEvents.push({
+                                ...day,
+                                date: newDate,
+                                event: day.title,
+                                id: `${day.id}-${newYear}`,
+                                isRecurring: true
+                            });
+                        }
+                    });
+                }
+                
+                return [...academicEvents, ...userEvents, ...recurringSpecialEvents]; 
+            };
+            
+            const saveLesson = () => { 
+                const { day, index, data } = editingLesson; 
+                const newSchedule = { ...schedule }; 
+                const duration = data.duration ? parseInt(data.duration) : 1;
+                if (!duration) return; 
+
+                if (index + duration > 13) { alert("Ders günün bitiş saatini aşıyor!"); return; } 
+                const batchId = data.batchId || Date.now(); 
+                for (let i = 0; i < duration; i++) { 
+                    newSchedule[day][index + i] = { ...data, duration: 1, batchId: batchId }; 
+                } 
+                setSchedule(newSchedule); setActiveModal(null); 
+            };
+            
+            const deleteLesson = () => { 
+                const { day, index, data } = editingLesson; 
+                if (!data) { setActiveModal(null); return; } 
+                const newSchedule = { ...schedule }; 
+                if (data.batchId) { 
+                    if (confirm(`"${data.name}" dersinin tümünü sil?`)) { Object.keys(newSchedule).forEach(d => { newSchedule[d] = newSchedule[d].map(l => (l && l.batchId === data.batchId) ? null : l); }); } 
+                    else { newSchedule[day][index] = null; } 
+                } else { newSchedule[day][index] = null; } 
+                setSchedule(newSchedule); setActiveModal(null); 
             };
 
-            // --- RENDER START ---
-            if (!isLoaded) return null; // Loader HTML'de var, React render etmesin
+            const handleAddNewLesson = () => {
+                if (!newLesson.name || newLesson.daySchedules.length === 0) {
+                    alert("Lütfen ders adını girin ve en az bir gün için saat aralığı ekleyin!");
+                    return;
+                }
+
+                const batchId = Date.now();
+                const newSchedule = { ...schedule };
+
+                newLesson.daySchedules.forEach(daySchedule => {
+                    const { day, startTime, endTime, classroom } = daySchedule;
+                    const startMin = getMinutes(startTime);
+                    const endMin = getMinutes(endTime);
+                    
+                    if (endMin <= startMin) {
+                        alert(`${day} için bitiş saati başlangıç saatinden sonra olmalı!`);
+                        return;
+                    }
+
+                    const durationHours = Math.ceil((endMin - startMin) / 60);
+                    
+                    let startSlotIndex = -1;
+                    for (let i = 0; i < timeSlots.length; i++) {
+                        if (getMinutes(timeSlots[i]) >= startMin) {
+                            startSlotIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (startSlotIndex === -1) {
+                        alert(`${day} günü için uygun zaman dilimi bulunamadı!`);
+                        return;
+                    }
+
+                    for (let i = 0; i < durationHours && (startSlotIndex + i) < timeSlots.length; i++) {
+                        newSchedule[day][startSlotIndex + i] = {
+                            name: newLesson.name,
+                            type: newLesson.type,
+                            classroom: classroom || "",
+                            duration: 1,
+                            batchId: batchId,
+                            startTime: startTime,
+                            endTime: endTime
+                        };
+                    }
+                });
+
+                setSchedule(newSchedule);
+                setActiveModal(null);
+                setNewLesson({
+                    name: "",
+                    type: "lisans",
+                    daySchedules: []
+                });
+            };
+
+            const addDaySchedule = () => {
+                setNewLesson(prev => ({
+                    ...prev,
+                    daySchedules: [...prev.daySchedules, { day: "Pazartesi", startTime: "09:00", endTime: "10:00", classroom: "" }]
+                }));
+            };
+
+            const updateDaySchedule = (index, field, value) => {
+                setNewLesson(prev => ({
+                    ...prev,
+                    daySchedules: prev.daySchedules.map((ds, i) => 
+                        i === index ? { ...ds, [field]: value } : ds
+                    )
+                }));
+            };
+
+            const removeDaySchedule = (index) => {
+                setNewLesson(prev => ({
+                    ...prev,
+                    daySchedules: prev.daySchedules.filter((_, i) => i !== index)
+                }));
+            };
+
+            const renderTimelineBar = () => {
+                const events = getTimelineEvents(); 
+                const nowMin = currentTime.getHours() * 60 + currentTime.getMinutes(); 
+                
+                // DEĞİŞİKLİK: 6 Saat Geri / 18 Saat İleri
+                const windowStart = nowMin - (6 * 60); 
+                const windowTotal = 1440; // 24 saat
+
+                return (
+                    <div className="h-16 relative w-full overflow-hidden flex items-center bg-slate-900 rounded-xl border border-slate-700 shadow-inner">
+                        <div className="absolute top-1/2 left-0 w-full h-px bg-slate-600/50"></div>
+                        {/* DEĞİŞİKLİK: İmleç %25 konumunda (6/24 = 0.25) */}
+                        <div className={`absolute top-0 bottom-0 w-1 z-30 left-[25%] transition-colors duration-500 ${cursorColor}`}></div>
+                        {events.map(ev => {
+                            let diff = ev.relativeMin - windowStart; 
+                            const positionPct = (diff / windowTotal) * 100;
+                            
+                            if (positionPct < 0 || positionPct > 100) return null;
+                            
+                            // Geçmiş görev kontrolü
+                            const isPast = ev.relativeMin < nowMin;
+                            const opacityClass = isPast ? "opacity-30" : "opacity-100";
+                            
+                            let nodeColor = "bg-gray-500"; 
+                            if (ev.displayType === 'prayer') nodeColor = "bg-white w-0.5 h-full rounded-none top-0 translate-y-0";
+                            else { 
+                                if (ev.displayType === 'daily' || ev.displayType === 'task') nodeColor = "bg-blue-500 w-3 h-3 rounded-full border-2 border-slate-900"; 
+                                else if (ev.displayType === 'official') nodeColor = "bg-amber-500 w-3 h-3 rounded-full border-2 border-slate-900"; 
+                                else if (ev.displayType === 'special') nodeColor = "bg-pink-500 w-3 h-3 rounded-full border-2 border-slate-900"; 
+                                else if (ev.displayType === 'class') nodeColor = "bg-emerald-500 w-3 h-3 rounded-full border-2 border-slate-900";
+                            }
+
+                            let pulseClass = ""; if ((ev.relativeMin - nowMin) > 0 && (ev.relativeMin - nowMin) < 120 && ev.displayType !== 'prayer') pulseClass = "animate-pulse scale-125"; 
+                            return (<div key={ev.id} className={`absolute top-1/2 -translate-y-1/2 z-20 cursor-pointer ${nodeColor} ${pulseClass} ${opacityClass} transition-opacity duration-500`} style={{left: `${positionPct}%`}} onClick={() => { if(ev.displayType!=='prayer'&&ev.displayType!=='class') openEditTask(ev); else setSelectedNode(ev); }}></div>);
+                        })}
+                    </div>
+                );
+            };
+
+            const totalCalculated = customScores.reduce((acc, curr) => acc + ( (parseInt(curr.value)||0) * (parseInt(curr.count)||0) ), 0);
+            const appClass = isScreenshotMode ? "screenshot-mode bg-white min-h-screen text-black" : "max-w-md mx-auto min-h-screen bg-[#0f172a] pb-24 relative shadow-2xl overflow-hidden text-slate-100";
 
             if (!user) {
                 return (
                     <div className="min-h-screen flex items-center justify-center p-6 bg-[#0f172a]">
                         <div className="w-full max-w-md glass p-8 rounded-2xl shadow-2xl">
                             <h1 className="text-2xl font-bold text-white mb-2 text-center">Akademik Asistan</h1>
-                            <p className="text-center text-slate-400 mb-6 text-sm">V3.6 FINAL • Tüm Özellikler Aktif</p>
+                            <p className="text-center text-slate-400 mb-6 text-sm">V3.2 • Renkli PDF • TXT Yedek • APK OK • Zaphyros</p>
                             <form onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.target); const u = UNIVERSITIES.find(x => x.name === fd.get('uni')); if (!u) return; setUser({ title: fd.get('title'), name: fd.get('name'), uni: u.name, city: u.city, url: u.url, enablePrayer: fd.get('enablePrayer') === 'on' }); }} className="space-y-4">
                                 <select name="title" className="w-full input-dark p-3 rounded-lg">{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select>
                                 <input name="name" required placeholder="Ad Soyad" className="w-full input-dark p-3 rounded-lg" />
@@ -441,99 +1153,200 @@
             }
 
             return (
-                <div className={isScreenshotMode ? "screenshot-mode p-4" : "max-w-md mx-auto min-h-screen bg-[#0f172a] pb-24 relative shadow-2xl overflow-hidden text-slate-100"}>
+                <div className={appClass} onClick={() => isScreenshotMode && setIsScreenshotMode(false)}>
+                    <audio ref={audioRef} src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+                    
+                    {alertState && !isScreenshotMode && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-red-900/95 backdrop-blur-md animate-flash">
+                            <div className="bg-white text-red-700 p-6 rounded-3xl shadow-2xl text-center max-w-sm mx-4 transform scale-110">
+                                <i className="fas fa-exclamation-triangle text-6xl mb-4 animate-bounce"></i>
+                                <h1 className="text-3xl font-bold mb-1">DİKKAT!</h1>
+                                <p className="text-2xl font-bold text-black mb-2">{alertState.time}</p>
+                                <p className="text-lg font-semibold">{alertState.title}</p>
+                                <button onClick={dismissAlert} className="mt-6 w-full bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700 transition shadow-lg">TAMAM, ANLAŞILDI</button>
+                            </div>
+                        </div>
+                    )}
                     
                     {/* Header */}
-                    <div className="pt-10 pb-6 px-6 bg-slate-900 rounded-b-[40px] shadow-lg border-b border-blue-900/30 relative no-screenshot">
-                        <div className="absolute top-3 right-5 text-white/50 text-[10px] signature">Ömer Faruk Erdem</div>
+                    <div className="pt-10 pb-6 px-6 bg-gradient-to-br from-blue-900 via-slate-900 to-slate-900 rounded-b-[40px] shadow-lg border-b border-blue-900/30 no-print z-20 relative no-screenshot">
+                        <div className="absolute top-3 right-5 text-white/50 text-[10px] tracking-tighter signature z-50 leading-none pointer-events-none">Ömer Faruk Erdem</div>
                         <div className="flex justify-between items-start">
                             <div><h2 className="text-xl font-bold text-white">{user.name}</h2><div className="text-xs text-blue-300 mt-1">{user.title}</div></div>
                             <div className="flex items-center gap-2">
+                                {notifPermission === 'granted' ? 
+                                    <div className="w-6 h-6 rounded-full bg-green-900/50 flex items-center justify-center" title="Bildirimler Aktif"><i className="fas fa-bell text-green-400 text-[10px]"></i></div> :
+                                    <button onClick={async () => { const g = await requestNotificationPermission(); setNotifPermission(Notification.permission); if(g) scheduleAllNotifications(tasks); }} className="w-6 h-6 rounded-full bg-red-900/50 flex items-center justify-center animate-pulse" title="Bildirimleri Etkinleştir"><i className="fas fa-bell-slash text-red-400 text-[10px]"></i></button>
+                                }
                                 <button onClick={() => setActiveModal('settings')} className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center hover:text-blue-400"><i className="fas fa-cog text-xs"></i></button>
                             </div>
                         </div>
                         <div className="mt-6 relative">
                             <div className="flex justify-between text-[10px] text-blue-200 font-mono mb-1"><span>-6s</span><span className="animate-pulse text-white font-bold">{currentTimeStr}</span><span>+18s</span></div>
-                            <div className="h-16 relative w-full overflow-hidden flex items-center bg-slate-900 rounded-xl border border-slate-700 shadow-inner">
-                                <div className="absolute top-1/2 left-0 w-full h-px bg-slate-600/50"></div>
-                                <div className="absolute top-0 bottom-0 w-1 z-30 left-[25%] bg-emerald-500 shadow-[0_0_10px_#10b981]"></div>
-                                {getTimelineEvents().map(ev => {
-                                    const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
-                                    const windowStart = nowMin - (6 * 60);
-                                    const positionPct = ((ev.relativeMin - windowStart) / 1440) * 100;
-                                    if (positionPct < 0 || positionPct > 100) return null;
-                                    let nodeColor = "bg-gray-500"; 
-                                    if (ev.displayType === 'prayer') nodeColor = "bg-white w-0.5 h-full rounded-none top-0";
-                                    else if (ev.displayType === 'daily') nodeColor = "bg-blue-500 w-3 h-3 rounded-full border-2 border-slate-900"; 
-                                    return (<div key={ev.id} className={`absolute top-1/2 -translate-y-1/2 z-20 ${nodeColor}`} style={{left: `${positionPct}%`}}></div>);
-                                })}
-                            </div>
+                            {renderTimelineBar()}
+                            {selectedNode && (<div className="mt-2 bg-slate-800 p-2 rounded border border-slate-600 text-xs flex justify-between items-center animate-enter">
+                                <div>
+                                    <span className="font-bold text-blue-300">{selectedNode.time}</span> - {selectedNode.title}
+                                    {selectedNode.classroom && <span className="text-slate-400 ml-2">• {selectedNode.classroom}</span>}
+                                </div>
+                                <button onClick={() => setSelectedNode(null)}><i className="fas fa-times"></i></button>
+                            </div>)}
                         </div>
                     </div>
 
                     <div className="p-4 space-y-4 no-screenshot">
-                        {/* VIEW: FLOW */}
+                        {/* AKIŞ */}
                         {view === 'flow' && (
                             <div className="animate-enter space-y-3">
-                                <h3 className="text-sm font-bold text-slate-400 uppercase border-b border-slate-700 pb-2 mb-4">Akış</h3>
-                                {getTimelineEvents().slice(0, 15).map((item, i) => (
-                                    <div key={i} className={`glass rounded-lg flex overflow-hidden border-l-4 ${item.displayType==='prayer'?'border-white opacity-60':'border-blue-500'}`}>
-                                        <div className="flex-1 p-3 flex items-center gap-3">
-                                            <div className="text-center min-w-[50px] font-mono font-bold text-lg text-slate-300">{item.time}</div>
-                                            <div className="flex-1"><div className="font-bold text-sm text-white">{item.title}</div></div>
-                                        </div>
-                                    </div>
-                                ))}
+                                <h3 className="text-sm font-bold text-slate-400 uppercase border-b border-slate-700 pb-2 mb-4 ml-1">Günlük Akış (Yaklaşan)</h3>
+                                {getTimelineList().length === 0 ? <div className="text-center py-12 opacity-30 text-sm border-2 border-dashed border-slate-700 rounded-xl">Akış boş.</div> : 
+                                    getTimelineList().map((item, i) => { 
+                                        let borderClass = 'border-slate-600 opacity-50'; 
+                                        if (item.displayType === 'prayer') borderClass = 'border-white'; 
+                                        else if (item.displayType === 'daily' || item.displayType === 'task') borderClass = 'border-blue-500'; 
+                                        else if (item.displayType === 'official') borderClass = 'border-amber-500'; 
+                                        else if (item.displayType === 'special') borderClass = 'border-pink-500';
+                                        else if (item.displayType === 'class') borderClass = 'border-emerald-500'; 
+                                        
+                                        // DEĞİŞİKLİK: Süresi geçen görevleri sönükleştir
+                                        const nowTotalMin = new Date().getHours() * 60 + new Date().getMinutes();
+                                        const isPast = item.relativeMin < nowTotalMin;
+                                        const opacityClass = isPast ? 'opacity-40 grayscale' : 'opacity-100';
+
+                                        return (
+                                            <div key={i} className={`glass rounded-lg flex overflow-hidden border-l-4 ${borderClass} ${opacityClass}`}>
+                                                <div className="flex-1 p-3 flex items-center gap-3 cursor-pointer" onClick={() => { if(item.displayType!=='prayer'&&item.displayType!=='class') openEditTask(item) }}>
+                                                    <div className="text-center min-w-[50px] font-mono font-bold text-lg text-slate-300">{item.time}</div>
+                                                    <div className="flex-1">
+                                                        <div className="font-bold text-sm text-white">{item.title}</div>
+                                                        <div className="text-xs text-slate-500">
+                                                            {item.desc}
+                                                            {item.classroom && <span className="ml-2">• {item.classroom}</span>}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                {item.displayType !== 'prayer' && item.displayType !== 'class' && (
+                                                    <button 
+                                                        onClick={(e) => deleteTask(e, item.id)} 
+                                                        className="w-12 bg-red-900/20 hover:bg-red-900/50 flex items-center justify-center text-red-400 border-l border-white/5 active:bg-red-800 transition-colors z-10"
+                                                        style={{zIndex: 50}}
+                                                    >
+                                                        <i className="fas fa-trash-alt pointer-events-none"></i>
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ) 
+                                    })
+                                }
                             </div>
                         )}
-
-                        {/* VIEW: HOME */}
+                        
+                        {/* HOME */}
                         {view === 'home' && (
                             <div className="animate-enter space-y-4">
-                                <button 
-                                    onClick={() => {
-                                        if (!academicCalendarLink) {
-                                            const link = prompt("Akademik Takvim Linki:", "https://");
-                                            if (link) { setAcademicCalendarLink(link); alert("Kaydedildi!"); }
-                                        } else {
-                                            if(confirm("Takvime gitmek için TAMAM, linki düzenlemek için İPTAL")) window.open(academicCalendarLink, '_blank');
-                                            else { const l = prompt("Yeni Link:", academicCalendarLink); if(l) setAcademicCalendarLink(l); }
-                                        }
-                                    }}
-                                    className="w-full bg-slate-800 border border-slate-600 text-blue-300 p-4 rounded-xl flex items-center justify-between hover:bg-slate-700 transition shadow-lg"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <i className="fas fa-calendar-alt text-2xl text-red-400"></i>
-                                        <div className="text-left"><div className="text-xs text-slate-400">{academicCalendarLink ? 'Link Kayıtlı' : 'Link Ekle'}</div><div className="text-base font-bold text-white">Akademik Takvim</div></div>
-                                    </div>
-                                </button>
+                                {user.url && (
+                                    <button 
+                                        onClick={() => {
+                                            if (!academicCalendarLink) {
+                                                // Link yoksa sor
+                                                const link = prompt("📅 Akademik Takvim Linki\n\nÜniversitenizin akademik takvim sayfasının linkini girin:", "https://");
+                                                if (link && link.trim() !== "" && link.trim() !== "https://") {
+                                                    setAcademicCalendarLink(link.trim());
+                                                    alert("✅ Link kaydedildi!");
+                                                }
+                                            } else {
+                                                // Link varsa seçenek sun
+                                                const choice = confirm("📅 Akademik Takvim\n\n✅ Kayıtlı Link Var\n\n[Tamam] = Takvime Git\n[İptal] = Linki Düzenle");
+                                                if (choice) {
+                                                    // Git
+                                                    window.open(academicCalendarLink, '_blank');
+                                                } else {
+                                                    // Düzenle
+                                                    const newLink = prompt("📅 Akademik Takvim Linkini Düzenle", academicCalendarLink);
+                                                    if (newLink && newLink.trim() !== "") {
+                                                        setAcademicCalendarLink(newLink.trim());
+                                                        alert("✅ Link güncellendi!");
+                                                    }
+                                                }
+                                            }
+                                        }}
+                                        className="w-full bg-slate-800 border border-slate-600 text-blue-300 p-4 rounded-xl flex items-center justify-between hover:bg-slate-700 transition shadow-lg mb-2"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-10 h-10 rounded-full bg-red-900/50 flex items-center justify-center text-white text-xl"><i className="fas fa-calendar-alt"></i></div>
+                                            <div className="text-left">
+                                                <div className="text-xs text-slate-400">{academicCalendarLink ? '✅ Link Kayıtlı' : 'Link Ekle'}</div>
+                                                <div className="text-base font-bold text-white">📅 Akademik Takvim</div>
+                                            </div>
+                                        </div>
+                                        <i className={`fas ${academicCalendarLink ? 'fa-external-link-alt' : 'fa-plus-circle'} opacity-50`}></i>
+                                    </button>
+                                )}
                                 <div className="grid grid-cols-2 gap-4">
-                                    <button onClick={() => setActiveModal('task')} className="bg-gradient-to-br from-blue-600 to-blue-700 text-white p-6 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg"><i className="fas fa-bell text-2xl"></i><span className="font-bold text-xs">HATIRLATICI</span></button>
-                                    <button onClick={() => setActiveModal('notes')} className="bg-slate-700 text-white p-6 rounded-xl flex flex-col items-center justify-center gap-2 border border-slate-600 shadow-lg"><i className="fas fa-sticky-note text-2xl text-yellow-400"></i><span className="font-bold text-xs">NOTLAR</span></button>
+                                    <button onClick={() => { const today = new Date().toISOString().split('T')[0]; setNewTask({title:"", date:today, time:"", desc:"", type:"task", category:"daily"}); setActiveModal('task'); setConflictWarn(null); }} className="bg-gradient-to-br from-blue-600 to-blue-700 text-white p-6 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition">
+                                        <i className="fas fa-bell text-2xl"></i>
+                                        <span className="font-bold text-xs tracking-wide">HATIRLATICI</span>
+                                    </button>
+                                    <button onClick={() => setActiveModal('notes')} className="bg-slate-700 text-white p-6 rounded-xl flex flex-col items-center justify-center gap-2 border border-slate-600 shadow-lg active:scale-95 transition">
+                                        <i className="fas fa-sticky-note text-2xl text-yellow-400"></i>
+                                        <span className="font-bold text-xs tracking-wide">NOT DEFTERİ</span>
+                                    </button>
                                 </div>
-                                <button onClick={() => setActiveModal('addLesson')} className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 p-4 rounded-xl flex items-center justify-center gap-3 hover:from-emerald-700 transition shadow-lg"><i className="fas fa-plus-circle text-xl"></i><span className="font-bold text-sm">YENİ DERS EKLE</span></button>
+                                <button onClick={() => setView('schedule')} className="w-full bg-slate-800 p-4 rounded-xl flex items-center justify-between border border-slate-700 hover:bg-slate-700 transition shadow-lg">
+                                    <span className="font-bold text-sm">Haftalık Ders Programı</span>
+                                    <i className="fas fa-chevron-right text-slate-500"></i>
+                                </button>
+                                <button onClick={() => { setNewLesson({ name: "", type: "lisans", daySchedules: [] }); setActiveModal('addLesson'); }} className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 p-4 rounded-xl flex items-center justify-center gap-3 hover:from-emerald-700 hover:to-emerald-800 transition shadow-lg">
+                                    <i className="fas fa-plus-circle text-xl"></i>
+                                    <span className="font-bold text-sm">YENİ DERS EKLE</span>
+                                </button>
                             </div>
                         )}
-
-                        {/* VIEW: SCHEDULE */}
+                        
+                        {/* OTHER VIEWS */}
+                        {view === 'annual' && (<div className="animate-enter pb-16"><div className="flex justify-between items-center mb-4"><h3 className="text-slate-300 font-bold text-sm uppercase">Yıllık Takvim</h3><div className="flex gap-2"><button onClick={() => window.open(user.url, '_blank')} className="text-[10px] bg-red-900 px-3 py-1.5 rounded border border-red-700 hover:text-white transition">Üni. Web</button><button onClick={() => fileInputRef.current.click()} className="text-[10px] bg-slate-800 px-3 py-1.5 rounded border border-slate-700 hover:border-blue-500 hover:text-white transition">ICS Yükle</button><input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".ics" /></div></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{Array.from({length: 12}, (_, i) => i).map(monthIdx => { const year = new Date().getFullYear(); const date = new Date(year, monthIdx, 1); const monthName = date.toLocaleString('tr-TR', { month: 'long' }); const daysInMonth = new Date(year, monthIdx + 1, 0).getDate(); const startDay = new Date(year, monthIdx, 1).getDay(); const offset = startDay === 0 ? 6 : startDay - 1; const today = new Date(); const isCurrentMonth = today.getMonth() === monthIdx && today.getFullYear() === year; const currentDay = today.getDate(); return (<div key={monthIdx} className="glass rounded-lg border border-slate-700 overflow-hidden"><div className="bg-slate-800 p-2 text-center font-bold text-blue-200 text-xs uppercase">{monthName}</div><div className="grid grid-cols-7 text-[9px] text-slate-500 text-center py-1 bg-slate-900/30"><span>Pt</span><span>Sa</span><span>Ça</span><span>Pe</span><span>Cu</span><span>Ct</span><span>Pa</span></div><div className="grid grid-cols-7 gap-px bg-slate-800 p-px">{Array(offset).fill(null).map((_,k)=><div key={`e-${k}`} className="bg-slate-900 h-6"></div>)}{Array(daysInMonth).fill(null).map((_,k)=>{ const d = k+1; const dStr = `${year}-${String(monthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; const events = getAllEvents().filter(e => e.date === dStr); let bg = "bg-slate-900 hover:bg-slate-700"; let text = "text-slate-500"; if (isCurrentMonth && d === currentDay) { bg = "bg-cyan-500 shadow-lg shadow-cyan-500/50 z-10 scale-110 rounded"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'academic')) { bg = "bg-red-900"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'special')) { bg = "bg-pink-700"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'official')) { bg = "bg-amber-700"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'daily')) { bg = "bg-blue-900"; text = "text-white font-bold"; } return (<button key={d} onClick={() => handleDayClick(dStr, events)} className={`h-6 flex items-center justify-center text-[9px] ${bg} ${text}`}>{d}</button>) })}</div></div>) })}</div></div>)}
                         {view === 'schedule' && (
                             <div className="animate-enter glass rounded-xl overflow-hidden border border-slate-700">
                                 <div className="p-3 bg-slate-800/50 flex justify-between items-center no-screenshot">
                                     <div className="text-xs font-bold text-slate-400 uppercase">Haftalık Program</div>
-                                    <button onClick={() => setIsScreenshotMode(!isScreenshotMode)} className="bg-blue-600 text-white px-3 py-1.5 rounded text-[10px] font-bold">Ekran Görüntüsü</button>
+                                    <button onClick={() => setIsScreenshotMode(true)} className="bg-blue-600 text-white px-3 py-1.5 rounded text-[10px] font-bold hover:bg-blue-500 flex items-center gap-1">
+                                        <i className="fas fa-camera"></i> Ekran Görüntüsü Modu
+                                    </button>
                                 </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-xs border-collapse">
-                                        <thead className="bg-slate-900 text-slate-400"><tr><th className="p-2 w-16 border border-slate-800 text-center">Saat</th>{Object.keys(schedule).map(d=><th key={d} className="p-2 min-w-[80px] border border-slate-800 text-center">{d.substring(0,3)}</th>)}</tr></thead>
-                                        <tbody>
+                                        <thead className="bg-slate-900 text-slate-400">
+                                            <tr>
+                                                <th className="p-2 w-16 border border-slate-800 text-center">Saat</th>
+                                                {Object.keys(schedule).map(d=><th key={d} className="p-2 min-w-[80px] border border-slate-800 text-center">{d.substring(0,3)}</th>)}
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-800">
                                             {timeSlots.map((t, i) => (
                                                 <tr key={i} className="hover:bg-white/5">
-                                                    <td className="p-1 border border-slate-800 text-center"><input className="w-full bg-transparent text-center text-slate-500 font-mono" value={t} onChange={e=>{const n=[...timeSlots];n[i]=e.target.value;setTimeSlots(n)}} /></td>
+                                                    <td className="p-1 border border-slate-800 text-center">
+                                                        <input type="time" className="w-full bg-transparent text-center text-slate-500 rounded p-1 focus:text-white outline-none font-mono" value={t} onChange={e=>{const n=[...timeSlots];n[i]=e.target.value;setTimeSlots(n)}} />
+                                                    </td>
                                                     {Object.keys(schedule).map(d => { 
                                                         const l = schedule[d][i]; 
                                                         return (
-                                                            <td key={d} className="p-1 border border-slate-800 h-12 relative cursor-pointer" onClick={()=>{ setEditingLesson({day:d, index:i, data: l || {name:"",type:"lisans"}}); setActiveModal('lesson'); }}>
-                                                                {l && <div className={`w-full h-full rounded flex flex-col items-center justify-center text-center p-1 text-[9px] font-bold shadow-sm ${LESSON_TYPES[l.type].className}`}>{l.name}<br/>{l.classroom}</div>}
+                                                            <td key={d} className="p-1 border border-slate-800 h-12 relative cursor-pointer" onClick={() => { 
+                                                                if(!isScreenshotMode){ 
+                                                                    setEditingLesson({day:d, index:i, data:l ? { ...l, duration: l.duration || "" } : {name:"",type:"lisans", duration: "", classroom: ""}}); 
+                                                                    setActiveModal('lesson'); 
+                                                                } 
+                                                            }}>
+                                                                {l ? 
+                                                                    <div className={`w-full h-full rounded flex flex-col items-center justify-center text-center p-1 text-[9px] font-light shadow-sm ${LESSON_TYPES[l.type].className}`} style={{lineHeight:'1.1'}}>
+                                                                        <span className="font-bold block truncate">{l.name}</span>
+                                                                        {/* DEĞİŞİKLİK: Saat aralığı eklendi */}
+                                                                        {(l.startTime && l.endTime) && <span className="block text-[8px] font-bold opacity-90 mt-0.5 bg-black/20 rounded px-1">{l.startTime} - {l.endTime}</span>}
+                                                                        {l.classroom && <span className="block text-[8px] opacity-80 mt-0.5 italic">{l.classroom}</span>}
+                                                                    </div> 
+                                                                    : 
+                                                                    <div className="w-full h-full hover:bg-white/5 rounded"></div>
+                                                                }
                                                             </td>
                                                         )
                                                     })}
@@ -544,107 +1357,410 @@
                                 </div>
                             </div>
                         )}
-
-                         {/* VIEW: PROMOTION */}
-                         {view === 'promotion' && (
-                            <div className="animate-enter glass p-4 rounded-xl border border-blue-500/20">
-                                <div className="flex justify-between items-center mb-4"><h3 className="font-bold text-slate-300 text-sm">PUAN CETVELİ</h3><button onClick={() => setCustomScores([...customScores, {id:Date.now(), name:"", value:0, count:0}])} className="text-[10px] bg-blue-600 text-white px-3 py-1.5 rounded">Ekle</button></div>
-                                <div className="space-y-2">
-                                    {customScores.map(s => (
-                                        <div key={s.id} className="grid grid-cols-12 gap-2 items-center bg-slate-900/50 p-2 rounded border border-slate-700">
-                                            <div className="col-span-5"><input className="w-full bg-transparent text-sm" placeholder="Faaliyet" value={s.name} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,name:e.target.value}:x))} /></div>
-                                            <div className="col-span-2"><input type="number" className="w-full bg-slate-900 text-center text-xs" value={s.value} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,value:e.target.value}:x))} /></div>
-                                            <div className="col-span-2"><input type="number" className="w-full bg-slate-900 text-center text-xs text-white font-bold" value={s.count} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,count:e.target.value}:x))} /></div>
-                                            <div className="col-span-2 text-center text-xs font-bold text-blue-400">{(parseInt(s.value)||0) * (parseInt(s.count)||0)}</div>
-                                            <div className="col-span-1 text-right"><button onClick={()=>setCustomScores(customScores.filter(x=>x.id!==s.id))} className="text-red-400"><i className="fas fa-trash-alt"></i></button></div>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="mt-6 bg-slate-900 p-4 rounded-xl border border-slate-700 shadow-xl">
-                                    <div className="flex justify-between items-center mb-4"><span className="text-xs text-slate-400 uppercase font-bold">Hedef Puan:</span><input type="number" className="w-20 bg-slate-900 border border-slate-600 rounded p-1 text-center text-sm font-bold text-white" value={targetScore} onChange={e => setTargetScore(parseInt(e.target.value)||0)} /></div>
-                                    <div className="h-3 bg-slate-900 rounded-full overflow-hidden mb-2 border border-slate-700/50"><div className="h-full bg-emerald-500" style={{width: `${Math.min((customScores.reduce((a,b)=>a+((b.value||0)*(b.count||0)),0)/targetScore)*100, 100)}%`}}></div></div>
-                                </div>
-                            </div>
-                        )}
+                        {view === 'promotion' && (<div className="animate-enter pb-20"><div className="glass p-4 rounded-xl border border-blue-500/20"><div className="flex justify-between items-center mb-4"><h3 className="font-bold text-slate-300 text-sm">PUAN CETVELİ</h3><button onClick={() => setCustomScores([...customScores, {id:Date.now(), name:"", value:0, count:0}])} className="text-[10px] bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-500"><i className="fas fa-plus mr-1"></i>Ekle</button></div><div className="grid grid-cols-12 gap-1 text-[9px] text-slate-500 uppercase font-bold px-1 mb-2"><div className="col-span-5">Faaliyet</div><div className="col-span-2 text-center">Puan</div><div className="col-span-2 text-center">Adet</div><div className="col-span-2 text-center">Top.</div><div className="col-span-1"></div></div><div className="space-y-2">{customScores.map(s => (<div key={s.id} className="grid grid-cols-12 gap-2 items-center bg-slate-900/50 p-2 rounded border border-slate-700"><div className="col-span-5"><input className="w-full bg-transparent text-sm text-slate-200 focus:outline-none placeholder-slate-600" placeholder="Faaliyet" value={s.name} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,name:e.target.value}:x))} /></div><div className="col-span-2"><input type="number" className="w-full bg-slate-900 text-center text-xs text-slate-400 rounded p-1" value={s.value} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,value:e.target.value}:x))} /></div><div className="col-span-2"><input type="number" className="w-full bg-slate-900 text-center text-xs text-white font-bold rounded p-1 border border-slate-600" value={s.count} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,count:e.target.value}:x))} /></div><div className="col-span-2 text-center text-xs font-bold text-blue-400">{(parseInt(s.value)||0) * (parseInt(s.count)||0)}</div><div className="col-span-1 text-right"><button onClick={()=>setCustomScores(customScores.filter(x=>x.id!==s.id))} className="text-slate-600 hover:text-red-400"><i className="fas fa-trash-alt"></i></button></div></div>))}</div><div className="mt-6 bg-slate-900 p-4 rounded-xl border border-slate-700 shadow-xl"><div className="flex justify-between items-center mb-4"><span className="text-xs text-slate-400 uppercase font-bold">Hedef Puan:</span><input type="number" className="w-20 bg-slate-900 border border-slate-600 rounded p-1 text-center text-sm font-bold text-white focus:border-blue-500 outline-none" value={targetScore} onChange={e => setTargetScore(parseInt(e.target.value)||0)} /></div><div className="flex justify-between text-sm font-bold mb-2"><span className="text-slate-300">MEVCUT</span><span className={totalCalculated>=targetScore?"text-emerald-400":"text-rose-400"}>{totalCalculated} / {targetScore}</span></div><div className="h-3 bg-slate-900 rounded-full overflow-hidden mb-2 border border-slate-700/50"><div className={`h-full transition-all duration-1000 ${totalCalculated>=targetScore?'bg-emerald-500':'bg-gradient-to-r from-blue-600 to-red-600'}`} style={{width: `${Math.min((totalCalculated/targetScore)*100, 100)}%`}}></div></div></div></div></div>)}
                     </div>
 
-                    {/* Navigation */}
-                    <div className="fixed bottom-0 w-full max-w-md bg-slate-900/95 backdrop-blur border-t border-slate-800 flex justify-around py-4 z-50 no-screenshot">
-                        {[{id: 'flow', icon: 'stream', label: 'Akış'},{id: 'home', icon: 'home', label: 'Ev'},{id: 'schedule', icon: 'table', label: 'Ders'},{id: 'promotion', icon: 'chart-pie', label: 'Puan'}].map(t => (<button key={t.id} onClick={() => setView(t.id)} className={`flex flex-col items-center gap-1 ${view === t.id ? 'text-blue-400' : 'text-slate-500'}`}><i className={`fas fa-${t.icon} text-lg`}></i><span className="text-[10px] uppercase font-bold">{t.label}</span></button>))}
-                    </div>
-
-                    {/* Pomodoro */}
-                    {!isScreenshotMode && <button onClick={() => setPomodoro(prev => ({...prev, active: !prev.active}))} className={`fixed bottom-24 left-4 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-lg border border-slate-700 ${pomodoro.active ? 'bg-yellow-400 animate-pulse text-black' : 'bg-slate-800 text-slate-400'}`}>{pomodoro.active ? <span className="text-xs font-bold">{Math.floor(pomodoro.time/60)}:{String(pomodoro.time%60).padStart(2,'0')}</span> : <i className="fas fa-stopwatch text-xl"></i>}</button>}
-
-                    {/* Modals */}
-                    {activeModal === 'task' && (
-                        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-                            <div className="bg-slate-800 w-full max-w-sm rounded-xl p-6 shadow-2xl">
-                                <h3 className="font-bold mb-4">Yeni Görev</h3>
-                                <input className="w-full input-dark p-2 mb-2 rounded" placeholder="Başlık" value={newTask.title} onChange={e=>setNewTask({...newTask,title:e.target.value})} />
-                                <div className="flex gap-2 mb-2">
-                                    <input type="date" className="input-dark p-2 rounded flex-1" value={newTask.date} onChange={e=>setNewTask({...newTask,date:e.target.value})} />
-                                    <input type="time" className="input-dark p-2 rounded flex-1" value={newTask.time} onChange={e=>setNewTask({...newTask,time:e.target.value})} />
-                                </div>
-                                <select className="w-full input-dark p-2 mb-4 rounded" value={newTask.category} onChange={e=>setNewTask({...newTask,category:e.target.value})}>
-                                    <option value="daily">Günlük</option><option value="official">Resmi</option><option value="special">Özel</option>
-                                </select>
-                                <div className="flex gap-2"><button onClick={()=>setActiveModal(null)} className="flex-1 bg-slate-600 py-2 rounded">İptal</button><button onClick={handleAddTask} className="flex-1 bg-blue-600 py-2 rounded font-bold">Ekle</button></div>
+                    {isScreenshotMode && (
+                        <div className="printable-content text-black h-screen p-8 bg-white fixed top-0 left-0 w-full z-[100] overflow-auto">
+                            <div className="text-center mb-6 border-b-2 border-black pb-4">
+                                <h1 className="text-3xl font-bold text-black uppercase tracking-wide">{user.name}</h1>
+                                <p className="text-lg text-gray-700 mt-1">{user.uni} • {user.title}</p>
+                                <p className="text-xs text-gray-400 mt-1 signature">Ömer Faruk Erdem</p>
                             </div>
-                        </div>
-                    )}
-                    
-                    {activeModal === 'notes' && (
-                        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-                            <div className="bg-slate-800 w-full max-w-sm rounded-xl p-6 shadow-2xl h-[60vh] flex flex-col">
-                                <div className="flex justify-between mb-4"><h3 className="font-bold">Not Defteri</h3><button onClick={()=>setActiveModal(null)}>X</button></div>
-                                <div className="flex gap-2 mb-4"><input className="flex-1 input-dark p-2 rounded" value={newNote} onChange={e=>setNewNote(e.target.value)} /><button onClick={handleAddNote} className="bg-blue-600 px-4 rounded">+</button></div>
-                                <div className="flex-1 overflow-y-auto space-y-2">{notes.map(n=><div key={n.id} className="bg-slate-700 p-3 rounded flex justify-between items-start"><div><p className="text-sm">{n.text}</p><p className="text-[10px] text-slate-400">{n.date}</p></div><button onClick={()=>setNotes(notes.filter(x=>x.id!==n.id))} className="text-red-400"><i className="fas fa-trash"></i></button></div>)}</div>
+                            <div className="w-full">
+                                <h2 className="text-xl font-bold mb-4 text-center underline">HAFTALIK DERS PROGRAMI</h2>
+                                <table className="w-full text-xs border-collapse">
+                                    <thead>
+                                        <tr>
+                                            <th className="p-3 border border-black bg-gray-100 font-bold text-sm">Saat</th>
+                                            {Object.keys(schedule).map(d => <th key={d} className="p-3 border border-black bg-gray-100 font-bold text-sm">{d}</th>)}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {timeSlots.map((t, i) => (
+                                            <tr key={i}>
+                                                <td className="p-2 border border-black text-center font-bold bg-gray-50">{t}</td>
+                                                {Object.keys(schedule).map(d => { 
+                                                    const l = schedule[d][i]; 
+                                                    return (
+                                                        <td key={d} className="p-1 border border-black h-12 text-center relative">
+                                                            {l && (
+                                                                <div className={`text-[10px] font-bold p-2 h-full flex flex-col items-center justify-center ${LESSON_TYPES[l.type].className}`} style={{border: '1px solid black', color: 'white'}}>
+                                                                    <span className="block truncate w-full">{l.name}</span>
+                                                                    {(l.startTime && l.endTime) && <span className="block text-[9px] bg-black/20 px-1 rounded my-0.5">{l.startTime} - {l.endTime}</span>}
+                                                                    {l.classroom && <span className="text-[8px] italic">{l.classroom}</span>}
+                                                                </div>
+                                                            )}
+                                                        </td>
+                                                    )
+                                                })}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
+                            <div className="mt-10 text-center text-sm text-gray-400 italic">(Moddan çıkmak için ekrana dokunun)</div>
                         </div>
                     )}
 
+                    <div className="fixed bottom-0 w-full max-w-md bg-slate-900/95 backdrop-blur border-t border-slate-800 flex justify-around py-4 pb-8 z-50 no-screenshot">
+                        {[{id: 'flow', icon: 'stream', label: 'Akış'},{id: 'home', icon: 'home', label: 'Ana Sayfa'},{id: 'schedule', icon: 'table', label: 'Ders'},{id: 'annual', icon: 'calendar-alt', label: 'Yıllık'},{id: 'promotion', icon: 'chart-pie', label: 'Puan'}].map(t => (<button key={t.id} onClick={() => setView(t.id)} className={`flex flex-col items-center gap-1 ${view === t.id ? 'text-blue-400' : 'text-slate-500 hover:text-slate-400'}`}><i className={`fas fa-${t.icon} text-lg`}></i><span className="text-[10px] uppercase font-bold">{t.label}</span></button>))}
+                    </div>
+
+                    {!isScreenshotMode && <button onClick={() => setPomodoro(prev => ({...prev, active: !prev.active}))} className={`fixed bottom-24 left-4 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all border border-slate-700 no-screenshot ${pomodoro.active ? 'bg-yellow-400 animate-pulse text-black' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>{pomodoro.active ? <span className="text-xs font-bold">{Math.floor(pomodoro.time/60)}:{String(pomodoro.time%60).padStart(2,'0')}</span> : <i className="fas fa-stopwatch text-xl"></i>}</button>}
+
+                    {/* YENİ DERS EKLEME MODALI */}
                     {activeModal === 'addLesson' && (
-                        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-                            <div className="bg-slate-800 w-full max-w-sm rounded-xl p-6 shadow-2xl max-h-[80vh] overflow-y-auto">
-                                <h3 className="font-bold mb-4">Ders Ekle</h3>
-                                <input className="w-full input-dark p-2 mb-2 rounded" placeholder="Ders Adı" value={newLesson.name} onChange={e=>setNewLesson({...newLesson,name:e.target.value})} />
-                                <div className="flex gap-2 mb-2">
-                                    {Object.keys(LESSON_TYPES).map(k=><button key={k} onClick={()=>setNewLesson({...newLesson,type:k})} className={`flex-1 p-1 text-[10px] rounded border ${newLesson.type===k?'bg-blue-600 border-white':'border-slate-600'} ${LESSON_TYPES[k].btnClass}`}>{LESSON_TYPES[k].label}</button>)}
-                                </div>
-                                <div className="border border-slate-700 p-2 rounded mb-4">
-                                    <div className="flex justify-between mb-2"><span className="text-xs">Program</span><button onClick={()=>setNewLesson({...newLesson, daySchedules:[...newLesson.daySchedules, {day:'Pazartesi', startTime:'09:00', endTime:'10:00', classroom:''}]})} className="text-xs bg-green-700 px-2 rounded">+</button></div>
-                                    {newLesson.daySchedules.map((ds, i) => (
-                                        <div key={i} className="bg-slate-900 p-2 mb-1 rounded text-xs space-y-1">
-                                            <div className="flex justify-between"><select value={ds.day} onChange={e=>{const n=[...newLesson.daySchedules];n[i].day=e.target.value;setNewLesson({...newLesson,daySchedules:n})}} className="bg-slate-800 rounded">{DAYS_TR.map(d=><option key={d}>{d}</option>)}</select><button onClick={()=>{const n=[...newLesson.daySchedules];n.splice(i,1);setNewLesson({...newLesson,daySchedules:n})}} className="text-red-400">Sil</button></div>
-                                            <div className="flex gap-1"><input type="time" value={ds.startTime} onChange={e=>{const n=[...newLesson.daySchedules];n[i].startTime=e.target.value;setNewLesson({...newLesson,daySchedules:n})}} className="bg-slate-800 w-16" /><input type="time" value={ds.endTime} onChange={e=>{const n=[...newLesson.daySchedules];n[i].endTime=e.target.value;setNewLesson({...newLesson,daySchedules:n})}} className="bg-slate-800 w-16" /><input placeholder="Sınıf" value={ds.classroom} onChange={e=>{const n=[...newLesson.daySchedules];n[i].classroom=e.target.value;setNewLesson({...newLesson,daySchedules:n})}} className="bg-slate-800 flex-1" /></div>
+                        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot">
+                            <div className="bg-slate-800 w-full max-w-md rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto">
+                                <h3 className="text-white font-bold mb-4 text-lg">Yeni Ders Ekle</h3>
+                                
+                                <div className="space-y-4">
+                                    {/* Ders Adı */}
+                                    <div>
+                                        <label className="text-xs text-slate-400 block mb-1">Ders Adı *</label>
+                                        <input 
+                                            className="w-full input-dark p-3 rounded" 
+                                            placeholder="örn: Matematik"
+                                            value={newLesson.name} 
+                                            onChange={e => setNewLesson({...newLesson, name: e.target.value})} 
+                                        />
+                                    </div>
+
+                                    {/* Ders Tipi */}
+                                    <div>
+                                        <label className="text-xs text-slate-400 block mb-1">Ders Tipi *</label>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {Object.entries(LESSON_TYPES).map(([k, v]) => (
+                                                <button 
+                                                    key={k} 
+                                                    onClick={() => setNewLesson({...newLesson, type: k})} 
+                                                    className={`p-2 rounded border text-xs font-bold transition ${newLesson.type === k ? 'ring-2 ring-white scale-105' : 'opacity-70'} ${v.btnClass}`}
+                                                >
+                                                    {v.label}
+                                                </button>
+                                            ))}
                                         </div>
-                                    ))}
+                                    </div>
+
+                                    {/* Gün ve Saat Aralıkları */}
+                                    <div>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <label className="text-xs text-slate-400 font-bold">Ders Programı *</label>
+                                            <button 
+                                                onClick={addDaySchedule}
+                                                className="bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-blue-500 flex items-center gap-1"
+                                            >
+                                                <i className="fas fa-plus"></i> Gün Ekle
+                                            </button>
+                                        </div>
+                                        
+                                        {newLesson.daySchedules.length === 0 ? (
+                                            <div className="text-center py-8 border border-dashed border-slate-600 rounded text-slate-500 text-sm">
+                                                <i className="fas fa-calendar-plus text-2xl mb-2 block"></i>
+                                                Lütfen en az bir gün ekleyin
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-3">
+                                                {newLesson.daySchedules.map((ds, index) => (
+                                                    <div key={index} className="bg-slate-900/50 p-3 rounded border border-slate-600">
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <select 
+                                                                value={ds.day}
+                                                                onChange={e => updateDaySchedule(index, 'day', e.target.value)}
+                                                                className="input-dark p-2 rounded text-xs flex-1 mr-2"
+                                                            >
+                                                                {DAYS_TR.map(day => (
+                                                                    <option key={day} value={day}>{day}</option>
+                                                                ))}
+                                                            </select>
+                                                            <button 
+                                                                onClick={() => removeDaySchedule(index)}
+                                                                className="text-red-400 hover:text-red-300 w-8 h-8 rounded hover:bg-red-900/20"
+                                                            >
+                                                                <i className="fas fa-trash-alt"></i>
+                                                            </button>
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-2 mb-2">
+                                                            <div>
+                                                                <label className="text-[10px] text-slate-500 block mb-1">Başlangıç</label>
+                                                                <input 
+                                                                    type="time"
+                                                                    value={ds.startTime}
+                                                                    onChange={e => updateDaySchedule(index, 'startTime', e.target.value)}
+                                                                    className="w-full input-dark p-2 rounded text-xs"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="text-[10px] text-slate-500 block mb-1">Bitiş</label>
+                                                                <input 
+                                                                    type="time"
+                                                                    value={ds.endTime}
+                                                                    onChange={e => updateDaySchedule(index, 'endTime', e.target.value)}
+                                                                    className="w-full input-dark p-2 rounded text-xs"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-[10px] text-slate-500 block mb-1">Sınıf/Derslik</label>
+                                                            <input 
+                                                                type="text"
+                                                                placeholder="örn: A101"
+                                                                value={ds.classroom || ""}
+                                                                onChange={e => updateDaySchedule(index, 'classroom', e.target.value)}
+                                                                className="w-full input-dark p-2 rounded text-xs"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        
+                                        <div className="mt-2 text-xs text-slate-500 italic">
+                                            💡 Her gün için farklı saat ve sınıf belirleyebilirsiniz
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="flex gap-2"><button onClick={()=>setActiveModal(null)} className="flex-1 bg-slate-600 py-2 rounded">İptal</button><button onClick={handleAddLesson} className="flex-1 bg-emerald-600 py-2 rounded font-bold">Kaydet</button></div>
+
+                                <div className="flex gap-2 mt-6">
+                                    <button 
+                                        onClick={() => {
+                                            setActiveModal(null);
+                                            setNewLesson({ name: "", classroom: "", type: "lisans", daySchedules: [] });
+                                        }} 
+                                        className="flex-1 py-3 rounded bg-slate-700 text-slate-400 hover:bg-slate-600"
+                                    >
+                                        İptal
+                                    </button>
+                                    <button 
+                                        onClick={handleAddNewLesson} 
+                                        className="flex-1 py-3 rounded bg-emerald-600 text-white font-bold hover:bg-emerald-500"
+                                    >
+                                        <i className="fas fa-check mr-2"></i>
+                                        Dersi Ekle
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeModal === 'settings' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl relative max-h-[90vh] overflow-y-auto"><button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><i className="fas fa-times"></i></button><h3 className="text-white font-bold mb-4">Ayarlar</h3><form onSubmit={handleUpdateUser} className="space-y-4"><div><label className="text-xs text-slate-400">Ad Soyad</label><input name="name" defaultValue={user.name} required className="w-full input-dark p-3 rounded-lg" /></div><div><label className="text-xs text-slate-400">Üniversite</label><select name="uni" defaultValue={user.uni} className="w-full input-dark p-3 rounded-lg">{UNIVERSITIES.map(u => <option key={u.name} value={u.name}>{u.name}</option>)}</select></div><div className="flex items-center gap-3 pt-2"><input type="checkbox" name="enablePrayer" defaultChecked={user.enablePrayer} className="w-5 h-5 accent-blue-500" /><span className="text-sm text-slate-300">Namaz Vakitlerini Göster</span></div><button className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-500">Kaydet</button></form>
+
+                    {/* BİLDİRİM AYARLARI */}
+                    <div className="mt-4 p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+                        <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                            <i className="fas fa-bell text-yellow-400"></i> Bildirim Ayarları
+                        </h4>
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <span className="text-xs text-slate-300">Bildirim Durumu</span>
+                                <span className={`text-xs font-bold px-2 py-1 rounded ${
+                                    notifPermission === 'granted' ? 'bg-green-900 text-green-300' :
+                                    notifPermission === 'denied' ? 'bg-red-900 text-red-300' :
+                                    'bg-yellow-900 text-yellow-300'
+                                }`}>
+                                    {notifPermission === 'granted' ? '✅ Aktif' :
+                                     notifPermission === 'denied' ? '❌ Engelli' : '⏳ Bekliyor'}
+                                </span>
+                            </div>
+                            
+                            {notifPermission !== 'granted' && (
+                                <button 
+                                    onClick={async () => {
+                                        const granted = await requestNotificationPermission();
+                                        setNotifPermission(Notification.permission);
+                                        if (granted) scheduleAllNotifications(tasks);
+                                    }}
+                                    className="w-full bg-yellow-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-yellow-500 transition flex items-center justify-center gap-2"
+                                >
+                                    <i className="fas fa-bell"></i> Bildirimleri Etkinleştir
+                                </button>
+                            )}
+                            
+                            {notifPermission === 'granted' && (
+                                <>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs text-slate-300">Kaç dk önce hatırlat</span>
+                                        <select 
+                                            value={notifMinBefore}
+                                            onChange={(e) => setNotifMinBefore(parseInt(e.target.value))}
+                                            className="input-dark px-2 py-1 rounded text-xs w-20 text-center"
+                                        >
+                                            <option value="1">1 dk</option>
+                                            <option value="3">3 dk</option>
+                                            <option value="5">5 dk</option>
+                                            <option value="10">10 dk</option>
+                                            <option value="15">15 dk</option>
+                                            <option value="30">30 dk</option>
+                                        </select>
+                                    </div>
+                                    <button 
+                                        onClick={() => {
+                                            new Notification('🔔 Test Bildirimi', {
+                                                body: 'Bildirimler çalışıyor! Uygulama kapalıyken de hatırlatıcılar gelecek.',
+                                                icon: '📚'
+                                            });
+                                        }}
+                                        className="w-full bg-slate-700 text-slate-300 py-2 rounded-lg text-xs hover:bg-slate-600 transition flex items-center justify-center gap-2"
+                                    >
+                                        <i className="fas fa-vial"></i> Test Bildirimi Gönder
+                                    </button>
+                                </>
+                            )}
+                            
+                            {notifPermission === 'denied' && (
+                                <p className="text-[10px] text-red-400">
+                                    Bildirimler engellendi. Tarayıcı/uygulama ayarlarından izin verin.
+                                </p>
+                            )}
+                        </div>
+                    </div>
+
+                    <hr className="border-slate-700 my-4" />
+                    <div className="space-y-2">
+                        <div className="flex gap-2">
+                            <button onClick={exportData} className="flex-1 bg-green-900/50 border border-green-800 text-green-100 text-xs py-2 rounded hover:bg-green-800">
+                                📦 Yedek (.txt)
+                            </button>
+                            <button onClick={importData} className="flex-1 bg-blue-900/50 border border-blue-800 text-blue-100 text-xs py-2 rounded hover:bg-blue-800">
+                                📂 Yükle
+                            </button>
+                        </div>
+                        <div className="flex gap-2">
+                            <button onClick={exportToPDF} className="flex-1 bg-red-900/50 border border-red-800 text-red-100 text-xs py-2 rounded hover:bg-red-800">
+                                📄 Renkli PDF
+                            </button>
+                            <button onClick={exportToICS} className="flex-1 bg-purple-900/50 border border-purple-800 text-purple-100 text-xs py-2 rounded hover:bg-purple-800">
+                                📅 Takvim
+                            </button>
+                        </div>
+                    </div></div></div>)}
+                    {activeModal === 'task' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto"><h3 className="text-white font-bold mb-4">{editingTask ? 'Görevi Düzenle' : 'Yeni Hatırlatıcı'}</h3><div className="space-y-3"><input className="w-full input-dark p-3 rounded" placeholder="Başlık" value={newTask.title} onChange={e=>{setNewTask({...newTask,title:e.target.value}); setConflictWarn(null);}} /><div className="grid grid-cols-2 gap-2"><select className="w-full input-dark p-3 rounded" value={newTask.category} onChange={e=>setNewTask({...newTask,category:e.target.value})}><option value="daily">Gündelik İş (Mavi)</option><option value="official">Resmi Toplantı (Sarı)</option><option value="special">Özel Gün (Pembe)</option></select><input type="time" className="w-full input-dark p-3 rounded" value={newTask.time} onChange={e=>{setNewTask({...newTask,time:e.target.value}); setConflictWarn(null);}} /></div><input type="date" className="w-full input-dark p-3 rounded" value={newTask.date} onChange={e=>{setNewTask({...newTask,date:e.target.value}); setConflictWarn(null);}} /><textarea className="w-full input-dark p-3 rounded h-20 resize-none" placeholder="Açıklama..." value={newTask.desc} onChange={e=>setNewTask({...newTask,desc:e.target.value})}></textarea><div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700"><div className="flex items-center justify-between mb-2"><span className="text-xs text-slate-300">Rutin Tekrar?</span><input type="checkbox" checked={isRecurring} onChange={e=>setIsRecurring(e.target.checked)} className="w-4 h-4 accent-blue-500" disabled={!!editingTask} /></div>{isRecurring && (<div className="space-y-2 animate-enter"><div className="flex items-center gap-2"><span className="text-[10px] text-slate-400">Periyot:</span><select value={recurringPeriod} onChange={e=>setRecurringPeriod(e.target.value)} className="flex-1 bg-slate-900 border border-slate-600 rounded p-1 text-center text-white text-xs"><option value="weekly">Her Hafta</option><option value="biweekly">2 Haftada Bir</option><option value="monthly">Her Ay</option></select></div><div className="flex items-center gap-2"><span className="text-[10px] text-slate-400">Kaç Kez?</span><input type="number" value={recurringWeeks} onChange={e=>setRecurringWeeks(parseInt(e.target.value))} className="w-16 bg-slate-900 border border-slate-600 rounded p-1 text-center text-white text-xs" /></div></div>)}</div></div><div className="flex gap-2 mt-4"><button onClick={()=>setActiveModal(null)} className="flex-1 py-3 rounded bg-slate-700 text-slate-400 hover:bg-slate-600">İptal</button><button onClick={handleAddTask} className={`flex-1 py-3 rounded text-white font-bold transition ${conflictWarn ? 'bg-red-600 hover:bg-red-700 animate-pulse' : 'bg-blue-600 hover:bg-blue-500'}`}>{conflictWarn ? '⚠️ Yine de Ekle?' : (editingTask ? 'Güncelle' : 'Kaydet')}</button></div>{conflictWarn && <div className="mt-2 text-center text-xs text-red-300 bg-red-900/20 p-2 rounded">{conflictWarn}</div>}</div></div>)}
+                    {activeModal === 'notes' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl h-[60vh] flex flex-col"><div className="flex justify-between mb-4"><h3 className="text-white font-bold">Not Defteri</h3><button onClick={()=>setActiveModal(null)}><i className="fas fa-times text-slate-400"></i></button></div><div className="flex gap-2 mb-4"><input className="flex-1 input-dark p-2 rounded" placeholder="Notunuz..." value={newNote} onChange={e=>setNewNote(e.target.value)} /><button onClick={handleAddNote} className="bg-blue-600 px-4 rounded text-white"><i className="fas fa-plus"></i></button></div><div className="flex-1 overflow-y-auto space-y-2">{notes.map(n=><div key={n.id} className="bg-slate-700 p-3 rounded flex justify-between items-start"><div><p className="text-sm text-white">{n.text}</p><p className="text-[10px] text-slate-400">{n.date}</p></div><button onClick={()=>setNotes(notes.filter(x=>x.id!==n.id))} className="text-red-400"><i className="fas fa-trash"></i></button></div>)}</div></div></div>)}
+                    
+                    {/* DERS DÜZENLEME MODALI - GÜNCELLENDİ */}
+                    {activeModal === 'lesson' && editingLesson && (
+                        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot">
+                            <div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto">
+                                <h3 className="text-white font-bold mb-4">Ders Düzenle</h3>
+                                
+                                <div className="space-y-4">
+                                    {/* Ders Adı */}
+                                    <div>
+                                        <label className="text-xs text-slate-400 block mb-1">Ders Adı</label>
+                                        <input 
+                                            className="w-full input-dark p-3 rounded" 
+                                            value={editingLesson.data.name} 
+                                            onChange={e=>setEditingLesson({...editingLesson,data:{...editingLesson.data,name:e.target.value}})} 
+                                        />
+                                    </div>
+
+                                    {/* Başlangıç ve Bitiş Saati */}
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label className="text-xs text-slate-400 block mb-1">Başlangıç</label>
+                                            <input 
+                                                type="time" 
+                                                className="w-full input-dark p-3 rounded" 
+                                                value={editingLesson.data.startTime || ""} 
+                                                onChange={e=>setEditingLesson({...editingLesson,data:{...editingLesson.data,startTime:e.target.value}})} 
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-slate-400 block mb-1">Bitiş</label>
+                                            <input 
+                                                type="time" 
+                                                className="w-full input-dark p-3 rounded" 
+                                                value={editingLesson.data.endTime || ""} 
+                                                onChange={e=>setEditingLesson({...editingLesson,data:{...editingLesson.data,endTime:e.target.value}})} 
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Sınıf/Derslik */}
+                                    <div>
+                                        <label className="text-xs text-slate-400 block mb-1">Sınıf/Derslik</label>
+                                        <input 
+                                            className="w-full input-dark p-3 rounded" 
+                                            placeholder="örn: A101" 
+                                            value={editingLesson.data.classroom || ""} 
+                                            onChange={e=>setEditingLesson({...editingLesson,data:{...editingLesson.data,classroom:e.target.value}})} 
+                                        />
+                                    </div>
+
+                                    {/* Süre (Saat) */}
+                                    <div>
+                                        <label className="text-xs text-slate-400 block mb-1">Süre (Saat)</label>
+                                        <input 
+                                            type="number" 
+                                            min="1" 
+                                            max="8" 
+                                            className="w-full input-dark p-3 rounded" 
+                                            value={editingLesson.data.duration || ""} 
+                                            onChange={e=>setEditingLesson({...editingLesson,data:{...editingLesson.data,duration:e.target.value}})} 
+                                        />
+                                    </div>
+
+                                    {/* Tür (Renk Seçimi) */}
+                                    <div>
+                                        <label className="text-xs text-slate-400 block mb-1">Tür (Renk Seçimi)</label>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {Object.entries(LESSON_TYPES).map(([k,v])=>(
+                                                <button 
+                                                    key={k} 
+                                                    onClick={()=>setEditingLesson({...editingLesson,data:{...editingLesson.data,type:k}})} 
+                                                    className={`p-2 rounded border text-xs font-bold transition ${editingLesson.data.type===k?'ring-2 ring-white scale-105':'opacity-80'} ${v.btnClass}`}
+                                                >
+                                                    {v.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-2 mt-6">
+                                    <button 
+                                        onClick={() => setActiveModal(null)} 
+                                        className="flex-1 py-3 rounded bg-slate-700 text-slate-400 hover:bg-slate-600"
+                                    >
+                                        Vazgeç
+                                    </button>
+                                    <button 
+                                        onClick={deleteLesson} 
+                                        className="flex-1 py-3 rounded bg-red-900/50 text-red-400 hover:bg-red-900/70 border border-red-700"
+                                    >
+                                        Sil
+                                    </button>
+                                    <button 
+                                        onClick={saveLesson} 
+                                        className="flex-1 py-3 rounded bg-blue-600 text-white font-bold hover:bg-blue-500"
+                                    >
+                                        Kaydet
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}
                     
-                    {activeModal === 'settings' && (
-                        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-                            <div className="bg-slate-800 w-full max-w-sm rounded-xl p-6">
-                                <div className="flex justify-between mb-4"><h3 className="font-bold">Ayarlar</h3><button onClick={()=>setActiveModal(null)}>X</button></div>
-                                <div className="space-y-2">
-                                    <button onClick={exportData} className="w-full bg-green-800 py-2 rounded text-xs">Yedek Al (.txt)</button>
-                                    <div className="relative"><button className="w-full bg-blue-800 py-2 rounded text-xs">Yedek Yükle</button><input type="file" onChange={importData} className="absolute inset-0 opacity-0" /></div>
-                                    <button onClick={exportToPDF} className="w-full bg-red-800 py-2 rounded text-xs">Renkli PDF İndir</button>
-                                    <button onClick={()=>{localStorage.clear(); location.reload();}} className="w-full bg-slate-700 py-2 rounded text-xs text-red-400">Verileri Sıfırla (Reset)</button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                    {activeModal === 'dayDetail' && dayDetailData && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[80vh] overflow-y-auto"><div className="flex justify-between items-center mb-4"><h3 className="text-white font-bold">{dayDetailData.date} Detayı</h3><button onClick={() => { setActiveModal(null); setDayDetailData(null); }} className="text-slate-400 hover:text-white"><i className="fas fa-times"></i></button></div><div className="space-y-3">{dayDetailData.events.map((ev, i) => (<div key={i} className={`p-3 rounded border-l-4 flex justify-between items-center ${ev.category==='academic'?'bg-red-900/30 border-red-500': ev.category==='official'?'bg-amber-900/30 border-amber-500': ev.category==='special'?'bg-pink-900/30 border-pink-500':'bg-blue-900/30 border-blue-500'}`} onClick={() => { if(ev.origin === 'personal' && !ev.isRecurring) { openEditTask(ev); setDayDetailData(null); } }}><div><div className="text-sm font-bold text-white">{ev.event}{ev.isRecurring && <span className="text-[10px] ml-2 bg-pink-600 px-2 py-0.5 rounded">Döngüsel</span>}</div>{ev.time && <div className="text-xs text-slate-400 mt-1"><i className="far fa-clock mr-1"></i>{ev.time}</div>}<div className="text-[10px] text-slate-500 mt-1 uppercase">{ev.origin}</div></div>{ev.origin === 'personal' && !ev.isRecurring && <button onClick={(e) => deleteTask(e, ev.id)} className="text-red-400 hover:text-red-300 px-2 ml-2"><i className="fas fa-trash"></i></button>}</div>))}</div><div className="mt-6 pt-4 border-t border-slate-700"><button onClick={() => { setNewTask({ title: "", date: dayDetailData.date, time: "09:00", desc: "", type: "task", category: "daily" }); setActiveModal('task'); }} className="w-full bg-slate-700 text-white py-2 rounded-lg text-sm hover:bg-slate-700 transition flex items-center justify-center gap-2"><i className="fas fa-plus"></i> Bu Güne Hatırlatıcı Ekle</button></div></div></div>)}
                 </div>
             );
         };
-
         const root = ReactDOM.createRoot(document.getElementById('root'));
+        setTimeout(() => {
+    try {
         root.render(<App />);
+        setTimeout(() => {
+            const loader = document.getElementById('app-loader');
+            if(loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 500);
+            }
+        }, 100);
+    } catch(e) {
+        console.error("Başlatma hatası:", e);
+    }
+}, 1500);
     </script>
 </body>
 </html>
