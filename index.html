@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQWthZGVtaWsgQXNpc3RhbiIsInNob3J0X25hbWUiOiJBa2FkZW1payIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMGYxNzJhIiwidGhlbWVfY29sb3IiOiIjMGYxNzJhIiwicGVybWlzc2lvbnMiOlsibm90aWZpY2F0aW9ucyJdfQ==">
-    <title>Akademik Asistan V2.5</title>
+    <title>Akademik Asistan V2.4</title>
     
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -738,8 +738,8 @@
             };
 
             const handleAddNote = () => { if(!newNote) return; setNotes([{id: Date.now(), text: newNote, date: new Date().toLocaleDateString()}, ...notes]); setNewNote(""); };
-            const exportData = () => { const data = JSON.stringify({ user, tasks, schedule, timeSlots, customScores, targetScore, notes }, null, 2); const blob = new Blob([data], {type: "text/plain"}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `akademik_yedek.txt`; a.click(); };
-            const importData = () => { const input = document.createElement('input'); input.type = 'file'; input.accept = '.txt,.json'; input.onchange = (e) => { const file = e.target.files[0]; const reader = new FileReader(); reader.onload = (ev) => { try { const data = JSON.parse(ev.target.result); if(data.user) setUser(data.user); if(data.tasks) setTasks(data.tasks); if(data.schedule) setSchedule(data.schedule); if(data.timeSlots) setTimeSlots(data.timeSlots); if(data.customScores) setCustomScores(data.customScores); if(data.targetScore) setTargetScore(data.targetScore); if(data.notes) setNotes(data.notes); alert("Yedek yüklendi! Tüm veriler (saat dilimleri, dersler, notlar) geri yüklendi."); window.location.reload(); } catch(err) { alert("Hata! Dosya bozuk."); } }; reader.readAsText(file); }; input.click(); };
+            const exportData = () => { const data = JSON.stringify({ user, tasks, schedule, customScores, targetScore, notes }, null, 2); const blob = new Blob([data], {type: "text/plain"}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `akademik_yedek.txt`; a.click(); };
+            const importData = () => { const input = document.createElement('input'); input.type = 'file'; input.accept = '.txt,.json'; input.onchange = (e) => { const file = e.target.files[0]; const reader = new FileReader(); reader.onload = (ev) => { try { const data = JSON.parse(ev.target.result); if(data.user) setUser(data.user); if(data.tasks) setTasks(data.tasks); if(data.schedule) setSchedule(data.schedule); if(data.customScores) setCustomScores(data.customScores); if(data.notes) setNotes(data.notes); alert("Yedek yüklendi!"); window.location.reload(); } catch(err) { alert("Hata! Dosya bozuk."); } }; reader.readAsText(file); }; input.click(); };
             const handleFileUpload = (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { const content = e.target.result; const lines = content.split(/\r\n|\n|\r/); let events = []; let currentEvent = null; lines.forEach(line => { if (line.startsWith('BEGIN:VEVENT')) currentEvent = {}; else if (line.startsWith('END:VEVENT')) { if (currentEvent && currentEvent.SUMMARY && currentEvent.DTSTART) { const rawDate = currentEvent.DTSTART.replace('VALUE=DATE:',''); const y = rawDate.substring(0,4); const m = rawDate.substring(4,6); const d = rawDate.substring(6,8); const h = rawDate.length > 8 ? rawDate.substring(9,11) : "08"; const min = rawDate.length > 8 ? rawDate.substring(11,13) : "00"; events.push({ id: Date.now() + Math.random(), title: currentEvent.SUMMARY, date: `${y}-${m}-${d}`, time: `${h}:${min}`, desc: "Takvimden", type: "task", category: "official", origin: "imported" }); } currentEvent = null; } else if (currentEvent) { const [key, val] = line.split(':'); if(key) currentEvent[key.split(';')[0]] = val; } }); setTasks([...tasks, ...events]); alert(`${events.length} etkinlik eklendi.`); }; reader.readAsText(file); };
             const handleDayClick = (dateStr, events) => { if (events.length > 0) { setDayDetailData({date: dateStr, events}); setActiveModal('dayDetail'); } else { setNewTask({ title: "", date: dateStr, time: "09:00", desc: "", type: "task", category: "daily" }); setActiveModal('task'); } };
             
@@ -912,7 +912,7 @@
                     <div className="min-h-screen flex items-center justify-center p-6 bg-[#0f172a]">
                         <div className="w-full max-w-md glass p-8 rounded-2xl shadow-2xl">
                             <h1 className="text-2xl font-bold text-white mb-2 text-center">Akademik Asistan</h1>
-                            <p className="text-center text-slate-400 mb-6 text-sm">V2.5 • Bildirimli • Zaphyros</p>
+                            <p className="text-center text-slate-400 mb-6 text-sm">V2.3 • Bildirimli • Zaphyros</p>
                             <form onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.target); const u = UNIVERSITIES.find(x => x.name === fd.get('uni')); if (!u) return; setUser({ title: fd.get('title'), name: fd.get('name'), uni: u.name, city: u.city, url: u.url, enablePrayer: fd.get('enablePrayer') === 'on' }); }} className="space-y-4">
                                 <select name="title" className="w-full input-dark p-3 rounded-lg">{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select>
                                 <input name="name" required placeholder="Ad Soyad" className="w-full input-dark p-3 rounded-lg" />
@@ -1019,15 +1019,15 @@
                         {view === 'home' && (
                             <div className="animate-enter space-y-4">
                                 {user.url && (
-                                    <button onClick={() => window.open(user.url, '_blank')} className="w-full bg-slate-800 border border-slate-600 text-blue-300 p-4 rounded-xl flex items-center justify-between hover:bg-slate-700 transition shadow-lg mb-2">
+                                    <button onClick={() => setView('annual')} className="w-full bg-slate-800 border border-slate-600 text-blue-300 p-4 rounded-xl flex items-center justify-between hover:bg-slate-700 transition shadow-lg mb-2">
                                         <div className="flex items-center gap-4">
                                             <div className="w-10 h-10 rounded-full bg-red-900/50 flex items-center justify-center text-white text-xl"><i className="fas fa-calendar-alt"></i></div>
                                             <div className="text-left">
-                                                <div className="text-xs text-slate-400">Üniversite Web Sitesi</div>
-                                                <div className="text-base font-bold text-white">📅 Akademik Takvim</div>
+                                                <div className="text-xs text-slate-400">Üniversite Paneli</div>
+                                                <div className="text-base font-bold text-white">📅 Akademik Takvimi Gör</div>
                                             </div>
                                         </div>
-                                        <i className="fas fa-external-link-alt opacity-50"></i>
+                                        <i className="fas fa-chevron-right opacity-50"></i>
                                     </button>
                                 )}
                                 <div className="grid grid-cols-2 gap-4">
