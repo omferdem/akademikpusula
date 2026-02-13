@@ -8,55 +8,15 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQWthZGVtaWsgQXNpc3RhbiIsInNob3J0X25hbWUiOiJBa2FkZW1payIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMGYxNzJhIiwidGhlbWVfY29sb3IiOiIjMGYxNzJhIiwicGVybWlzc2lvbnMiOlsibm90aWZpY2F0aW9ucyJdfQ==">
-    <title>Akademik Asistan V2.9</title>
-    
-    <!-- Loading Screen for APK -->
-    <style id="loading-style">
-        #app-loading {
-            position: fixed;
-            inset: 0;
-            background: #0f172a;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-        }
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #1e293b;
-            border-top-color: #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-    </style>
+    <title>Akademik Asistan V3.0 STABLE</title>
     
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Sacramento&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
-    <!-- CDN Error Handler -->
-    <script>
-        window.addEventListener('error', function(e) {
-            if (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK') {
-                console.warn('CDN yüklenemedi, devam ediliyor:', e.target.src || e.target.href);
-            }
-        });
-        
-        // Remove loading screen after 3 seconds maximum
-        setTimeout(function() {
-            var loading = document.getElementById('app-loading');
-            var loadingStyle = document.getElementById('loading-style');
-            if (loading) loading.remove();
-            if (loadingStyle) loadingStyle.remove();
-        }, 3000);
-    </script>
 
     <style>
         /* Klasik V21/V33 Teması */
@@ -162,12 +122,6 @@
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div id="app-loading">
-        <div class="loading-spinner"></div>
-        <p style="color: #94a3b8; margin-top: 20px; font-size: 14px;">Yükleniyor...</p>
-    </div>
-    
     <div id="root"></div>
 
     <script type="text/babel">
@@ -505,30 +459,6 @@
         };
 
         const DAYS_TR = ["Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi", "Pazar"];
-        
-        // Motivasyon Mesajları
-        const MOTIVATION_MESSAGES = [
-            "🌟 Harika gidiyorsun! Devam et!",
-            "💪 Bugün de çok üretkensin!",
-            "🎯 Hedeflerine bir adım daha yaklaştın!",
-            "✨ Senin zamanın, senin kuralların!",
-            "🚀 İlerlemen muhteşem!",
-            "🔥 Bu tempo ile harikaları başaracaksın!",
-            "🎨 Yaratıcılığın sınır tanımıyor!",
-            "📚 Bilgi gücü! Devam et!",
-            "🌈 Her gün yeni bir fırsat!",
-            "⭐ Kendine inan, başarırsın!",
-            "🎓 Akademik yolculuğun muhteşem!",
-            "💡 Parlak fikirlerle dolup taşıyorsun!",
-            "🏆 Başarı seninle olsun!",
-            "🌸 Bugün harika bir gün!",
-            "🎪 Hayat bir macera, yaşa!",
-            "🎭 Sen bu işin ustasısın!",
-            "🎯 Odaklan ve başar!",
-            "🌻 Pozitif enerjinle etrafı aydınlatıyorsun!",
-            "🎨 Hayal gücünle sınırları aş!",
-            "🚁 Yükseklere uç!"
-        ];
 
         const App = () => {
             // STATE - v46 anahtarı ile taze başlangıç (Crash Fix)
@@ -545,10 +475,6 @@
             const [calendarEvents, setCalendarEvents] = useState(() => safeGet('calendar_v46', ACADEMIC_DATA['default']));
             
             const [view, setView] = useState("flow");
-            const [motivationMessage, setMotivationMessage] = useState(() => {
-                const randomIndex = Math.floor(Math.random() * MOTIVATION_MESSAGES.length);
-                return MOTIVATION_MESSAGES[randomIndex];
-            });
             
             const [activeModal, setActiveModal] = useState(null); 
             const [dayDetailData, setDayDetailData] = useState(null); 
@@ -807,26 +733,6 @@
                 setActiveModal('task');
                 setConflictWarn(null);
             };
-            
-            // Görev Tamamlama
-            const toggleTaskComplete = (taskId) => {
-                setTasks(prev => prev.map(t => 
-                    t.id === taskId ? { ...t, completed: !t.completed } : t
-                ));
-                
-                // Motivasyon mesajı değiştir
-                const randomIndex = Math.floor(Math.random() * MOTIVATION_MESSAGES.length);
-                setMotivationMessage(MOTIVATION_MESSAGES[randomIndex]);
-            };
-            
-            // Günlük tamamlanma oranı
-            const getDailyCompletionRate = () => {
-                const today = new Date().toISOString().split('T')[0];
-                const todayTasks = tasks.filter(t => t.date === today);
-                if (todayTasks.length === 0) return 0;
-                const completedTasks = todayTasks.filter(t => t.completed).length;
-                return Math.round((completedTasks / todayTasks.length) * 100);
-            };
 
             const deleteTask = (e, id) => { 
                 e.stopPropagation();
@@ -901,6 +807,123 @@
                 }; 
                 input.click(); 
             };
+            
+            // PDF Export
+            const exportToPDF = () => {
+                try {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+                    
+                    doc.setFontSize(16);
+                    doc.text(`${user.name} - Haftalik Program`, 105, 15, { align: 'center' });
+                    doc.setFontSize(10);
+                    doc.text(`${user.uni}`, 105, 22, { align: 'center' });
+                    
+                    let yPos = 35;
+                    const colWidth = 25;
+                    const rowHeight = 10;
+                    
+                    doc.setFontSize(8);
+                    doc.text('Saat', 15, yPos);
+                    const days = Object.keys(schedule);
+                    days.forEach((day, i) => {
+                        doc.text(day.substring(0, 3), 40 + (i * colWidth), yPos);
+                    });
+                    
+                    yPos += 5;
+                    
+                    timeSlots.forEach((time, slotIndex) => {
+                        doc.text(time, 15, yPos);
+                        
+                        days.forEach((day, dayIndex) => {
+                            const lesson = schedule[day][slotIndex];
+                            if (lesson) {
+                                doc.setFontSize(7);
+                                const x = 40 + (dayIndex * colWidth);
+                                doc.text(lesson.name.substring(0, 8), x, yPos);
+                                if (lesson.classroom) {
+                                    doc.setFontSize(6);
+                                    doc.text(lesson.classroom, x, yPos + 3);
+                                }
+                                doc.setFontSize(8);
+                            }
+                        });
+                        
+                        yPos += rowHeight;
+                        if (yPos > 270) {
+                            doc.addPage();
+                            yPos = 20;
+                        }
+                    });
+                    
+                    doc.save(`${user.name}_program.pdf`);
+                    alert('✅ PDF indirildi!');
+                } catch (err) {
+                    alert('❌ PDF hatası: ' + err.message);
+                }
+            };
+            
+            // ICS Export
+            const exportToICS = () => {
+                try {
+                    let icsContent = [
+                        'BEGIN:VCALENDAR',
+                        'VERSION:2.0',
+                        'PRODID:-//Akademik Asistan//TR',
+                        'CALSCALE:GREGORIAN'
+                    ];
+                    
+                    tasks.forEach(task => {
+                        const date = task.date.replace(/-/g, '');
+                        const time = task.time ? task.time.replace(':', '') + '00' : '090000';
+                        
+                        icsContent.push('BEGIN:VEVENT');
+                        icsContent.push(`UID:${task.id}@akademik`);
+                        icsContent.push(`DTSTART:${date}T${time}`);
+                        icsContent.push(`SUMMARY:${task.title}`);
+                        if (task.desc) icsContent.push(`DESCRIPTION:${task.desc}`);
+                        icsContent.push('END:VEVENT');
+                    });
+                    
+                    const dayMap = {
+                        'Pazartesi': 'MO', 'Sali': 'TU', 'Carsamba': 'WE', 
+                        'Persembe': 'TH', 'Cuma': 'FR', 'Cumartesi': 'SA', 'Pazar': 'SU'
+                    };
+                    
+                    Object.keys(schedule).forEach(day => {
+                        schedule[day].forEach((lesson) => {
+                            if (lesson && lesson.startTime) {
+                                const startTime = lesson.startTime.replace(':', '') + '00';
+                                const endTime = lesson.endTime.replace(':', '') + '00';
+                                const dateStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
+                                
+                                icsContent.push('BEGIN:VEVENT');
+                                icsContent.push(`UID:${lesson.batchId}-${day}@akademik`);
+                                icsContent.push(`DTSTART:${dateStr}T${startTime}`);
+                                icsContent.push(`DTEND:${dateStr}T${endTime}`);
+                                icsContent.push(`SUMMARY:${lesson.name}`);
+                                if (lesson.classroom) icsContent.push(`LOCATION:${lesson.classroom}`);
+                                icsContent.push(`RRULE:FREQ=WEEKLY;BYDAY=${dayMap[day]};COUNT=30`);
+                                icsContent.push('END:VEVENT');
+                            }
+                        });
+                    });
+                    
+                    icsContent.push('END:VCALENDAR');
+                    
+                    const blob = new Blob([icsContent.join('\r\n')], { type: 'text/calendar' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `takvim_${new Date().toISOString().split('T')[0]}.ics`;
+                    a.click();
+                    
+                    alert('✅ ICS indirildi!\n\nGoogle Calendar: Import\niPhone: Dosyayı aç');
+                } catch (err) {
+                    alert('❌ ICS hatası: ' + err.message);
+                }
+            };
+            
             const handleFileUpload = (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { const content = e.target.result; const lines = content.split(/\r\n|\n|\r/); let events = []; let currentEvent = null; lines.forEach(line => { if (line.startsWith('BEGIN:VEVENT')) currentEvent = {}; else if (line.startsWith('END:VEVENT')) { if (currentEvent && currentEvent.SUMMARY && currentEvent.DTSTART) { const rawDate = currentEvent.DTSTART.replace('VALUE=DATE:',''); const y = rawDate.substring(0,4); const m = rawDate.substring(4,6); const d = rawDate.substring(6,8); const h = rawDate.length > 8 ? rawDate.substring(9,11) : "08"; const min = rawDate.length > 8 ? rawDate.substring(11,13) : "00"; events.push({ id: Date.now() + Math.random(), title: currentEvent.SUMMARY, date: `${y}-${m}-${d}`, time: `${h}:${min}`, desc: "Takvimden", type: "task", category: "official", origin: "imported" }); } currentEvent = null; } else if (currentEvent) { const [key, val] = line.split(':'); if(key) currentEvent[key.split(';')[0]] = val; } }); setTasks([...tasks, ...events]); alert(`${events.length} etkinlik eklendi.`); }; reader.readAsText(file); };
             const handleDayClick = (dateStr, events) => { if (events.length > 0) { setDayDetailData({date: dateStr, events}); setActiveModal('dayDetail'); } else { setNewTask({ title: "", date: dateStr, time: "09:00", desc: "", type: "task", category: "daily" }); setActiveModal('task'); } };
             
@@ -1081,17 +1104,6 @@
                     </div>
                 );
             };
-            
-            // Loading screen'i kaldır
-            useEffect(() => {
-                const timer = setTimeout(() => {
-                    const loading = document.getElementById('app-loading');
-                    const loadingStyle = document.getElementById('loading-style');
-                    if (loading) loading.style.display = 'none';
-                    if (loadingStyle) loadingStyle.remove();
-                }, 1000);
-                return () => clearTimeout(timer);
-            }, []);
 
             const totalCalculated = customScores.reduce((acc, curr) => acc + ( (parseInt(curr.value)||0) * (parseInt(curr.count)||0) ), 0);
             const appClass = isScreenshotMode ? "screenshot-mode bg-white min-h-screen text-black" : "max-w-md mx-auto min-h-screen bg-[#0f172a] pb-24 relative shadow-2xl overflow-hidden text-slate-100";
@@ -1101,7 +1113,7 @@
                     <div className="min-h-screen flex items-center justify-center p-6 bg-[#0f172a]">
                         <div className="w-full max-w-md glass p-8 rounded-2xl shadow-2xl">
                             <h1 className="text-2xl font-bold text-white mb-2 text-center">Akademik Asistan</h1>
-                            <p className="text-center text-slate-400 mb-6 text-sm">V2.9 • APK Ready • Motivasyon+ • Zaphyros</p>
+                            <p className="text-center text-slate-400 mb-6 text-sm">V3.0 STABLE • PDF + Calendar • Zaphyros</p>
                             <form onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.target); const u = UNIVERSITIES.find(x => x.name === fd.get('uni')); if (!u) return; setUser({ title: fd.get('title'), name: fd.get('name'), uni: u.name, city: u.city, url: u.url, enablePrayer: fd.get('enablePrayer') === 'on' }); }} className="space-y-4">
                                 <select name="title" className="w-full input-dark p-3 rounded-lg">{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select>
                                 <input name="name" required placeholder="Ad Soyad" className="w-full input-dark p-3 rounded-lg" />
@@ -1160,23 +1172,6 @@
                         {/* AKIŞ */}
                         {view === 'flow' && (
                             <div className="animate-enter space-y-3">
-                                {/* Motivasyon Mesajı ve Günlük İlerleme */}
-                                <div className="glass rounded-xl p-4 border border-blue-500/30 bg-gradient-to-r from-blue-900/20 to-purple-900/20">
-                                    <div className="flex items-center gap-3 mb-3">
-                                        <div className="text-2xl">🎯</div>
-                                        <div className="flex-1">
-                                            <div className="text-sm font-bold text-white">{motivationMessage}</div>
-                                            <div className="text-xs text-slate-400 mt-1">Bugünkü İlerlemen: {getDailyCompletionRate()}%</div>
-                                        </div>
-                                    </div>
-                                    <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-                                        <div 
-                                            className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500" 
-                                            style={{width: `${getDailyCompletionRate()}%`}}
-                                        ></div>
-                                    </div>
-                                </div>
-                                
                                 <h3 className="text-sm font-bold text-slate-400 uppercase border-b border-slate-700 pb-2 mb-4 ml-1">Günlük Akış (Yaklaşan)</h3>
                                 {getTimelineList().length === 0 ? <div className="text-center py-12 opacity-30 text-sm border-2 border-dashed border-slate-700 rounded-xl">Akış boş.</div> : 
                                     getTimelineList().map((item, i) => { 
@@ -1191,27 +1186,9 @@
                                         const nowTotalMin = new Date().getHours() * 60 + new Date().getMinutes();
                                         const isPast = item.relativeMin < nowTotalMin;
                                         const opacityClass = isPast ? 'opacity-40 grayscale' : 'opacity-100';
-                                        
-                                        // Tamamlanma checkbox
-                                        const isCompleted = item.completed || false;
 
                                         return (
-                                            <div key={i} className={`glass rounded-lg flex overflow-hidden border-l-4 ${borderClass} ${opacityClass} ${isCompleted ? 'line-through opacity-50' : ''}`}>
-                                                {/* Checkbox - sadece görevler için */}
-                                                {item.displayType !== 'prayer' && item.displayType !== 'class' && (
-                                                    <button 
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            toggleTaskComplete(item.id);
-                                                        }}
-                                                        className="w-12 flex items-center justify-center border-r border-white/5 hover:bg-white/5 transition-colors"
-                                                    >
-                                                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${isCompleted ? 'bg-green-500 border-green-500' : 'border-slate-500'}`}>
-                                                            {isCompleted && <i className="fas fa-check text-white text-xs"></i>}
-                                                        </div>
-                                                    </button>
-                                                )}
-                                                
+                                            <div key={i} className={`glass rounded-lg flex overflow-hidden border-l-4 ${borderClass} ${opacityClass}`}>
                                                 <div className="flex-1 p-3 flex items-center gap-3 cursor-pointer" onClick={() => { if(item.displayType!=='prayer'&&item.displayType!=='class') openEditTask(item) }}>
                                                     <div className="text-center min-w-[50px] font-mono font-bold text-lg text-slate-300">{item.time}</div>
                                                     <div className="flex-1">
@@ -1613,7 +1590,25 @@
                         </div>
                     </div>
 
-                    <hr className="border-slate-700 my-4" /><div className="flex gap-2"><button onClick={exportData} className="flex-1 bg-green-900/50 border border-green-800 text-green-100 text-xs py-2 rounded hover:bg-green-800">Yedek İndir (.txt)</button><button onClick={importData} className="flex-1 bg-blue-900/50 border border-blue-800 text-blue-100 text-xs py-2 rounded hover:bg-blue-800">Yedek Yükle</button></div></div></div>)}
+                    <hr className="border-slate-700 my-4" />
+                    <div className="space-y-2">
+                        <div className="flex gap-2">
+                            <button onClick={exportData} className="flex-1 bg-green-900/50 border border-green-800 text-green-100 text-xs py-2 rounded hover:bg-green-800">
+                                📦 Yedek İndir
+                            </button>
+                            <button onClick={importData} className="flex-1 bg-blue-900/50 border border-blue-800 text-blue-100 text-xs py-2 rounded hover:bg-blue-800">
+                                📂 Yedek Yükle
+                            </button>
+                        </div>
+                        <div className="flex gap-2">
+                            <button onClick={exportToPDF} className="flex-1 bg-red-900/50 border border-red-800 text-red-100 text-xs py-2 rounded hover:bg-red-800">
+                                📄 PDF İndir
+                            </button>
+                            <button onClick={exportToICS} className="flex-1 bg-purple-900/50 border border-purple-800 text-purple-100 text-xs py-2 rounded hover:bg-purple-800">
+                                📅 Takvime Aktar
+                            </button>
+                        </div>
+                    </div></div></div>)}
                     {activeModal === 'task' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto"><h3 className="text-white font-bold mb-4">{editingTask ? 'Görevi Düzenle' : 'Yeni Hatırlatıcı'}</h3><div className="space-y-3"><input className="w-full input-dark p-3 rounded" placeholder="Başlık" value={newTask.title} onChange={e=>{setNewTask({...newTask,title:e.target.value}); setConflictWarn(null);}} /><div className="grid grid-cols-2 gap-2"><select className="w-full input-dark p-3 rounded" value={newTask.category} onChange={e=>setNewTask({...newTask,category:e.target.value})}><option value="daily">Gündelik İş (Mavi)</option><option value="official">Resmi Toplantı (Sarı)</option><option value="special">Özel Gün (Pembe)</option></select><input type="time" className="w-full input-dark p-3 rounded" value={newTask.time} onChange={e=>{setNewTask({...newTask,time:e.target.value}); setConflictWarn(null);}} /></div><input type="date" className="w-full input-dark p-3 rounded" value={newTask.date} onChange={e=>{setNewTask({...newTask,date:e.target.value}); setConflictWarn(null);}} /><textarea className="w-full input-dark p-3 rounded h-20 resize-none" placeholder="Açıklama..." value={newTask.desc} onChange={e=>setNewTask({...newTask,desc:e.target.value})}></textarea><div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700"><div className="flex items-center justify-between mb-2"><span className="text-xs text-slate-300">Rutin Tekrar?</span><input type="checkbox" checked={isRecurring} onChange={e=>setIsRecurring(e.target.checked)} className="w-4 h-4 accent-blue-500" disabled={!!editingTask} /></div>{isRecurring && (<div className="space-y-2 animate-enter"><div className="flex items-center gap-2"><span className="text-[10px] text-slate-400">Periyot:</span><select value={recurringPeriod} onChange={e=>setRecurringPeriod(e.target.value)} className="flex-1 bg-slate-900 border border-slate-600 rounded p-1 text-center text-white text-xs"><option value="weekly">Her Hafta</option><option value="biweekly">2 Haftada Bir</option><option value="monthly">Her Ay</option></select></div><div className="flex items-center gap-2"><span className="text-[10px] text-slate-400">Kaç Kez?</span><input type="number" value={recurringWeeks} onChange={e=>setRecurringWeeks(parseInt(e.target.value))} className="w-16 bg-slate-900 border border-slate-600 rounded p-1 text-center text-white text-xs" /></div></div>)}</div></div><div className="flex gap-2 mt-4"><button onClick={()=>setActiveModal(null)} className="flex-1 py-3 rounded bg-slate-700 text-slate-400 hover:bg-slate-600">İptal</button><button onClick={handleAddTask} className={`flex-1 py-3 rounded text-white font-bold transition ${conflictWarn ? 'bg-red-600 hover:bg-red-700 animate-pulse' : 'bg-blue-600 hover:bg-blue-500'}`}>{conflictWarn ? '⚠️ Yine de Ekle?' : (editingTask ? 'Güncelle' : 'Kaydet')}</button></div>{conflictWarn && <div className="mt-2 text-center text-xs text-red-300 bg-red-900/20 p-2 rounded">{conflictWarn}</div>}</div></div>)}
                     {activeModal === 'notes' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl h-[60vh] flex flex-col"><div className="flex justify-between mb-4"><h3 className="text-white font-bold">Not Defteri</h3><button onClick={()=>setActiveModal(null)}><i className="fas fa-times text-slate-400"></i></button></div><div className="flex gap-2 mb-4"><input className="flex-1 input-dark p-2 rounded" placeholder="Notunuz..." value={newNote} onChange={e=>setNewNote(e.target.value)} /><button onClick={handleAddNote} className="bg-blue-600 px-4 rounded text-white"><i className="fas fa-plus"></i></button></div><div className="flex-1 overflow-y-auto space-y-2">{notes.map(n=><div key={n.id} className="bg-slate-700 p-3 rounded flex justify-between items-start"><div><p className="text-sm text-white">{n.text}</p><p className="text-[10px] text-slate-400">{n.date}</p></div><button onClick={()=>setNotes(notes.filter(x=>x.id!==n.id))} className="text-red-400"><i className="fas fa-trash"></i></button></div>)}</div></div></div>)}
                     
