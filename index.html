@@ -8,86 +8,16 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQWthZGVtaWsgQXNpc3RhbiIsInNob3J0X25hbWUiOiJBa2FkZW1payIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMGYxNzJhIiwidGhlbWVfY29sb3IiOiIjMGYxNzJhIiwicGVybWlzc2lvbnMiOlsibm90aWZpY2F0aW9ucyJdfQ==">
-    <title>Akademik Asistan V3.1 APK FIX</title>
+    <title>Akademik Asistan V3.2 ULTIMATE</title>
     
-    <!-- APK Loading Fix -->
-    <style id="apk-loading-style">
-        #apk-loading {
-            position: fixed;
-            inset: 0;
-            background: #0f172a;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 99999;
-            font-family: sans-serif;
-        }
-        .spinner {
-            width: 60px;
-            height: 60px;
-            border: 5px solid #1e293b;
-            border-top-color: #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .load-text {
-            color: #94a3b8;
-            margin-top: 20px;
-            font-size: 16px;
-        }
-    </style>
-    
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- APK Compatible CDN Loading -->
+    <script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone@7.23.5/babel.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Sacramento&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
-    <!-- APK Safety Script -->
-    <script>
-        window.appLoaded = false;
-        window.addEventListener('error', function(e) {
-            console.warn('CDN error:', e);
-        });
-        
-        // Remove loading after max 5 seconds
-        setTimeout(function() {
-            var loading = document.getElementById('apk-loading');
-            var style = document.getElementById('apk-loading-style');
-            if (loading) loading.remove();
-            if (style) style.remove();
-            if (!window.appLoaded) {
-                console.log('Force start after timeout');
-            }
-        }, 5000);
-        
-        // Check if Babel loaded
-        function checkBabelLoaded() {
-            if (typeof Babel !== 'undefined') {
-                console.log('Babel loaded successfully');
-                return true;
-            }
-            return false;
-        }
-        
-        // Wait for Babel
-        var babelCheckCount = 0;
-        var babelCheck = setInterval(function() {
-            babelCheckCount++;
-            if (checkBabelLoaded() || babelCheckCount > 20) {
-                clearInterval(babelCheck);
-                if (babelCheckCount > 20) {
-                    console.warn('Babel timeout, continuing anyway');
-                }
-            }
-        }, 100);
-    </script>
 
     <style>
         /* Klasik V21/V33 Teması */
@@ -193,12 +123,6 @@
     </style>
 </head>
 <body>
-    <!-- APK Loading Screen -->
-    <div id="apk-loading">
-        <div class="spinner"></div>
-        <div class="load-text">📚 Yükleniyor...</div>
-    </div>
-    
     <div id="root"></div>
 
     <script type="text/babel">
@@ -824,7 +748,7 @@
             const handleAddNote = () => { if(!newNote) return; setNotes([{id: Date.now(), text: newNote, date: new Date().toLocaleDateString()}, ...notes]); setNewNote(""); };
             const exportData = () => { 
                 const data = JSON.stringify({ 
-                    version: "2.6",
+                    version: "3.2",
                     user, 
                     tasks, 
                     schedule, 
@@ -834,11 +758,11 @@
                     notes, 
                     calendarEvents 
                 }, null, 2); 
-                const blob = new Blob([data], {type: "application/json"}); 
+                const blob = new Blob([data], {type: "text/plain"}); 
                 const url = URL.createObjectURL(blob); 
                 const a = document.createElement('a'); 
                 a.href = url; 
-                a.download = `akademik_yedek_${new Date().toISOString().split('T')[0]}.json`; 
+                a.download = `akademik_yedek_${new Date().toISOString().split('T')[0]}.txt`; 
                 a.click(); 
             };
             const importData = () => { 
@@ -885,44 +809,73 @@
                 input.click(); 
             };
             
-            // PDF Export
+            // PDF Export - RENKLİ
             const exportToPDF = () => {
                 try {
                     const { jsPDF } = window.jspdf;
                     const doc = new jsPDF();
                     
+                    // Başlık
                     doc.setFontSize(16);
-                    doc.text(`${user.name} - Haftalik Program`, 105, 15, { align: 'center' });
+                    doc.setTextColor(15, 23, 42); // Slate 900
+                    doc.text(`${user.name} - Haftalik Ders Programi`, 105, 15, { align: 'center' });
                     doc.setFontSize(10);
                     doc.text(`${user.uni}`, 105, 22, { align: 'center' });
                     
                     let yPos = 35;
-                    const colWidth = 25;
+                    const colWidth = 24;
+                    const rowHeight = 12;
                     
+                    // Tablo başlıkları
                     doc.setFontSize(8);
+                    doc.setTextColor(0, 0, 0);
                     doc.text('Saat', 15, yPos);
                     const days = Object.keys(schedule);
                     days.forEach((day, i) => {
-                        doc.text(day.substring(0, 3), 40 + (i * colWidth), yPos);
+                        doc.text(day.substring(0, 3), 42 + (i * colWidth), yPos);
                     });
                     
-                    yPos += 5;
+                    yPos += 6;
                     
+                    // Dersler - RENKLİ
                     timeSlots.forEach((time, slotIndex) => {
+                        doc.setTextColor(0, 0, 0);
+                        doc.setFontSize(8);
                         doc.text(time, 15, yPos);
+                        
                         days.forEach((day, dayIndex) => {
                             const lesson = schedule[day][slotIndex];
                             if (lesson) {
-                                doc.setFontSize(7);
                                 const x = 40 + (dayIndex * colWidth);
-                                doc.text(lesson.name.substring(0, 8), x, yPos);
+                                const y = yPos - 4;
+                                
+                                // Ders tipine göre renk
+                                if (lesson.type === 'lisans') {
+                                    doc.setFillColor(13, 148, 136); // Teal
+                                } else if (lesson.type === 'yuksek') {
+                                    doc.setFillColor(79, 70, 229); // Indigo
+                                } else if (lesson.type === 'doktora') {
+                                    doc.setFillColor(147, 51, 234); // Purple
+                                } else if (lesson.type === 'seminer') {
+                                    doc.setFillColor(245, 158, 11); // Amber
+                                }
+                                
+                                // Renkli kutu
+                                doc.rect(x, y, colWidth - 2, rowHeight - 2, 'F');
+                                
+                                // Beyaz text
+                                doc.setTextColor(255, 255, 255);
+                                doc.setFontSize(7);
+                                doc.text(lesson.name.substring(0, 10), x + 1, yPos);
+                                
                                 if (lesson.classroom) {
                                     doc.setFontSize(6);
-                                    doc.text(lesson.classroom, x, yPos + 3);
+                                    doc.text(lesson.classroom, x + 1, yPos + 3);
                                 }
                             }
                         });
-                        yPos += 10;
+                        
+                        yPos += rowHeight;
                         if (yPos > 270) {
                             doc.addPage();
                             yPos = 20;
@@ -930,13 +883,13 @@
                     });
                     
                     doc.save(`${user.name}_program.pdf`);
-                    alert('✅ PDF indirildi!');
+                    alert('✅ RENKLİ PDF indirildi!');
                 } catch (err) {
                     alert('❌ PDF hatası: ' + err.message);
                 }
             };
             
-            // ICS Export  
+            // ICS Export
             const exportToICS = () => {
                 try {
                     let ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Akademik Asistan'];
@@ -1169,17 +1122,6 @@
                     </div>
                 );
             };
-            
-            // Remove loading screen when app loads
-            useEffect(() => {
-                setTimeout(() => {
-                    const loading = document.getElementById('apk-loading');
-                    const style = document.getElementById('apk-loading-style');
-                    if (loading) loading.remove();
-                    if (style) style.remove();
-                    window.appLoaded = true;
-                }, 800);
-            }, []);
 
             const totalCalculated = customScores.reduce((acc, curr) => acc + ( (parseInt(curr.value)||0) * (parseInt(curr.count)||0) ), 0);
             const appClass = isScreenshotMode ? "screenshot-mode bg-white min-h-screen text-black" : "max-w-md mx-auto min-h-screen bg-[#0f172a] pb-24 relative shadow-2xl overflow-hidden text-slate-100";
@@ -1189,7 +1131,7 @@
                     <div className="min-h-screen flex items-center justify-center p-6 bg-[#0f172a]">
                         <div className="w-full max-w-md glass p-8 rounded-2xl shadow-2xl">
                             <h1 className="text-2xl font-bold text-white mb-2 text-center">Akademik Asistan</h1>
-                            <p className="text-center text-slate-400 mb-6 text-sm">V3.1 • APK Çözüldü • PDF+Takvim • Zaphyros</p>
+                            <p className="text-center text-slate-400 mb-6 text-sm">V3.2 • Renkli PDF • TXT Yedek • APK OK • Zaphyros</p>
                             <form onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.target); const u = UNIVERSITIES.find(x => x.name === fd.get('uni')); if (!u) return; setUser({ title: fd.get('title'), name: fd.get('name'), uni: u.name, city: u.city, url: u.url, enablePrayer: fd.get('enablePrayer') === 'on' }); }} className="space-y-4">
                                 <select name="title" className="w-full input-dark p-3 rounded-lg">{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select>
                                 <input name="name" required placeholder="Ad Soyad" className="w-full input-dark p-3 rounded-lg" />
@@ -1670,7 +1612,7 @@
                     <div className="space-y-2">
                         <div className="flex gap-2">
                             <button onClick={exportData} className="flex-1 bg-green-900/50 border border-green-800 text-green-100 text-xs py-2 rounded hover:bg-green-800">
-                                📦 Yedek
+                                📦 Yedek (.txt)
                             </button>
                             <button onClick={importData} className="flex-1 bg-blue-900/50 border border-blue-800 text-blue-100 text-xs py-2 rounded hover:bg-blue-800">
                                 📂 Yükle
@@ -1678,7 +1620,7 @@
                         </div>
                         <div className="flex gap-2">
                             <button onClick={exportToPDF} className="flex-1 bg-red-900/50 border border-red-800 text-red-100 text-xs py-2 rounded hover:bg-red-800">
-                                📄 PDF
+                                📄 Renkli PDF
                             </button>
                             <button onClick={exportToICS} className="flex-1 bg-purple-900/50 border border-purple-800 text-purple-100 text-xs py-2 rounded hover:bg-purple-800">
                                 📅 Takvim
