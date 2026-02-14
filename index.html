@@ -8,7 +8,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQWthZGVtaWsgQXNpc3RhbiIsInNob3J0X25hbWUiOiJBa2FkZW1payIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMGYxNzJhIiwidGhlbWVfY29sb3IiOiIjMGYxNzJhIiwicGVybWlzc2lvbnMiOlsibm90aWZpY2F0aW9ucyJdfQ==">
-    <title>Akademik Asistan V3.8 AGGRESSIVE APK</title>
+    <title>Akademik Asistan V3.9 SIMPLE APK</title>
+    
+    <!-- APK FIX: React 17 + Head Loading -->
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.23.5/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- CSS - Keep in head for styling -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -207,110 +214,56 @@
     
     <div id="root"></div>
 
-    <!-- AGGRESSIVE APK FIX - Script Loading with Callbacks -->
+    <!-- SIMPLE APK STARTUP -->
     <script>
-        // Loading status tracker
-        var scriptsLoaded = {
-            react: false,
-            reactdom: false,
-            babel: false,
-            jspdf: false,
-            tailwind: false
-        };
-        
         function updateStatus(msg) {
             var status = document.getElementById('loader-status');
             if (status) status.textContent = msg;
         }
         
-        function checkAndStart() {
-            if (scriptsLoaded.react && scriptsLoaded.reactdom && scriptsLoaded.babel) {
-                updateStatus('Başlatılıyor...');
-                setTimeout(function() {
-                    if (typeof window.appStarted !== 'undefined') return;
-                    window.appStarted = true;
-                    
-                    // Babel script'i çalıştır
-                    if (typeof Babel !== 'undefined') {
-                        updateStatus('React App başlatılıyor...');
-                        // initializeApp fonksiyonu son script'te tanımlı, çağır
-                        if (typeof window.initializeApp === 'function') {
-                            window.initializeApp();
-                        }
-                    }
-                }, 100);
+        function removeLoader() {
+            var loader = document.getElementById('apk-loader');
+            if (loader) {
+                loader.classList.add('hidden');
+                setTimeout(function() { loader.remove(); }, 500);
             }
         }
         
-        // React
-        updateStatus('React yükleniyor...');
-        var reactScript = document.createElement('script');
-        reactScript.crossOrigin = 'anonymous';
-        reactScript.onload = function() { 
-            scriptsLoaded.react = true; 
-            updateStatus('React ✓');
-            checkAndStart(); 
-        };
-        reactScript.onerror = function() { updateStatus('React HATA!'); };
-        reactScript.src = 'https://unpkg.com/react@18/umd/react.production.min.js';
-        document.body.appendChild(reactScript);
-        
-        // ReactDOM
-        reactScript.addEventListener('load', function() {
-            updateStatus('ReactDOM yükleniyor...');
-            var reactDomScript = document.createElement('script');
-            reactDomScript.crossOrigin = 'anonymous';
-            reactDomScript.onload = function() { 
-                scriptsLoaded.reactdom = true; 
-                updateStatus('ReactDOM ✓');
-                checkAndStart(); 
-            };
-            reactDomScript.onerror = function() { updateStatus('ReactDOM HATA!'); };
-            reactDomScript.src = 'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js';
-            document.body.appendChild(reactDomScript);
+        // DOMContentLoaded ile başlat
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus('Hazırlanıyor...');
             
-            // Babel
-            reactDomScript.addEventListener('load', function() {
-                updateStatus('Babel yükleniyor...');
-                var babelScript = document.createElement('script');
-                babelScript.crossOrigin = 'anonymous';
-                babelScript.onload = function() { 
-                    scriptsLoaded.babel = true; 
-                    updateStatus('Babel ✓');
-                    checkAndStart(); 
-                };
-                babelScript.onerror = function() { updateStatus('Babel HATA!'); };
-                babelScript.src = 'https://unpkg.com/@babel/standalone@7.23.5/babel.min.js';
-                document.body.appendChild(babelScript);
-                
-                // jsPDF (arka planda)
-                var jspdfScript = document.createElement('script');
-                jspdfScript.onload = function() { scriptsLoaded.jspdf = true; };
-                jspdfScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-                document.body.appendChild(jspdfScript);
-                
-                // Tailwind (arka planda)
-                var tailwindScript = document.createElement('script');
-                tailwindScript.onload = function() { scriptsLoaded.tailwind = true; };
-                tailwindScript.src = 'https://cdn.tailwindcss.com';
-                document.body.appendChild(tailwindScript);
-            });
+            // Script'lerin yüklenmesini bekle
+            var checkInterval = setInterval(function() {
+                if (typeof React !== 'undefined' && typeof ReactDOM !== 'undefined' && typeof Babel !== 'undefined') {
+                    clearInterval(checkInterval);
+                    updateStatus('Başlatılıyor...');
+                    
+                    setTimeout(function() {
+                        startApp();
+                    }, 500);
+                }
+            }, 100);
+            
+            // 10 saniye timeout
+            setTimeout(function() {
+                clearInterval(checkInterval);
+                if (!window.appStarted) {
+                    if (typeof React !== 'undefined' && typeof ReactDOM !== 'undefined') {
+                        updateStatus('Timeout - Başlatılıyor...');
+                        startApp();
+                    } else {
+                        updateStatus('HATA: React yüklenemedi. İnternet bağlantısını kontrol edin.');
+                    }
+                }
+            }, 10000);
         });
         
-        // 5 saniye timeout
-        setTimeout(function() {
-            if (!window.appStarted) {
-                updateStatus('Timeout! Zorla başlatılıyor...');
-                if (typeof React !== 'undefined' && typeof ReactDOM !== 'undefined') {
-                    window.appStarted = true;
-                    if (typeof window.initializeApp === 'function') {
-                        window.initializeApp();
-                    }
-                } else {
-                    updateStatus('HATA: Script yüklenemedi. İnternet bağlantınızı kontrol edin.');
-                }
-            }
-        }, 5000);
+        function startApp() {
+            if (window.appStarted) return;
+            window.appStarted = true;
+            updateStatus('React App başlatılıyor...');
+        }
     </script>
 
     <script type="text/babel">
@@ -1428,7 +1381,7 @@
                     <div className="min-h-screen flex items-center justify-center p-6 bg-[#0f172a]">
                         <div className="w-full max-w-md glass p-8 rounded-2xl shadow-2xl">
                             <h1 className="text-2xl font-bold text-white mb-2 text-center">Akademik Asistan</h1>
-                            <p className="text-center text-slate-400 mb-6 text-sm">V3.8 AGGRESSIVE APK • Callback Loading • 5s Timeout • ZAPHYROS</p>
+                            <p className="text-center text-slate-400 mb-6 text-sm">V3.9 SIMPLE APK • React 17 • Head Scripts • DOMReady • ZAPHYROS</p>
                             <form onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.target); const u = UNIVERSITIES.find(x => x.name === fd.get('uni')); if (!u) return; setUser({ title: fd.get('title'), name: fd.get('name'), uni: u.name, city: u.city, url: u.url, enablePrayer: fd.get('enablePrayer') === 'on' }); }} className="space-y-4">
                                 <select name="title" className="w-full input-dark p-3 rounded-lg">{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select>
                                 <input name="name" required placeholder="Ad Soyad" className="w-full input-dark p-3 rounded-lg" />
@@ -2068,29 +2021,9 @@
             );
         };
         
-        // APP BAŞLATMA FONKSİYONU - Global olarak expose et
-        window.initializeApp = function() {
-            if (typeof React !== 'undefined' && typeof ReactDOM !== 'undefined') {
-                try {
-                    const root = ReactDOM.createRoot(document.getElementById('root'));
-                    root.render(<App />);
-                    
-                    // Loading ekranını kaldır
-                    setTimeout(function() {
-                        const loader = document.getElementById('apk-loader');
-                        if (loader) {
-                            loader.classList.add('hidden');
-                            setTimeout(function() { loader.remove(); }, 500);
-                        }
-                    }, 300);
-                } catch(err) {
-                    console.error('App başlatma hatası:', err);
-                    document.getElementById('loader-status').textContent = 'Başlatma hatası: ' + err.message;
-                }
-            } else {
-                document.getElementById('loader-status').textContent = 'React yüklenemedi!';
-            }
-        };
+        // APP BAŞLATMA - React 17 render
+        ReactDOM.render(<App />, document.getElementById('root'));
+        removeLoader();
     </script>
 </body>
 </html>
