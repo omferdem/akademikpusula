@@ -8,14 +8,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQWthZGVtaWsgQXNpc3RhbiIsInNob3J0X25hbWUiOiJBa2FkZW1payIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMGYxNzJhIiwidGhlbWVfY29sb3IiOiIjMGYxNzJhIiwicGVybWlzc2lvbnMiOlsibm90aWZpY2F0aW9ucyJdfQ==">
-    <title>Akademik Asistan V1.2</title>
+    <title>Akademik Asistan V3.7 ULTIMATE APK</title>
     
-    <!-- APK UYUMLU - Senkron Yükleme (Defer Kaldırıldı) -->
-    <script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone@7.23.5/babel.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- CSS - Keep in head for styling -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Sacramento&family=Inter:wght@300;400;500;600&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 
@@ -166,10 +161,58 @@
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
         ::-webkit-calendar-picker-indicator { filter: invert(1); }
+        
+        /* LOADING SCREEN - APK için */
+        #apk-loader {
+            position: fixed;
+            inset: 0;
+            background: #0f172a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.5s ease-out;
+        }
+        #apk-loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #1e293b;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loader-text {
+            color: #94a3b8;
+            margin-top: 20px;
+            font-size: 14px;
+        }
     </style>
+
 </head>
 <body>
+    <!-- APK LOADING SCREEN -->
+    <div id="apk-loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">Yükleniyor...</div>
+    </div>
+    
     <div id="root"></div>
+
+    <!-- SCRIPTS - Body sonunda APK uyumluluğu için -->
+    <script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone@7.23.5/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <script type="text/babel">
         const { useState, useEffect, useRef, useCallback } = React;
@@ -1286,7 +1329,7 @@
                     <div className="min-h-screen flex items-center justify-center p-6 bg-[#0f172a]">
                         <div className="w-full max-w-md glass p-8 rounded-2xl shadow-2xl">
                             <h1 className="text-2xl font-bold text-white mb-2 text-center">Akademik Asistan</h1>
-                            <p className="text-center text-slate-400 mb-6 text-sm">V3.6 APK FIX • Senkron Yükleme • ZAPHYROS</p>
+                            <p className="text-center text-slate-400 mb-6 text-sm">V3.7 ULTIMATE APK • Body Scripts • Window Load • ZAPHYROS</p>
                             <form onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.target); const u = UNIVERSITIES.find(x => x.name === fd.get('uni')); if (!u) return; setUser({ title: fd.get('title'), name: fd.get('name'), uni: u.name, city: u.city, url: u.url, enablePrayer: fd.get('enablePrayer') === 'on' }); }} className="space-y-4">
                                 <select name="title" className="w-full input-dark p-3 rounded-lg">{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select>
                                 <input name="name" required placeholder="Ad Soyad" className="w-full input-dark p-3 rounded-lg" />
@@ -1925,8 +1968,44 @@
                 </div>
             );
         };
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        
+        // APK UYUMLU - Window load garantisi
+        window.addEventListener('load', function() {
+            // Script'lerin yüklendiğinden emin ol
+            if (typeof React !== 'undefined' && typeof ReactDOM !== 'undefined') {
+                const root = ReactDOM.createRoot(document.getElementById('root'));
+                root.render(<App />);
+                
+                // Loading ekranını kaldır
+                setTimeout(function() {
+                    const loader = document.getElementById('apk-loader');
+                    if (loader) {
+                        loader.classList.add('hidden');
+                        setTimeout(function() {
+                            loader.remove();
+                        }, 500);
+                    }
+                }, 300);
+            } else {
+                console.error('React veya ReactDOM yüklenemedi');
+                document.getElementById('apk-loader').innerHTML = 
+                    '<div style="color: red; text-align: center;"><i class="fas fa-exclamation-triangle"></i><br>Yükleme hatası<br><small>İnternet bağlantınızı kontrol edin</small></div>';
+            }
+        });
+        
+        // Backup başlatma (10 saniye sonra hala yüklenmediyse)
+        setTimeout(function() {
+            const loader = document.getElementById('apk-loader');
+            if (loader && !loader.classList.contains('hidden')) {
+                console.warn('Backup başlatma çalışıyor');
+                if (typeof React !== 'undefined' && typeof ReactDOM !== 'undefined') {
+                    const root = ReactDOM.createRoot(document.getElementById('root'));
+                    root.render(<App />);
+                    loader.classList.add('hidden');
+                    setTimeout(function() { loader.remove(); }, 500);
+                }
+            }
+        }, 10000);
     </script>
 </body>
 </html>
