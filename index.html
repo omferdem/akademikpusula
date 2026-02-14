@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Akademik Asistan V2.4</title>
+    <title>Akademik Asistan V2.0</title>
     
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -685,73 +685,95 @@
             };
 
             const exportScheduleToPDF = async () => {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF('landscape', 'mm', 'a4');
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('landscape', 'mm', 'a4');
+    
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text(`${user.name} - Haftalık Ders Programı`, 148, 15, { align: "center" });
+    
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${user.uni} • ${user.title}`, 148, 22, { align: "center" });
+
+    const days = Object.keys(schedule);
+    const cellWidth = 38;
+    const cellHeight = 12;
+    const startX = 10;
+    const startY = 30;
+
+    // Başlık satırı
+    doc.setFillColor(240, 240, 240);
+    doc.rect(startX, startY, 20, cellHeight, 'F');
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.text("Saat", startX + 10, startY + 7, { align: "center" });
+
+    days.forEach((day, i) => {
+        doc.rect(startX + 20 + (i * cellWidth), startY, cellWidth, cellHeight, 'F');
+        doc.text(day, startX + 20 + (i * cellWidth) + (cellWidth / 2), startY + 7, { align: "center" });
+    });
+
+    // Ders satırları
+    timeSlots.forEach((time, timeIndex) => {
+        const y = startY + ((timeIndex + 1) * cellHeight);
+        
+        // Saat kolonu
+        doc.setFillColor(250, 250, 250);
+        doc.rect(startX, y, 20, cellHeight, 'FD');
+        doc.setFont("helvetica", "normal");
+        doc.text(time, startX + 10, y + 7, { align: "center" });
+
+        // Ders hücreleri
+        days.forEach((day, dayIndex) => {
+            const lesson = schedule[day][timeIndex];
+            const x = startX + 20 + (dayIndex * cellWidth);
+            
+            if (lesson) {
+                // Renk seçimi
+                if (lesson.type === 'lisans') doc.setFillColor(13, 148, 136);
+                else if (lesson.type === 'yuksek') doc.setFillColor(79, 70, 229);
+                else if (lesson.type === 'doktora') doc.setFillColor(225, 29, 72);
+                else if (lesson.type === 'seminer') doc.setFillColor(217, 119, 6);
                 
+                doc.rect(x, y, cellWidth, cellHeight, 'FD');
+                doc.setTextColor(255, 255, 255);
                 doc.setFont("helvetica", "bold");
-                doc.setFontSize(16);
-                doc.text(`${user.name} - Haftalık Ders Programı`, 148, 15, { align: "center" });
+                doc.setFontSize(7);
                 
-                doc.setFontSize(10);
-                doc.setFont("helvetica", "normal");
-                doc.text(`${user.uni} • ${user.title}`, 148, 22, { align: "center" });
+                // DERS ADI
+                doc.text(lesson.name, x + (cellWidth / 2), y + 4, { align: "center", maxWidth: cellWidth - 2 });
+                
+                // YENİ: SAAT ARALIĞI EKLEME
+                if (lesson.startTime && lesson.endTime) {
+                    doc.setFont("helvetica", "bold");
+                    doc.setFillColor(0, 0, 0, 0.3); // Yarı saydam siyah arka plan
+                    doc.rect(x + 1, y + 6, cellWidth - 2, 3, 'F');
+                    doc.setFontSize(6);
+                    doc.text(`${lesson.startTime} - ${lesson.endTime}`, x + (cellWidth / 2), y + 8, { align: "center" });
+                }
+                
+                // SINIF BİLGİSİ
+                if (lesson.classroom) {
+                    doc.setFont("helvetica", "italic");
+                    doc.setFontSize(6);
+                    doc.text(lesson.classroom, x + (cellWidth / 2), y + 11, { align: "center" });
+                }
+                
+                doc.setTextColor(0, 0, 0);
+            } else {
+                doc.rect(x, y, cellWidth, cellHeight, 'D');
+            }
+        });
+    });
+    
+    // YENİ: Alt bilgi ekleme
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Oluşturulma Tarihi: ${new Date().toLocaleDateString('tr-TR')}`, 148, 200, { align: "center" });
 
-                const days = Object.keys(schedule);
-                const cellWidth = 38;
-                const cellHeight = 12;
-                const startX = 10;
-                const startY = 30;
-
-                doc.setFillColor(240, 240, 240);
-                doc.rect(startX, startY, 20, cellHeight, 'F');
-                doc.setFont("helvetica", "bold");
-                doc.setFontSize(8);
-                doc.text("Saat", startX + 10, startY + 7, { align: "center" });
-
-                days.forEach((day, i) => {
-                    doc.rect(startX + 20 + (i * cellWidth), startY, cellWidth, cellHeight, 'F');
-                    doc.text(day, startX + 20 + (i * cellWidth) + (cellWidth / 2), startY + 7, { align: "center" });
-                });
-
-                timeSlots.forEach((time, timeIndex) => {
-                    const y = startY + ((timeIndex + 1) * cellHeight);
-                    
-                    doc.setFillColor(250, 250, 250);
-                    doc.rect(startX, y, 20, cellHeight, 'FD');
-                    doc.setFont("helvetica", "normal");
-                    doc.text(time, startX + 10, y + 7, { align: "center" });
-
-                    days.forEach((day, dayIndex) => {
-                        const lesson = schedule[day][timeIndex];
-                        const x = startX + 20 + (dayIndex * cellWidth);
-                        
-                        if (lesson) {
-                            if (lesson.type === 'lisans') doc.setFillColor(13, 148, 136);
-                            else if (lesson.type === 'yuksek') doc.setFillColor(79, 70, 229);
-                            else if (lesson.type === 'doktora') doc.setFillColor(225, 29, 72);
-                            else if (lesson.type === 'seminer') doc.setFillColor(217, 119, 6);
-                            
-                            doc.rect(x, y, cellWidth, cellHeight, 'FD');
-                            doc.setTextColor(255, 255, 255);
-                            doc.setFont("helvetica", "bold");
-                            doc.setFontSize(7);
-                            doc.text(lesson.name, x + (cellWidth / 2), y + 5, { align: "center", maxWidth: cellWidth - 2 });
-                            
-                            if (lesson.classroom) {
-                                doc.setFont("helvetica", "italic");
-                                doc.setFontSize(6);
-                                doc.text(lesson.classroom, x + (cellWidth / 2), y + 9, { align: "center" });
-                            }
-                            
-                            doc.setTextColor(0, 0, 0);
-                        } else {
-                            doc.rect(x, y, cellWidth, cellHeight, 'D');
-                        }
-                    });
-                });
-
-                doc.save('ders-programi.pdf');
-            };
+    doc.save('ders-programi.pdf');
+};
 
             // YENİ: Kalp Atışı Hesaplama
             const getHeartbeatClass = (relativeMin, nowMin) => {
