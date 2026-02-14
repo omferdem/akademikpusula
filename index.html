@@ -2,102 +2,599 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APK Test - Minimal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f172a">
+    <title>Akademik Asistan V4.0 NO-BABEL</title>
+    
+    <!-- React 17 - APK Compatible -->
     <script crossorigin src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
     <style>
-        body {
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0f172a;
+            color: #e2e8f0; 
+            -webkit-tap-highlight-color: transparent; 
+            user-select: none;
+            overflow-x: hidden;
             margin: 0;
-            padding: 20px;
-            background: #0f172a;
-            color: white;
-            font-family: Arial, sans-serif;
+            padding: 0;
         }
-        .container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            background: #1e293b;
-            border-radius: 10px;
+        
+        .glass { 
+            background: rgba(30, 41, 59, 0.7); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
         }
-        button {
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 5px;
-            background: #3b82f6;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
+
+        .input-dark { 
+            background: #1e293b; 
+            border: 1px solid #334155; 
+            color: white; 
+            transition: all 0.3s; 
         }
-        button:active {
-            background: #2563eb;
+        .input-dark:focus { border-color: #3b82f6; outline: none; }
+
+        .signature { 
+            font-family: 'Orbitron', monospace; 
+            font-weight: 900; 
+            letter-spacing: 4px; 
+            background: linear-gradient(90deg, #00f2ff, #0080ff, #00f2ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: cyber-glow 2s ease-in-out infinite;
         }
+        
+        @keyframes cyber-glow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+        
+        @keyframes heartbeat-slow {
+            0%, 100% { transform: scale(1); }
+            14% { transform: scale(1.1); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.1); }
+            56% { transform: scale(1); }
+        }
+        
+        @keyframes heartbeat-fast {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.15); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.15); }
+        }
+        
+        .heartbeat-slow { animation: heartbeat-slow 3s ease-in-out infinite; }
+        .heartbeat-fast { animation: heartbeat-fast 1.5s ease-in-out infinite; }
+        
+        .cursor-move { cursor: move !important; }
+        .cursor-move:hover { opacity: 0.8; }
+        .cursor-move:active { opacity: 0.6; cursor: grabbing !important; }
+        
         #loader {
             position: fixed;
             inset: 0;
             background: #0f172a;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
-            color: #94a3b8;
+            z-index: 99999;
         }
-        .hidden { display: none; }
+        #loader.hidden { opacity: 0; pointer-events: none; transition: opacity 0.5s; }
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #1e293b;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .lesson-lisans { background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%) !important; }
+        .lesson-yuksek { background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important; }
+        .lesson-doktora { background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important; }
+        .lesson-seminer { background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important; }
     </style>
 </head>
 <body>
-    <div id="loader">Yükleniyor...</div>
+    <div id="loader">
+        <div class="loader-spinner"></div>
+        <div style="color: #94a3b8; margin-top: 20px;">Başlatılıyor...</div>
+    </div>
     <div id="root"></div>
 
     <script>
-        // BABEL YOK - Sadece vanilla React.createElement
+        // NO BABEL - Pure React.createElement
+        var e = React.createElement;
+        var useState = React.useState;
+        var useEffect = React.useEffect;
+        var useRef = React.useRef;
         
+        // Utility functions
+        function safeGet(key, def) {
+            try {
+                var val = localStorage.getItem(key);
+                return val ? JSON.parse(val) : def;
+            } catch(err) { return def; }
+        }
+        
+        function safeSet(key, val) {
+            try {
+                localStorage.setItem(key, JSON.stringify(val));
+            } catch(err) { console.error('Storage error:', err); }
+        }
+        
+        // Constants
+        var UNIVERSITIES = [
+            {name:"Hacettepe Üniversitesi",city:"Ankara",url:"https://www.hacettepe.edu.tr/akademik-takvim"},
+            {name:"Ankara Üniversitesi",city:"Ankara",url:"https://www.ankara.edu.tr/"},
+            {name:"Gazi Üniversitesi",city:"Ankara",url:"https://gazi.edu.tr/"},
+            {name:"ODTÜ",city:"Ankara",url:"https://www.metu.edu.tr/"},
+            {name:"Selçuk Üniversitesi",city:"Konya",url:"https://www.selcuk.edu.tr/"}
+        ];
+        
+        var LESSON_TYPES = {
+            lisans: {label:"Lisans",className:"lesson-lisans"},
+            yuksek: {label:"Yüksek Lisans",className:"lesson-yuksek"},
+            doktora: {label:"Doktora",className:"lesson-doktora"},
+            seminer: {label:"Seminer",className:"lesson-seminer"}
+        };
+        
+        var DAYS = ["Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi","Pazar"];
+        
+        var DEFAULT_TIMES = ["08:30","09:30","10:30","11:30","12:30","13:30","14:30","15:30","16:30","17:30","18:30","19:30","20:30"];
+        
+        // Main App Component
         function App() {
-            const [count, setCount] = React.useState(0);
+            var _user = useState(safeGet('user_v46', null));
+            var user = _user[0];
+            var setUser = _user[1];
             
-            return React.createElement('div', { className: 'container' },
-                React.createElement('h1', null, '✅ APK ÇALIŞIYOR!'),
-                React.createElement('p', null, 'React başarıyla yüklendi.'),
-                React.createElement('p', null, 'Sayaç: ' + count),
-                React.createElement('button', {
-                    onClick: function() { setCount(count + 1); }
-                }, 'Artır'),
-                React.createElement('button', {
-                    onClick: function() { setCount(0); }
-                }, 'Sıfırla'),
-                React.createElement('p', { style: { fontSize: '12px', marginTop: '20px', opacity: 0.6 }}, 
-                    'Eğer bunu görüyorsanız, APK çalışıyor demektir.')
+            var _view = useState('home');
+            var view = _view[0];
+            var setView = _view[1];
+            
+            var _schedule = useState(safeGet('schedule_v46', createEmptySchedule()));
+            var schedule = _schedule[0];
+            var setSchedule = _schedule[1];
+            
+            var _timeSlots = useState(safeGet('timeSlots_v46', DEFAULT_TIMES));
+            var timeSlots = _timeSlots[0];
+            var setTimeSlots = _timeSlots[1];
+            
+            var _tasks = useState(safeGet('tasks_v46', []));
+            var tasks = _tasks[0];
+            var setTasks = _tasks[1];
+            
+            var _notes = useState(safeGet('notes_v46', ''));
+            var notes = _notes[0];
+            var setNotes = _notes[1];
+            
+            var _currentTime = useState(new Date());
+            var currentTime = _currentTime[0];
+            var setCurrentTime = _currentTime[1];
+            
+            var _cursorColor = useState('bg-emerald-500 shadow-[0_0_15px_#10b981]');
+            var cursorColor = _cursorColor[0];
+            var setCursorColor = _cursorColor[1];
+            
+            var _activeModal = useState(null);
+            var activeModal = _activeModal[0];
+            var setActiveModal = _activeModal[1];
+            
+            var _draggedLesson = useState(null);
+            var draggedLesson = _draggedLesson[0];
+            var setDraggedLesson = _draggedLesson[1];
+            
+            function createEmptySchedule() {
+                var sched = {};
+                DAYS.forEach(function(day) {
+                    sched[day] = Array(13).fill(null);
+                });
+                return sched;
+            }
+            
+            // Storage effects
+            useEffect(function() {
+                if (user) safeSet('user_v46', user);
+            }, [user]);
+            
+            useEffect(function() {
+                safeSet('schedule_v46', schedule);
+            }, [schedule]);
+            
+            useEffect(function() {
+                safeSet('timeSlots_v46', timeSlots);
+            }, [timeSlots]);
+            
+            useEffect(function() {
+                safeSet('tasks_v46', tasks);
+            }, [tasks]);
+            
+            useEffect(function() {
+                safeSet('notes_v46', notes);
+            }, [notes]);
+            
+            // Time updater
+            useEffect(function() {
+                var interval = setInterval(function() {
+                    setCurrentTime(new Date());
+                }, 1000);
+                return function() { clearInterval(interval); };
+            }, []);
+            
+            // Chameleon cursor
+            useEffect(function() {
+                var nowMin = currentTime.getHours() * 60 + currentTime.getMinutes();
+                var allEvents = [];
+                
+                // Get upcoming tasks
+                tasks.forEach(function(task) {
+                    if (!task.completed) {
+                        var taskDate = new Date(task.date);
+                        var today = new Date();
+                        if (taskDate.toDateString() === today.toDateString() && task.time) {
+                            var parts = task.time.split(':');
+                            var taskMin = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+                            var diff = taskMin - nowMin;
+                            if (diff > 0 && diff <= 240) {
+                                allEvents.push({minutesUntil: diff});
+                            }
+                        }
+                    }
+                });
+                
+                if (allEvents.length === 0) {
+                    setCursorColor('bg-emerald-500 shadow-[0_0_15px_#10b981]');
+                } else {
+                    var closest = Math.min.apply(Math, allEvents.map(function(e) { return e.minutesUntil; }));
+                    if (closest < 60) {
+                        setCursorColor('bg-red-500 shadow-[0_0_20px_#ef4444] animate-pulse');
+                    } else if (closest < 240) {
+                        setCursorColor('bg-yellow-400 shadow-[0_0_18px_#fbbf24]');
+                    } else {
+                        setCursorColor('bg-emerald-500 shadow-[0_0_15px_#10b981]');
+                    }
+                }
+            }, [currentTime, tasks]);
+            
+            // Logout function
+            function handleLogout() {
+                if (confirm('Çıkış yapmak istediğinizden emin misiniz?')) {
+                    localStorage.clear();
+                    setUser(null);
+                }
+            }
+            
+            // Login Render
+            if (!user) {
+                return e('div', {className: 'min-h-screen flex items-center justify-center p-6 bg-[#0f172a]'},
+                    e('div', {className: 'w-full max-w-md glass p-8 rounded-2xl shadow-2xl'},
+                        e('h1', {className: 'text-2xl font-bold text-white mb-2 text-center'}, 'Akademik Asistan'),
+                        e('p', {className: 'text-center text-slate-400 mb-6 text-sm'}, 'V4.0 NO-BABEL • APK Compatible • ZAPHYROS'),
+                        e('form', {
+                            onSubmit: function(ev) {
+                                ev.preventDefault();
+                                var fd = new FormData(ev.target);
+                                var uniName = fd.get('uni');
+                                var uni = UNIVERSITIES.find(function(u) { return u.name === uniName; });
+                                if (!uni) return;
+                                setUser({
+                                    title: fd.get('title'),
+                                    name: fd.get('name'),
+                                    uni: uni.name,
+                                    city: uni.city,
+                                    url: uni.url,
+                                    enablePrayer: fd.get('enablePrayer') === 'on'
+                                });
+                            },
+                            className: 'space-y-4'
+                        },
+                            e('div', null,
+                                e('label', {className: 'block text-sm text-slate-300 mb-2'}, 'Unvan'),
+                                e('input', {
+                                    name: 'title',
+                                    className: 'w-full input-dark p-3 rounded',
+                                    placeholder: 'Araş. Gör. / Dr. / Prof.',
+                                    required: true
+                                })
+                            ),
+                            e('div', null,
+                                e('label', {className: 'block text-sm text-slate-300 mb-2'}, 'Ad Soyad'),
+                                e('input', {
+                                    name: 'name',
+                                    className: 'w-full input-dark p-3 rounded',
+                                    placeholder: 'Adınız Soyadınız',
+                                    required: true
+                                })
+                            ),
+                            e('div', null,
+                                e('label', {className: 'block text-sm text-slate-300 mb-2'}, 'Üniversite'),
+                                e('select', {
+                                    name: 'uni',
+                                    className: 'w-full input-dark p-3 rounded',
+                                    required: true
+                                },
+                                    e('option', {value: ''}, 'Seçiniz...'),
+                                    UNIVERSITIES.map(function(u) {
+                                        return e('option', {key: u.name, value: u.name}, u.name + ' - ' + u.city);
+                                    })
+                                )
+                            ),
+                            e('button', {
+                                type: 'submit',
+                                className: 'w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-500 transition'
+                            }, 'GİRİŞ YAP')
+                        )
+                    )
+                );
+            }
+            
+            // Main App UI - Navigation
+            return e('div', {className: 'max-w-md mx-auto min-h-screen bg-[#0f172a] pb-24 relative shadow-2xl text-slate-100'},
+                // Header with signature
+                e('div', {className: 'relative'},
+                    e('div', {className: 'absolute top-3 right-5 text-white/50 text-[10px] tracking-tighter signature z-50 leading-none pointer-events-none'}, 'ZAPHYROS')
+                ),
+                
+                // Content Area
+                e('div', {className: 'p-4'},
+                    // View: Home
+                    view === 'home' && e('div', {className: 'animate-enter space-y-4'},
+                        // Academic Calendar Button
+                        user.url && e('button', {
+                            onClick: function() {
+                                window.open(user.url, '_blank');
+                            },
+                            className: 'w-full bg-slate-800 border border-slate-600 text-blue-300 p-4 rounded-xl flex items-center justify-between hover:bg-slate-700 transition shadow-lg mb-2'
+                        },
+                            e('div', {className: 'flex items-center gap-4'},
+                                e('div', {className: 'w-10 h-10 rounded-full bg-red-900/50 flex items-center justify-center text-white text-xl'},
+                                    e('i', {className: 'fas fa-calendar-alt'})
+                                ),
+                                e('div', {className: 'text-left'},
+                                    e('div', {className: 'text-base font-bold text-white'}, '📅 Akademik Takvim')
+                                )
+                            ),
+                            e('i', {className: 'fas fa-external-link-alt opacity-50'})
+                        ),
+                        
+                        // Quick Actions
+                        e('div', {className: 'grid grid-cols-3 gap-3'},
+                            e('button', {
+                                onClick: function() {
+                                    var today = new Date().toISOString().split('T')[0];
+                                    setActiveModal('task');
+                                },
+                                className: 'bg-gradient-to-br from-blue-600 to-blue-700 text-white p-6 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition'
+                            },
+                                e('i', {className: 'fas fa-bell text-2xl'}),
+                                e('span', {className: 'font-bold text-xs tracking-wide'}, 'HATIRLATICI')
+                            ),
+                            e('button', {
+                                onClick: function() { setActiveModal('notes'); },
+                                className: 'bg-slate-700 text-white p-6 rounded-xl flex flex-col items-center justify-center gap-2 border border-slate-600 shadow-lg active:scale-95 transition'
+                            },
+                                e('i', {className: 'fas fa-sticky-note text-2xl text-yellow-400'}),
+                                e('span', {className: 'font-bold text-xs tracking-wide'}, 'NOT DEFTERİ')
+                            ),
+                            e('a', {
+                                href: 'https://pdfdonustur.vercel.app/',
+                                target: '_blank',
+                                rel: 'noopener noreferrer',
+                                className: 'bg-gradient-to-br from-red-600 to-pink-600 text-white p-6 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition'
+                            },
+                                e('i', {className: 'fas fa-file-pdf text-2xl'}),
+                                e('span', {className: 'font-bold text-xs tracking-wide'}, 'P2PDF')
+                            )
+                        ),
+                        
+                        // Timeline Bar
+                        e('div', {className: 'glass rounded-xl p-4 border border-slate-700 mt-4'},
+                            e('h3', {className: 'text-xs font-bold text-slate-400 uppercase mb-3'}, '24 Saat Zaman Çizelgesi'),
+                            e('div', {className: 'h-16 relative w-full overflow-hidden flex items-center bg-slate-900 rounded-xl border border-slate-700 shadow-inner'},
+                                e('div', {className: 'absolute top-1/2 left-0 w-full h-px bg-slate-600/50'}),
+                                e('div', {className: 'absolute top-0 bottom-0 w-1 z-30 left-[25%] transition-colors duration-500 ' + cursorColor})
+                            )
+                        )
+                    ),
+                    
+                    // View: Schedule
+                    view === 'schedule' && e('div', {className: 'animate-enter glass rounded-xl overflow-hidden border border-slate-700'},
+                        e('div', {className: 'p-3 bg-slate-800/50'},
+                            e('div', {className: 'text-xs font-bold text-slate-400 uppercase'}, 'Haftalık Program')
+                        ),
+                        e('div', {className: 'overflow-x-auto'},
+                            e('table', {className: 'w-full text-xs border-collapse'},
+                                e('thead', {className: 'bg-slate-900 text-slate-400'},
+                                    e('tr', null,
+                                        e('th', {className: 'p-2 w-16 border border-slate-800 text-center'}, 'Saat'),
+                                        DAYS.map(function(d) {
+                                            return e('th', {key: d, className: 'p-2 min-w-[80px] border border-slate-800 text-center'}, d.substring(0,3));
+                                        })
+                                    )
+                                ),
+                                e('tbody', {className: 'divide-y divide-slate-800'},
+                                    timeSlots.map(function(t, i) {
+                                        return e('tr', {key: i, className: 'hover:bg-white/5'},
+                                            e('td', {className: 'p-1 border border-slate-800 text-center'},
+                                                e('input', {
+                                                    type: 'time',
+                                                    className: 'w-full bg-transparent text-center text-slate-500 rounded p-1 focus:text-white outline-none font-mono',
+                                                    value: t,
+                                                    onChange: function(ev) {
+                                                        var newSlots = timeSlots.slice();
+                                                        newSlots[i] = ev.target.value;
+                                                        setTimeSlots(newSlots);
+                                                    }
+                                                })
+                                            ),
+                                            DAYS.map(function(d) {
+                                                var l = schedule[d][i];
+                                                return e('td', {
+                                                    key: d,
+                                                    className: 'p-1 border border-slate-800 h-12 relative cursor-pointer',
+                                                    onClick: function() {
+                                                        setActiveModal('lesson');
+                                                    }
+                                                },
+                                                    l ? e('div', {className: 'w-full h-full rounded flex flex-col items-center justify-center text-center p-1 text-[9px] font-light shadow-sm ' + LESSON_TYPES[l.type].className, style: {lineHeight:'1.1'}},
+                                                        e('span', {className: 'font-bold block truncate'}, l.name),
+                                                        (l.startTime && l.endTime) && e('span', {className: 'block text-[8px] font-bold opacity-90 mt-0.5 bg-black/20 rounded px-1'}, l.startTime + ' - ' + l.endTime),
+                                                        l.classroom && e('span', {className: 'block text-[8px] opacity-80 mt-0.5 italic'}, l.classroom)
+                                                    ) : e('div', {className: 'w-full h-full hover:bg-white/5 rounded'})
+                                                );
+                                            })
+                                        );
+                                    })
+                                )
+                            )
+                        )
+                    ),
+                    
+                    // View: Flow
+                    view === 'flow' && e('div', {className: 'animate-enter space-y-3'},
+                        e('h3', {className: 'text-sm font-bold text-slate-400 uppercase border-b border-slate-700 pb-2 mb-4 ml-1'}, 'Günlük Akış (Yaklaşan)'),
+                        tasks.length === 0 ? e('div', {className: 'text-center py-12 opacity-30 text-sm border-2 border-dashed border-slate-700 rounded-xl'}, 'Akış boş.') :
+                        tasks.map(function(task, i) {
+                            return e('div', {
+                                key: task.id || i,
+                                className: 'glass rounded-lg p-3 border-l-4 border-blue-500 flex items-center justify-between'
+                            },
+                                e('div', null,
+                                    e('div', {className: 'font-bold text-sm text-white'}, task.title),
+                                    task.time && e('div', {className: 'text-xs text-slate-400 mt-1'}, task.time)
+                                ),
+                                e('button', {
+                                    onClick: function() {
+                                        setTasks(tasks.filter(function(t) { return t.id !== task.id; }));
+                                    },
+                                    className: 'text-red-400 hover:text-red-300'
+                                }, e('i', {className: 'fas fa-trash'}))
+                            );
+                        })
+                    )
+                ),
+                
+                // Bottom Navigation
+                e('div', {className: 'fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-lg border-t border-slate-700 shadow-2xl'},
+                    e('div', {className: 'max-w-md mx-auto'},
+                        e('div', {className: 'grid grid-cols-4 gap-1 p-2'},
+                            ['home', 'schedule', 'flow', 'settings'].map(function(v) {
+                                var isActive = view === v;
+                                var icons = {home: 'fa-home', schedule: 'fa-calendar', flow: 'fa-list', settings: 'fa-cog'};
+                                var labels = {home: 'Ana Sayfa', schedule: 'Program', flow: 'Akış', settings: 'Ayarlar'};
+                                
+                                return e('button', {
+                                    key: v,
+                                    onClick: function() { setView(v); },
+                                    className: 'flex flex-col items-center justify-center py-3 rounded-lg transition ' + (isActive ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800')
+                                },
+                                    e('i', {className: 'fas ' + icons[v] + ' text-lg mb-1'}),
+                                    e('span', {className: 'text-[10px] font-medium'}, labels[v])
+                                );
+                            })
+                        )
+                    )
+                ),
+                
+                // Modals
+                activeModal === 'task' && e('div', {className: 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4'},
+                    e('div', {className: 'bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl'},
+                        e('div', {className: 'flex justify-between items-center mb-4'},
+                            e('h3', {className: 'text-white font-bold'}, 'Yeni Hatırlatıcı'),
+                            e('button', {
+                                onClick: function() { setActiveModal(null); },
+                                className: 'text-slate-400 hover:text-white'
+                            }, e('i', {className: 'fas fa-times'}))
+                        ),
+                        e('form', {
+                            onSubmit: function(ev) {
+                                ev.preventDefault();
+                                var fd = new FormData(ev.target);
+                                setTasks(tasks.concat([{
+                                    id: Date.now(),
+                                    title: fd.get('title'),
+                                    date: fd.get('date'),
+                                    time: fd.get('time'),
+                                    desc: fd.get('desc'),
+                                    completed: false
+                                }]));
+                                setActiveModal(null);
+                            },
+                            className: 'space-y-3'
+                        },
+                            e('input', {name: 'title', className: 'w-full input-dark p-3 rounded', placeholder: 'Başlık', required: true}),
+                            e('input', {name: 'date', type: 'date', className: 'w-full input-dark p-3 rounded', required: true}),
+                            e('input', {name: 'time', type: 'time', className: 'w-full input-dark p-3 rounded'}),
+                            e('textarea', {name: 'desc', className: 'w-full input-dark p-3 rounded', placeholder: 'Açıklama', rows: 3}),
+                            e('button', {type: 'submit', className: 'w-full bg-blue-600 text-white py-3 rounded-lg font-bold'}, 'EKLE')
+                        )
+                    )
+                ),
+                
+                activeModal === 'notes' && e('div', {className: 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4'},
+                    e('div', {className: 'bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl'},
+                        e('div', {className: 'flex justify-between items-center mb-4'},
+                            e('h3', {className: 'text-white font-bold'}, 'Not Defteri'),
+                            e('button', {
+                                onClick: function() { setActiveModal(null); },
+                                className: 'text-slate-400 hover:text-white'
+                            }, e('i', {className: 'fas fa-times'}))
+                        ),
+                        e('textarea', {
+                            className: 'w-full input-dark p-3 rounded',
+                            rows: 10,
+                            placeholder: 'Notlarınızı buraya yazın...',
+                            value: notes,
+                            onChange: function(ev) { setNotes(ev.target.value); }
+                        }),
+                        e('button', {
+                            onClick: function() { setActiveModal(null); },
+                            className: 'w-full bg-blue-600 text-white py-3 rounded-lg font-bold mt-3'
+                        }, 'KAPAT')
+                    )
+                ),
+                
+                activeModal === 'settings' && e('div', {className: 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4'},
+                    e('div', {className: 'bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl'},
+                        e('div', {className: 'flex justify-between items-center mb-4'},
+                            e('h3', {className: 'text-white font-bold'}, 'Ayarlar'),
+                            e('button', {
+                                onClick: function() { setActiveModal(null); },
+                                className: 'text-slate-400 hover:text-white'
+                            }, e('i', {className: 'fas fa-times'}))
+                        ),
+                        e('button', {
+                            onClick: handleLogout,
+                            className: 'w-full bg-red-600 text-white py-3 rounded-lg font-bold'
+                        }, 'ÇIKIŞ YAP')
+                    )
+                )
             );
         }
         
-        // Başlat
+        // Start App
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM Ready');
-            
             setTimeout(function() {
-                try {
-                    if (typeof React !== 'undefined' && typeof ReactDOM !== 'undefined') {
-                        console.log('React yüklendi, başlatılıyor...');
-                        ReactDOM.render(
-                            React.createElement(App, null),
-                            document.getElementById('root')
-                        );
-                        
-                        // Loader'ı kaldır
-                        document.getElementById('loader').classList.add('hidden');
-                        console.log('App başarıyla render edildi');
-                    } else {
-                        console.error('React yüklenemedi');
-                        document.getElementById('loader').textContent = 'HATA: React yüklenemedi';
-                    }
-                } catch(err) {
-                    console.error('Başlatma hatası:', err);
-                    document.getElementById('loader').textContent = 'HATA: ' + err.message;
+                if (typeof React !== 'undefined' && typeof ReactDOM !== 'undefined') {
+                    ReactDOM.render(e(App, null), document.getElementById('root'));
+                    document.getElementById('loader').classList.add('hidden');
                 }
-            }, 1000);
+            }, 500);
         });
     </script>
 </body>
