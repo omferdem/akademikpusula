@@ -265,6 +265,18 @@
             const [targetScore, setTargetScore] = useState(() => safeGet('target_score_v48', 100));
             const [calendarEvents, setCalendarEvents] = useState(() => safeGet('calendar_v48', ACADEMIC_DATA['default']));
             const [academicCalendarUrl, setAcademicCalendarUrl] = useState(() => safeGet('academic_calendar_url_v48', ''));
+
+// YENİ: Özelleştirilebilir linkler için state
+const [customLinks, setCustomLinks] = useState(() => safeGet('custom_links_v48', [
+    {id: 1, name: "Fakülte", url: "", icon: "building"},
+    {id: 2, name: "Enstitü", url: "", icon: "graduation-cap"},
+    {id: 3, name: "Öğrenci Bilgi Sistemi", url: "", icon: "user-graduate"},
+    {id: 4, name: "Personel Bilgi Sistemi", url: "", icon: "id-card"},
+    {id: 5, name: "EBYS", url: "", icon: "file-alt"}
+]));
+const [editingLinkId, setEditingLinkId] = useState(null);
+const [tempLinkName, setTempLinkName] = useState("");
+const [tempLinkUrl, setTempLinkUrl] = useState("");
             
             const [view, setView] = useState("flow");
             
@@ -315,6 +327,10 @@
             useEffect(() => { localStorage.setItem('target_score_v48', JSON.stringify(targetScore)); }, [targetScore]);
             useEffect(() => { localStorage.setItem('timeslots_v48', JSON.stringify(timeSlots)); }, [timeSlots]);
             useEffect(() => { localStorage.setItem('academic_calendar_url_v48', JSON.stringify(academicCalendarUrl)); }, [academicCalendarUrl]);
+            // YENİ: Özelleştirilebilir linkler localStorage
+useEffect(() => {
+    safeSave('custom_links_v48', customLinks);
+}, [customLinks]);
 
             const getMinutes = (timeStr) => { if(!timeStr) return 0; const [h, m] = timeStr.split(':').map(Number); return h * 60 + m; };
             const getDayKey = (dateStr) => { const d = new Date(dateStr); const map = ["Pazar", "Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi"]; return map[d.getDay()]; };
@@ -818,7 +834,43 @@
                 );
             };
 
-            const totalCalculated = customScores.reduce((acc, curr) => acc + ( (parseInt(curr.value)||0) * (parseInt(curr.count)||0) ), 0);
+            };  // ← renderTimelineBar fonksiyonunun kapanışı (satır 819)
+
+            // YENİ: Link İşleme Fonksiyonları - BURAYA YAPIŞTIRACAKSINIZ
+            const handleCustomLinkClick = (link) => {
+                if (!link.url) {
+                    setEditingLinkId(link.id);
+                    setTempLinkName(link.name);
+                    setTempLinkUrl(link.url);
+                } else {
+                    window.open(link.url, '_blank');
+                }
+            };
+
+            const saveCustomLink = () => {
+                if (!tempLinkName.trim()) {
+                    alert("Lütfen buton adı giriniz!");
+                    return;
+                }
+                
+                setCustomLinks(customLinks.map(link => 
+                    link.id === editingLinkId 
+                        ? { ...link, name: tempLinkName, url: tempLinkUrl }
+                        : link
+                ));
+                
+                setEditingLinkId(null);
+                setTempLinkName("");
+                setTempLinkUrl("");
+            };
+
+            const startEditLink = (link) => {
+                setEditingLinkId(link.id);
+                setTempLinkName(link.name);
+                setTempLinkUrl(link.url);
+            };
+
+            const totalCalculated = customScores.reduce((acc, curr) => acc + ( (parseInt(curr.value)||0) * (parseInt(curr.count)||0) ), 0);  // ← Bu satır (satır 821)
             const appClass = isScreenshotMode ? "screenshot-mode bg-white min-h-screen text-black" : "max-w-md mx-auto min-h-screen bg-[#0f172a] pb-24 relative shadow-2xl overflow-hidden text-slate-100";
 
             if (!user) {
@@ -1165,28 +1217,7 @@
                                     </div>
                                     
                                     {/* Sabit Linkler */}
-                                    <button 
-                                        onClick={() => window.open('https://www.yok.gov.tr', '_blank')}
-                                        className="w-full bg-slate-700 p-3 rounded-lg text-white flex items-center justify-between hover:bg-slate-600 transition border border-slate-600"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <i className="fas fa-university text-lg"></i>
-                                            <span className="font-semibold text-sm">YÖK</span>
-                                        </div>
-                                        <i className="fas fa-external-link-alt text-xs"></i>
-                                    </button>
-                                    
-                                    <button 
-                                        onClick={() => window.open('https://www.tubitak.gov.tr', '_blank')}
-                                        className="w-full bg-slate-700 p-3 rounded-lg text-white flex items-center justify-between hover:bg-slate-600 transition border border-slate-600"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <i className="fas fa-flask text-lg"></i>
-                                            <span className="font-semibold text-sm">TÜBİTAK</span>
-                                        </div>
-                                        <i className="fas fa-external-link-alt text-xs"></i>
-                                    </button>
-                                    
+                                   {/* Sabit Linkler - YÖK Tez ve YÖK Akademik EN ÜSTTE */}
                                     <button 
                                         onClick={() => window.open('https://tez.yok.gov.tr/UlusalTezMerkezi/', '_blank')}
                                         className="w-full bg-slate-700 p-3 rounded-lg text-white flex items-center justify-between hover:bg-slate-600 transition border border-slate-600"
@@ -1194,17 +1225,6 @@
                                         <div className="flex items-center gap-3">
                                             <i className="fas fa-database text-lg"></i>
                                             <span className="font-semibold text-sm">YÖK Tez</span>
-                                        </div>
-                                        <i className="fas fa-external-link-alt text-xs"></i>
-                                    </button>
-                                    
-                                    <button 
-                                        onClick={() => window.open('https://www.uak.gov.tr', '_blank')}
-                                        className="w-full bg-slate-700 p-3 rounded-lg text-white flex items-center justify-between hover:bg-slate-600 transition border border-slate-600"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <i className="fas fa-landmark text-lg"></i>
-                                            <span className="font-semibold text-sm">ÜAK</span>
                                         </div>
                                         <i className="fas fa-external-link-alt text-xs"></i>
                                     </button>
@@ -1219,10 +1239,76 @@
                                         </div>
                                         <i className="fas fa-external-link-alt text-xs"></i>
                                     </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                                    
+                                    {/* Özelleştirilebilir Linkler */}
+                                    {customLinks.map((link) => (
+                                        <div key={link.id} className="relative">
+                                            {editingLinkId === link.id ? (
+                                                <div className="bg-slate-700 p-3 rounded-lg border border-blue-500">
+                                                    <div className="space-y-2">
+                                                        <input 
+                                                            type="text"
+                                                            className="w-full input-dark p-2 rounded text-sm"
+                                                            placeholder="Buton Adı"
+                                                            value={tempLinkName}
+                                                            onChange={(e) => setTempLinkName(e.target.value)}
+                                                        />
+                                                        <input 
+                                                            type="url"
+                                                            className="w-full input-dark p-2 rounded text-sm"
+                                                            placeholder="https://..."
+                                                            value={tempLinkUrl}
+                                                            onChange={(e) => setTempLinkUrl(e.target.value)}
+                                                        />
+                                                        <div className="flex gap-2">
+                                                            <button 
+                                                                onClick={saveCustomLink}
+                                                                className="flex-1 bg-blue-600 text-white py-2 rounded text-sm hover:bg-blue-500"
+                                                            >
+                                                                <i className="fas fa-check mr-1"></i> Kaydet
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => {
+                                                                    setEditingLinkId(null);
+                                                                    setTempLinkName("");
+                                                                    setTempLinkUrl("");
+                                                                }}
+                                                                className="flex-1 bg-slate-600 text-white py-2 rounded text-sm hover:bg-slate-500"
+                                                            >
+                                                                İptal
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="relative group">
+                                                    <button 
+                                                        onClick={() => handleCustomLinkClick(link)}
+                                                        className={`w-full p-3 rounded-lg text-white flex items-center justify-between transition ${
+                                                            link.url 
+                                                                ? 'bg-slate-700 hover:bg-slate-600 border border-slate-600' 
+                                                                : 'bg-slate-800 hover:bg-slate-700 border border-dashed border-slate-600'
+                                                        }`}
+                                                    >
+                                                        <div className="flex items-center gap-3">
+                                                            <i className={`fas fa-${link.icon} text-lg`}></i>
+                                                            <span className="font-semibold text-sm">{link.name}</span>
+                                                        </div>
+                                                        <i className={`fas ${link.url ? 'fa-external-link-alt' : 'fa-edit'} text-xs`}></i>
+                                                    </button>
+                                                    <button 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            startEditLink(link);
+                                                        }}
+                                                        className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-blue-500 z-10"
+                                                    >
+                                                        <i className="fas fa-edit text-xs"></i>
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
                     
                     {/* AKADEMİK TAKVİM MODAL */}
                     {activeModal === 'academicCalendar' && (
