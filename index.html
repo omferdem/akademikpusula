@@ -122,6 +122,16 @@
             } catch (e) { return def; } 
         };
 
+        const safeSave = (key, val) => { 
+            try { 
+                localStorage.setItem(key, JSON.stringify(val)); 
+            } catch(e) { 
+                console.error('localStorage save failed:', e); 
+            } 
+        };
+
+        const UNIVERSITIES = [
+
         const UNIVERSITIES = [
             { name: "Abant İzzet Baysal Üni.", city: "Bolu", url: "https://www.ibu.edu.tr/" },
             { name: "Adıyaman Üni.", city: "Adiyaman", url: "https://adiyaman.edu.tr/" },
