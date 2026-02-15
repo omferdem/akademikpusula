@@ -265,18 +265,18 @@
             const [targetScore, setTargetScore] = useState(() => safeGet('target_score_v48', 100));
             const [calendarEvents, setCalendarEvents] = useState(() => safeGet('calendar_v48', ACADEMIC_DATA['default']));
             const [academicCalendarUrl, setAcademicCalendarUrl] = useState(() => safeGet('academic_calendar_url_v48', ''));
-
-// YENİ: Özelleştirilebilir linkler için state
-const [customLinks, setCustomLinks] = useState(() => safeGet('custom_links_v48', [
-    {id: 1, name: "Fakülte", url: "", icon: "building"},
-    {id: 2, name: "Enstitü", url: "", icon: "graduation-cap"},
-    {id: 3, name: "Öğrenci Bilgi Sistemi", url: "", icon: "user-graduate"},
-    {id: 4, name: "Personel Bilgi Sistemi", url: "", icon: "id-card"},
-    {id: 5, name: "EBYS", url: "", icon: "file-alt"}
-]));
-const [editingLinkId, setEditingLinkId] = useState(null);
-const [tempLinkName, setTempLinkName] = useState("");
-const [tempLinkUrl, setTempLinkUrl] = useState("");
+            
+            // YENİ: Özelleştirilebilir linkler için state
+            const [customLinks, setCustomLinks] = useState(() => safeGet('custom_links_v48', [
+                {id: 1, name: "Fakülte", url: "", icon: "building"},
+                {id: 2, name: "Enstitü", url: "", icon: "graduation-cap"},
+                {id: 3, name: "Öğrenci Bilgi Sistemi", url: "", icon: "user-graduate"},
+                {id: 4, name: "Personel Bilgi Sistemi", url: "", icon: "id-card"},
+                {id: 5, name: "EBYS", url: "", icon: "file-alt"}
+            ]));
+            const [editingLinkId, setEditingLinkId] = useState(null);
+            const [tempLinkName, setTempLinkName] = useState("");
+            const [tempLinkUrl, setTempLinkUrl] = useState("");
             
             const [view, setView] = useState("flow");
             
@@ -327,10 +327,11 @@ const [tempLinkUrl, setTempLinkUrl] = useState("");
             useEffect(() => { localStorage.setItem('target_score_v48', JSON.stringify(targetScore)); }, [targetScore]);
             useEffect(() => { localStorage.setItem('timeslots_v48', JSON.stringify(timeSlots)); }, [timeSlots]);
             useEffect(() => { localStorage.setItem('academic_calendar_url_v48', JSON.stringify(academicCalendarUrl)); }, [academicCalendarUrl]);
+            
             // YENİ: Özelleştirilebilir linkler localStorage
-useEffect(() => {
-    safeSave('custom_links_v48', customLinks);
-}, [customLinks]);
+            useEffect(() => {
+                safeSave('custom_links_v48', customLinks);
+            }, [customLinks]);
 
             const getMinutes = (timeStr) => { if(!timeStr) return 0; const [h, m] = timeStr.split(':').map(Number); return h * 60 + m; };
             const getDayKey = (dateStr) => { const d = new Date(dateStr); const map = ["Pazar", "Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi"]; return map[d.getDay()]; };
