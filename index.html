@@ -108,6 +108,137 @@
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
         ::-webkit-calendar-picker-indicator { filter: invert(1); }
     </style>
+
+    <script>
+    // ============================================================
+    // EXPO NATIVE BRIDGE - React Native WebView ile haberleşme
+    // ============================================================
+    
+    // Native taraftan gelen mesajları dinle - Android için her iki yöntem
+    function handleNativeMessage(event) {
+        try {
+            var msg = JSON.parse(event.data);
+            if (msg.type === 'IMPORT_DATA' && msg.data) {
+                // Native dosya seçiminden gelen veriyi işle
+                try {
+                    var data = JSON.parse(msg.data);
+                    if(data.user) { localStorage.setItem('user_v48', JSON.stringify(data.user)); }
+                    if(data.tasks) { localStorage.setItem('tasks_v48', JSON.stringify(data.tasks)); }
+                    if(data.completedTasks) { localStorage.setItem('completed_tasks_v48', JSON.stringify(data.completedTasks)); }
+                    if(data.schedule) { localStorage.setItem('schedule_v48', JSON.stringify(data.schedule)); }
+                    if(data.customScores) { localStorage.setItem('scores_v48', JSON.stringify(data.customScores)); }
+                    if(data.notes) { localStorage.setItem('notes_v48', JSON.stringify(data.notes)); }
+                    if(data.academicCalendarUrl) { localStorage.setItem('academic_calendar_url_v48', JSON.stringify(data.academicCalendarUrl)); }
+                    alert("✅ Yedek başarıyla yüklendi! Uygulama yenileniyor...");
+                    setTimeout(function() { window.location.reload(); }, 1000);
+                } catch(err) {
+                    alert("❌ Hata: Dosya bozuk veya geçersiz format.");
+                }
+            } else if (msg.type === 'IMPORT_ERROR') {
+                alert("❌ Dosya açılamadı: " + (msg.error || 'Bilinmeyen hata'));
+            } else if (msg.type === 'EXPORT_SUCCESS') {
+                alert("✅ Yedek dosyası kaydedildi ve paylaşım menüsü açıldı.");
+            }
+        } catch(e) { console.error('Bridge hata:', e); }
+    }
+    
+    // Android ve iOS için her iki event dinleyiciyi ekle
+    window.addEventListener('message', handleNativeMessage);
+    document.addEventListener('message', handleNativeMessage);
+    
+    // Native'e mesaj gönder (güvenli wrapper)
+    function sendToNative(message) {
+        try {
+            if (window.ReactNativeWebView) {
+                window.ReactNativeWebView.postMessage(JSON.stringify(message));
+                return true;
+            }
+            return false;
+        } catch(e) {
+            return false;
+        }
+    }
+    
+    // Uygulama yüklenince tüm bildirimleri planla
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            sendToNative({ type: 'APP_READY' });
+            scheduleAllNotifications();
+        }, 2000);
+    });
+    
+    // Geri tuşu native'den gelince React'a ilet
+    window.addEventListener('popstate', function() {
+        if (window.__reactNavigateBack) window.__reactNavigateBack();
+    });
+
+    // Tüm görev bildirimlerini planla (10 dk önce)
+    function scheduleAllNotifications() {
+        try {
+            var tasks = JSON.parse(localStorage.getItem('tasks_v48') || '[]');
+            var schedule = JSON.parse(localStorage.getItem('schedule_v48') || '{}');
+            var now = new Date();
+            var minTime = new Date(now.getTime() + 11 * 60 * 1000); // en az 11 dk sonrası
+            
+            // Sadece gerçekten gelecekteki görevleri filtrele (tarih + saat bazlı)
+            var upcoming = tasks.filter(function(t) {
+                if (!t.date || !t.time || !t.title) return false;
+                var parts = t.time.split(':');
+                var taskDate = new Date(t.date + 'T00:00:00');
+                taskDate.setHours(parseInt(parts[0]), parseInt(parts[1]), 0, 0);
+                return taskDate.getTime() > minTime.getTime();
+            });
+            
+            // Haftalık ders programından bildirim oluştur (7 gün için)
+            var dayNames = ["Pazar","Pazartesi","Sali","Carsamba","Persembe","Cuma","Cumartesi"];
+            var timeSlots = JSON.parse(localStorage.getItem('timeslots_v48') || '["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]');
+            
+            for (var dayOffset = 0; dayOffset < 7; dayOffset++) {
+                var d = new Date(now);
+                d.setDate(d.getDate() + dayOffset);
+                var dayKey = dayNames[d.getDay()];
+                var dateStr = d.toISOString().split('T')[0];
+                var dayLessons = schedule[dayKey];
+                if (dayLessons) {
+                    dayLessons.forEach(function(lesson, i) {
+                        if (lesson && lesson.name && timeSlots[i]) {
+                            var lessonTime = lesson.startTime || timeSlots[i];
+                            upcoming.push({
+                                id: 'lesson-' + dayOffset + '-' + i,
+                                title: '📚 ' + lesson.name + (lesson.classroom ? ' (' + lesson.classroom + ')' : ''),
+                                date: dateStr,
+                                time: lessonTime
+                            });
+                        }
+                    });
+                }
+            }
+            
+            // Namaz vakitlerini de ekle (bugün ve yarın)
+            try {
+                var prayerData = localStorage.getItem('prayer_cache_v48');
+                var prayerMap = {'Fajr':'İmsak','Sunrise':'Güneş','Dhuhr':'Öğle','Asr':'İkindi','Maghrib':'Akşam','Isha':'Yatsı'};
+                if (prayerData) {
+                    var pt = JSON.parse(prayerData);
+                    var todayStr = now.toISOString().split('T')[0];
+                    var tomorrow = new Date(now); tomorrow.setDate(tomorrow.getDate() + 1);
+                    var tomorrowStr = tomorrow.toISOString().split('T')[0];
+                    Object.keys(prayerMap).forEach(function(k) {
+                        if (pt[k]) {
+                            var time = pt[k].substring(0, 5); // HH:MM
+                            upcoming.push({ id: 'prayer-today-' + k, title: '🕌 ' + prayerMap[k] + ' Vakti', date: todayStr, time: time });
+                            upcoming.push({ id: 'prayer-tmrw-' + k, title: '🕌 ' + prayerMap[k] + ' Vakti', date: tomorrowStr, time: time });
+                        }
+                    });
+                }
+            } catch(pe) {}
+            
+            if (upcoming.length > 0) {
+                sendToNative({ type: 'SCHEDULE_FUTURE_NOTIFICATIONS', tasks: upcoming, sound: localStorage.getItem('notif_sound_v48') ? JSON.parse(localStorage.getItem('notif_sound_v48')) : 'default' });
+            }
+        } catch(e) { console.error('scheduleAllNotifications hata:', e); }
+    }
+    </script>
 </head>
 <body>
     <div id="root"></div>
@@ -285,10 +416,38 @@
             const [editingLinkId, setEditingLinkId] = useState(null);
             const [tempLinkName, setTempLinkName] = useState("");
             const [tempLinkUrl, setTempLinkUrl] = useState("");
+            const [notifSound, setNotifSound] = useState(() => safeGet('notif_sound_v48', 'default'));
             
             const [view, setView] = useState("flow");
             
-            const [activeModal, setActiveModal] = useState(null); 
+            // Geri tuşu için view geçmişi
+            const viewHistory = useRef(["flow"]);
+            
+            const navigateTo = (newView) => {
+                viewHistory.current.push(newView);
+                setView(newView);
+                try { window.history.pushState({ view: newView }, '', ''); } catch(e) {}
+            };
+            
+            const navigateBack = () => {
+                if (viewHistory.current.length > 1) {
+                    viewHistory.current.pop();
+                    const prev = viewHistory.current[viewHistory.current.length - 1];
+                    setView(prev);
+                    return true;
+                }
+                return false;
+            };
+            
+            const [activeModal, setActiveModal] = useState(null);
+            
+            // Geri tuşu için window'a fonksiyon ata
+            useEffect(() => {
+                window.__reactNavigateBack = () => {
+                    if (activeModal) { setActiveModal(null); return; }
+                    navigateBack();
+                };
+            }, [activeModal, view]); 
             const [dayDetailData, setDayDetailData] = useState(null); 
             const [selectedNode, setSelectedNode] = useState(null);
             const [isScreenshotMode, setIsScreenshotMode] = useState(false);
@@ -335,6 +494,7 @@
             useEffect(() => { localStorage.setItem('target_score_v48', JSON.stringify(targetScore)); }, [targetScore]);
             useEffect(() => { localStorage.setItem('timeslots_v48', JSON.stringify(timeSlots)); }, [timeSlots]);
             useEffect(() => { localStorage.setItem('academic_calendar_url_v48', JSON.stringify(academicCalendarUrl)); }, [academicCalendarUrl]);
+            useEffect(() => { safeSave('notif_sound_v48', notifSound); }, [notifSound]);
             
             // YENİ: Özelleştirilebilir linkler localStorage
             useEffect(() => {
@@ -468,6 +628,7 @@
                         if (!alertState || alertState.id !== upcoming.id) {
                             setAlertState(upcoming);
                             try{ audioRef.current.play(); } catch(e){}
+                            sendToNative({ type: 'SCHEDULE_ALERT', title: (upcoming.displayType==='prayer'?'🕌 ':upcoming.displayType==='class'?'📚 ':'') + upcoming.title, time: upcoming.time, id: upcoming.id });
                         }
                     } else { if(alertState) setAlertState(null); }
 
@@ -521,7 +682,26 @@
                     } else { 
                         newTasks.push({...newTask, id: Date.now()}); 
                     } 
-                    setTasks(prev => [...prev, ...newTasks]); 
+                    setTasks(prev => [...prev, ...newTasks]);
+                    
+                    // Native saat uygulamasına alarm ekle (sadece tekil görev ve saat varsa)
+                    if (newTask.time && newTask.type === 'task' && newTasks.length > 0) {
+                        try {
+                            const parts = newTask.time.split(':');
+                            const hour = parseInt(parts[0]);
+                            const minute = parseInt(parts[1]);
+                            // Alarm zamanı gelecekte mi kontrol et
+                            const taskDt = new Date(newTask.date + 'T' + newTask.time);
+                            if (taskDt > new Date()) {
+                                sendToNative({ 
+                                    type: 'SET_NATIVE_ALARM', 
+                                    hour: hour, 
+                                    minute: minute, 
+                                    title: newTask.title 
+                                });
+                            }
+                        } catch(ae) {}
+                    }
                 }
                 
                 setActiveModal(null); setConflictWarn(null); setNewTask({title:"", date:"", time:"", desc:"", type:"task", category:"daily"}); setRecurringType("none");
@@ -546,8 +726,31 @@
             };
 
             const handleAddNote = () => { if(!newNote) return; setNotes([{id: Date.now(), text: newNote, date: new Date().toLocaleDateString()}, ...notes]); setNewNote(""); };
-            const exportData = () => { const data = JSON.stringify({ user, tasks, completedTasks, schedule, customScores, targetScore, notes, academicCalendarUrl }, null, 2); const blob = new Blob([data], {type: "text/plain"}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `akademik_yedek.txt`; a.click(); };
-            const importData = () => { const input = document.createElement('input'); input.type = 'file'; input.accept = '.txt,.json'; input.onchange = (e) => { const file = e.target.files[0]; const reader = new FileReader(); reader.onload = (ev) => { try { const data = JSON.parse(ev.target.result); if(data.user) setUser(data.user); if(data.tasks) setTasks(data.tasks); if(data.completedTasks) setCompletedTasks(data.completedTasks); if(data.schedule) setSchedule(data.schedule); if(data.customScores) setCustomScores(data.customScores); if(data.notes) setNotes(data.notes); if(data.academicCalendarUrl) setAcademicCalendarUrl(data.academicCalendarUrl); alert("Yedek yüklendi!"); window.location.reload(); } catch(err) { alert("Hata! Dosya bozuk."); } }; reader.readAsText(file); }; input.click(); };
+            const exportData = () => { 
+                const data = JSON.stringify({ user, tasks, completedTasks, schedule, customScores, targetScore, notes, academicCalendarUrl }, null, 2);
+                const nativeSent = sendToNative({ type: 'EXPORT_DATA', data: data, filename: 'akademik_yedek.json' });
+                if (!nativeSent) {
+                    const blob = new Blob([data], {type: "text/plain"}); 
+                    const url = URL.createObjectURL(blob); 
+                    const a = document.createElement('a'); 
+                    a.href = url; a.download = 'akademik_yedek.txt'; a.click();
+                }
+            };
+            const importData = () => { 
+                const nativeSent = sendToNative({ type: 'IMPORT_DATA_REQUEST' });
+                if (!nativeSent) {
+                    const input = document.createElement('input'); input.type = 'file'; input.accept = '.txt,.json'; 
+                    input.onchange = (e) => { const file = e.target.files[0]; const reader = new FileReader(); 
+                        reader.onload = (ev) => { try { const data = JSON.parse(ev.target.result); 
+                            if(data.user) setUser(data.user); if(data.tasks) setTasks(data.tasks); 
+                            if(data.completedTasks) setCompletedTasks(data.completedTasks); 
+                            if(data.schedule) setSchedule(data.schedule); if(data.customScores) setCustomScores(data.customScores); 
+                            if(data.notes) setNotes(data.notes); if(data.academicCalendarUrl) setAcademicCalendarUrl(data.academicCalendarUrl); 
+                            alert("Yedek yüklendi!"); window.location.reload(); 
+                        } catch(err) { alert("Hata! Dosya bozuk."); } }; 
+                        reader.readAsText(file); }; input.click(); 
+                }
+            };
             const handleFileUpload = (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { const content = e.target.result; const lines = content.split(/\r\n|\n|\r/); let events = []; let currentEvent = null; lines.forEach(line => { if (line.startsWith('BEGIN:VEVENT')) currentEvent = {}; else if (line.startsWith('END:VEVENT')) { if (currentEvent && currentEvent.SUMMARY && currentEvent.DTSTART) { const rawDate = currentEvent.DTSTART.replace('VALUE=DATE:',''); const y = rawDate.substring(0,4); const m = rawDate.substring(4,6); const d = rawDate.substring(6,8); const h = rawDate.length > 8 ? rawDate.substring(9,11) : "08"; const min = rawDate.length > 8 ? rawDate.substring(11,13) : "00"; events.push({ id: Date.now() + Math.random(), title: currentEvent.SUMMARY, date: `${y}-${m}-${d}`, time: `${h}:${min}`, desc: "Takvimden", type: "task", category: "official", origin: "imported" }); } currentEvent = null; } else if (currentEvent) { const [key, val] = line.split(':'); if(key) currentEvent[key.split(';')[0]] = val; } }); setTasks([...tasks, ...events]); alert(`${events.length} etkinlik eklendi.`); }; reader.readAsText(file); };
             const handleDayClick = (dateStr, events) => { if (events.length > 0) { setDayDetailData({date: dateStr, events}); setActiveModal('dayDetail'); } else { setNewTask({ title: "", date: dateStr, time: "09:00", desc: "", type: "task", category: "daily" }); setActiveModal('task'); } };
             
@@ -710,6 +913,8 @@
             };
 
             const exportScheduleToPDF = async () => {
+    try {
+    if (!window.jspdf) { alert("PDF kütüphanesi yükleniyor, lütfen bekleyin..."); return; }
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('landscape', 'mm', 'a4');
     
@@ -797,7 +1002,19 @@
     doc.setTextColor(100, 100, 100);
     doc.text(`Oluşturulma Tarihi: ${new Date().toLocaleDateString('tr-TR')}`, 148, 200, { align: "center" });
 
-    doc.save('ders-programi.pdf');
+    // PDF'i base64 olarak native'e gönder
+    const pdfBase64 = doc.output('datauristring');
+    if (!sendToNative({ type: 'SAVE_PDF', data: pdfBase64, filename: 'ders-programi.pdf' })) {
+        // Native yoksa blob olarak dene
+        try {
+            const pdfBlob = doc.output('blob');
+            const url = URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = url; a.download = 'ders-programi.pdf'; a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch(e2) { alert("PDF kaydedilemedi: " + e2.message); }
+    }
+    } catch(pdfErr) { alert("PDF oluşturma hatası: " + pdfErr.message); }
 };
 
             // YENİ: Kalp Atışı Hesaplama
@@ -824,6 +1041,7 @@
                             if (positionPct < 0 || positionPct > 100) return null;
                             
                             const isCompleted = completedTasks.includes(ev.id);
+                            const isPast = ev.relativeMin < nowMin; // Geçmiş mi?
                             
                             let nodeColor = "bg-gray-500"; 
                             if (ev.displayType === 'prayer') nodeColor = "bg-white w-0.5 h-full rounded-none top-0 translate-y-0";
@@ -835,7 +1053,7 @@
                             }
 
                             const heartbeat = getHeartbeatClass(ev.relativeMin, nowMin);
-                            const opacityClass = isCompleted ? 'opacity-30' : '';
+                            const opacityClass = isCompleted ? 'opacity-20' : isPast ? 'opacity-30' : '';
                             
                             return (<div key={ev.id} className={`absolute top-1/2 -translate-y-1/2 z-20 cursor-pointer ${nodeColor} ${heartbeat} ${opacityClass}`} style={{left: `${positionPct}%`}} onClick={() => { if(ev.displayType!=='prayer'&&ev.displayType!=='class') openEditTask(ev); else setSelectedNode(ev); }}></div>);
                         })}
@@ -845,13 +1063,22 @@
 
 
             // YENİ: Link İşleme Fonksiyonları - BURAYA YAPIŞTIRACAKSINIZ
+            const fixUrl = (url) => {
+                if (!url) return url;
+                url = url.trim();
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    url = 'https://' + url;
+                }
+                return url;
+            };
+            
             const handleCustomLinkClick = (link) => {
                 if (!link.url) {
                     setEditingLinkId(link.id);
                     setTempLinkName(link.name);
                     setTempLinkUrl(link.url);
                 } else {
-                    window.open(link.url, '_blank');
+                    window.open(fixUrl(link.url), '_blank');
                 }
             };
 
@@ -863,7 +1090,7 @@
                 
                 setCustomLinks(customLinks.map(link => 
                     link.id === editingLinkId 
-                        ? { ...link, name: tempLinkName, url: tempLinkUrl }
+                        ? { ...link, name: tempLinkName, url: fixUrl(tempLinkUrl) }
                         : link
                 ));
                 
@@ -994,16 +1221,27 @@
                         {view === 'home' && (
                             <div className="animate-enter space-y-4">
                                 {user.url && (
-                                    <button onClick={() => setActiveModal('academicCalendar')} className="w-full bg-slate-800 border border-slate-600 text-blue-300 p-4 rounded-xl flex items-center justify-between hover:bg-slate-700 transition shadow-lg mb-2">
+                                    <div className="relative mb-2">
+                                    <button onClick={() => { if(academicCalendarUrl) { window.open(fixUrl(academicCalendarUrl), '_blank'); } else { setActiveModal('academicCalendar'); } }} className="w-full bg-slate-800 border border-slate-600 text-blue-300 p-4 rounded-xl flex items-center justify-between hover:bg-slate-700 transition shadow-lg">
                                         <div className="flex items-center gap-4">
                                             <div className="w-10 h-10 rounded-full bg-red-900/50 flex items-center justify-center text-white text-xl"><i className="fas fa-calendar-alt"></i></div>
                                             <div className="text-left">
-                                                <div className="text-xs text-slate-400">Üniversite Paneli</div>
+                                                <div className="text-xs text-slate-400">{academicCalendarUrl ? 'Linke git' : 'Link ekle'}</div>
                                                 <div className="text-base font-bold text-white">📅 Akademik Takvim</div>
                                             </div>
                                         </div>
-                                        <i className="fas fa-chevron-right opacity-50"></i>
+                                        {!academicCalendarUrl && <i className="fas fa-plus opacity-50"></i>}
                                     </button>
+                                    {academicCalendarUrl && (
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); setActiveModal('academicCalendar'); }}
+                                            className="absolute top-1/2 -translate-y-1/2 right-3 w-7 h-7 bg-blue-600 hover:bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg z-10"
+                                            title="Linki Düzenle"
+                                        >
+                                            <i className="fas fa-edit text-xs"></i>
+                                        </button>
+                                    )}
+                                </div>
                                 )}
                                 <div className="grid grid-cols-2 gap-4">
                                     <button onClick={() => { const today = new Date().toISOString().split('T')[0]; setNewTask({title:"", date:today, time:"", desc:"", type:"task", category:"daily"}); setActiveModal('task'); setConflictWarn(null); }} className="bg-gradient-to-br from-blue-600 to-blue-700 text-white p-6 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition">
@@ -1148,7 +1386,7 @@
 
                     {/* ALT NAVİGASYON */}
                     <div className="fixed bottom-0 w-full max-w-md bg-slate-900/95 backdrop-blur border-t border-slate-800 flex justify-around py-4 pb-8 z-50 no-screenshot">
-                        {[{id: 'flow', icon: 'stream', label: 'Akış'},{id: 'home', icon: 'home', label: 'Ana Sayfa'},{id: 'schedule', icon: 'table', label: 'Ders'},{id: 'annual', icon: 'calendar-alt', label: 'Yıllık'},{id: 'promotion', icon: 'chart-pie', label: 'Puan'}].map(t => (<button key={t.id} onClick={() => setView(t.id)} className={`flex flex-col items-center gap-1 ${view === t.id ? 'text-blue-400' : 'text-slate-500 hover:text-slate-400'}`}><i className={`fas fa-${t.icon} text-lg`}></i><span className="text-[10px] uppercase font-bold">{t.label}</span></button>))}
+                        {[{id: 'flow', icon: 'stream', label: 'Akış'},{id: 'home', icon: 'home', label: 'Ana Sayfa'},{id: 'schedule', icon: 'table', label: 'Ders'},{id: 'annual', icon: 'calendar-alt', label: 'Yıllık'},{id: 'promotion', icon: 'chart-pie', label: 'Puan'}].map(t => (<button key={t.id} onClick={() => navigateTo(t.id)} className={`flex flex-col items-center gap-1 ${view === t.id ? 'text-blue-400' : 'text-slate-500 hover:text-slate-400'}`}><i className={`fas fa-${t.icon} text-lg`}></i><span className="text-[10px] uppercase font-bold">{t.label}</span></button>))}
                     </div>
 
                     {/* POMODORO BUTTON */}
@@ -1337,9 +1575,9 @@
                                     <div>
                                         <label className="text-xs text-slate-400 block mb-2">Akademik Takvim Linki</label>
                                         <input 
-                                            type="url" 
+                                            type="text" 
                                             className="w-full input-dark p-3 rounded text-sm" 
-                                            placeholder="https://..."
+                                            placeholder="https:// veya www. ile başlayan link"
                                             value={academicCalendarUrl}
                                             onChange={(e) => setAcademicCalendarUrl(e.target.value)}
                                         />
@@ -1348,7 +1586,7 @@
                                     <div className="flex gap-2">
                                         {academicCalendarUrl && (
                                             <button 
-                                                onClick={() => window.open(academicCalendarUrl, '_blank')}
+                                                onClick={() => { setAcademicCalendarUrl(fixUrl(academicCalendarUrl)); window.open(fixUrl(academicCalendarUrl), '_blank'); }}
                                                 className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-500 transition"
                                             >
                                                 <i className="fas fa-external-link-alt mr-2"></i>
@@ -1356,16 +1594,16 @@
                                             </button>
                                         )}
                                         <button 
-                                            onClick={() => setActiveModal(null)}
+                                            onClick={() => { setAcademicCalendarUrl(fixUrl(academicCalendarUrl)); setActiveModal(null); }}
                                             className="flex-1 bg-slate-700 text-slate-300 py-3 rounded-lg hover:bg-slate-600 transition"
                                         >
-                                            Kapat
+                                            Kaydet
                                         </button>
                                     </div>
                                     
                                     {!academicCalendarUrl && (
                                         <p className="text-xs text-slate-500 text-center mt-2">
-                                            Üniversitenizin akademik takvim sayfasının linkini buraya ekleyin
+                                            www. ile başlayan adreslere otomatik https:// eklenir
                                         </p>
                                     )}
                                 </div>
@@ -1493,7 +1731,25 @@
                     )}
 
                     {/* AYARLAR MODAL */}
-                    {activeModal === 'settings' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl relative"><button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><i className="fas fa-times"></i></button><h3 className="text-white font-bold mb-4">Ayarlar</h3><form onSubmit={handleUpdateUser} className="space-y-4"><div><label className="text-xs text-slate-400">Ad Soyad</label><input name="name" defaultValue={user.name} required className="w-full input-dark p-3 rounded-lg" /></div><div><label className="text-xs text-slate-400">Üniversite</label><select name="uni" defaultValue={user.uni} className="w-full input-dark p-3 rounded-lg">{UNIVERSITIES.map(u => <option key={u.name} value={u.name}>{u.name}</option>)}</select></div><div className="flex items-center gap-3 pt-2"><input type="checkbox" name="enablePrayer" defaultChecked={user.enablePrayer} className="w-5 h-5 accent-blue-500" /><span className="text-sm text-slate-300">Namaz Vakitlerini Göster</span></div><button className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-500">Kaydet</button></form><hr className="border-slate-700 my-4" /><div className="flex gap-2"><button onClick={exportData} className="flex-1 bg-green-900/50 border border-green-800 text-green-100 text-xs py-2 rounded hover:bg-green-800">Yedek İndir (.txt)</button><button onClick={importData} className="flex-1 bg-blue-900/50 border border-blue-800 text-blue-100 text-xs py-2 rounded hover:bg-blue-800">Yedek Yükle</button></div></div></div>)}
+                    {activeModal === 'settings' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl relative"><button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><i className="fas fa-times"></i></button><h3 className="text-white font-bold mb-4">Ayarlar</h3><form onSubmit={handleUpdateUser} className="space-y-4"><div><label className="text-xs text-slate-400">Ad Soyad</label><input name="name" defaultValue={user.name} required className="w-full input-dark p-3 rounded-lg" /></div><div><label className="text-xs text-slate-400">Üniversite</label><select name="uni" defaultValue={user.uni} className="w-full input-dark p-3 rounded-lg">{UNIVERSITIES.map(u => <option key={u.name} value={u.name}>{u.name}</option>)}</select></div><div className="flex items-center gap-3 pt-2"><input type="checkbox" name="enablePrayer" defaultChecked={user.enablePrayer} className="w-5 h-5 accent-blue-500" /><span className="text-sm text-slate-300">Namaz Vakitlerini Göster</span></div><button className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-500">Kaydet</button></form><hr className="border-slate-700 my-4" />
+                                <div className="mb-4">
+                                    <label className="text-xs text-slate-400 block mb-2">🔔 Bildirim Sesi</label>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {[
+                                            {id:'default', label:'🔔 Varsayılan'},
+                                            {id:'alarm', label:'⏰ Alarm'},
+                                            {id:'chime', label:'🎵 Çan'},
+                                            {id:'silent', label:'🔇 Sessiz'},
+                                        ].map(s => (
+                                            <button 
+                                                key={s.id}
+                                                onClick={() => { setNotifSound(s.id); sendToNative({type:'SET_NOTIF_SOUND', sound: s.id}); }}
+                                                className={`p-2 rounded text-xs font-bold border transition ${notifSound===s.id ? 'bg-blue-600 border-blue-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}`}
+                                            >{s.label}</button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <hr className="border-slate-700 my-4" /><div className="flex gap-2"><button onClick={exportData} className="flex-1 bg-green-900/50 border border-green-800 text-green-100 text-xs py-2 rounded hover:bg-green-800">Yedek İndir (.json)</button><button onClick={importData} className="flex-1 bg-blue-900/50 border border-blue-800 text-blue-100 text-xs py-2 rounded hover:bg-blue-800">Yedek Yükle</button></div></div></div>)}
                     
                     {/* GÖREV EKLEME/DÜZENLEME MODAL */}
                     {activeModal === 'task' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto"><h3 className="text-white font-bold mb-4">{editingTask ? 'Görevi Düzenle' : 'Yeni Hatırlatıcı'}</h3><div className="space-y-3"><input className="w-full input-dark p-3 rounded" placeholder="Başlık" value={newTask.title} onChange={e=>{setNewTask({...newTask,title:e.target.value}); setConflictWarn(null);}} /><div className="grid grid-cols-2 gap-2"><select className="w-full input-dark p-3 rounded" value={newTask.category} onChange={e=>setNewTask({...newTask,category:e.target.value})}><option value="daily">Gündelik İş (Mavi)</option><option value="official">Resmi Toplantı (Sarı)</option><option value="special">Özel Gün (Pembe - Yıllık Tekrar)</option></select><input type="time" className="w-full input-dark p-3 rounded" value={newTask.time} onChange={e=>{setNewTask({...newTask,time:e.target.value}); setConflictWarn(null);}} /></div><input type="date" className="w-full input-dark p-3 rounded" value={newTask.date} onChange={e=>{setNewTask({...newTask,date:e.target.value}); setConflictWarn(null);}} /><textarea className="w-full input-dark p-3 rounded h-20 resize-none" placeholder="Açıklama..." value={newTask.desc} onChange={e=>setNewTask({...newTask,desc:e.target.value})}></textarea>{newTask.category !== 'special' && (<div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700"><div className="mb-2"><span className="text-xs text-slate-300 font-bold">Rutin Tekrar Seçeneği</span></div><select className="w-full input-dark p-2 rounded text-sm" value={recurringType} onChange={e=>setRecurringType(e.target.value)} disabled={!!editingTask}><option value="none">Tekrar Yok</option><option value="weekly">Haftalık</option><option value="biweekly">İki Haftada Bir</option><option value="monthly">Aylık</option></select>{recurringType !== "none" && recurringType !== "monthly" && (<div className="flex items-center gap-2 mt-2 animate-enter"><span className="text-[10px] text-slate-400">Kaç Kez?</span><input type="number" value={recurringWeeks} onChange={e=>setRecurringWeeks(parseInt(e.target.value))} className="w-16 bg-slate-900 border border-slate-600 rounded p-1 text-center text-white text-xs" /></div>)}{recurringType === "monthly" && (<p className="text-[10px] text-slate-400 mt-2">12 ay boyunca her ay tekrarlanacak</p>)}</div>)}{newTask.category === 'special' && (<div className="bg-pink-900/20 p-3 rounded-lg border border-pink-700"><p className="text-xs text-pink-300"><i className="fas fa-info-circle mr-1"></i>Özel günler her yıl otomatik olarak tekrarlanır</p></div>)}</div><div className="flex gap-2 mt-4"><button onClick={()=>{setActiveModal(null); setEditingTask(null); setNewTask({title:"", date:"", time:"", desc:"", type:"task", category:"daily"}); setRecurringType("none");}} className="flex-1 py-3 rounded bg-slate-700 text-slate-400 hover:bg-slate-600">İptal</button><button onClick={handleAddTask} className={`flex-1 py-3 rounded text-white font-bold transition ${conflictWarn ? 'bg-red-600 hover:bg-red-700 animate-pulse' : 'bg-blue-600 hover:bg-blue-500'}`}>{conflictWarn ? '⚠️ Yine de Ekle?' : (editingTask ? 'Güncelle' : 'Kaydet')}</button></div>{conflictWarn && <div className="mt-2 text-center text-xs text-red-300 bg-red-900/20 p-2 rounded">{conflictWarn}</div>}</div></div>)}
