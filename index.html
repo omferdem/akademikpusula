@@ -264,114 +264,81 @@
             } 
         };
 
-        const UNIVERSITIES = [
-            { name: "Abant İzzet Baysal Üni.", city: "Bolu", url: "https://www.ibu.edu.tr/" },
-            { name: "Adıyaman Üni.", city: "Adiyaman", url: "https://adiyaman.edu.tr/" },
-            { name: "Adnan Menderes Üni.", city: "Aydin", url: "https://www.adu.edu.tr/" },
-            { name: "Afyon Kocatepe Üni.", city: "Afyonkarahisar", url: "https://aku.edu.tr/" },
-            { name: "Ağrı İbrahim Çeçen Üni.", city: "Agri", url: "https://www.agri.edu.tr/" },
-            { name: "Akdeniz Üni.", city: "Antalya", url: "https://www.akdeniz.edu.tr/duyurular" },
-            { name: "Aksaray Üni.", city: "Aksaray", url: "https://www.aksaray.edu.tr/" },
-            { name: "Alanya Alaaddin Keykubat Üni.", city: "Antalya", url: "https://www.alanya.edu.tr/" },
-            { name: "Amasya Üni.", city: "Amasya", url: "https://www.amasya.edu.tr/" },
-            { name: "Anadolu Üni.", city: "Eskisehir", url: "https://www.anadolu.edu.tr/duyurular" },
-            { name: "Ankara Hacı Bayram Veli Üni.", city: "Ankara", url: "https://hacibayram.edu.tr/" },
-            { name: "Ankara Sosyal Bilimler Üni.", city: "Ankara", url: "https://www.asbu.edu.tr/" },
-            { name: "Ankara Üni.", city: "Ankara", url: "https://www.ankara.edu.tr/duyurular" },
-            { name: "Ankara Yıldırım Beyazıt Üni.", city: "Ankara", url: "https://aybu.edu.tr/" },
-            { name: "Ardahan Üni.", city: "Ardahan", url: "https://www.ardahan.edu.tr/" },
-            { name: "Artvin Çoruh Üni.", city: "Artvin", url: "https://www.artvin.edu.tr/" },
-            { name: "Atatürk Üni.", city: "Erzurum", url: "https://www.atauni.edu.tr/duyurular" },
-            { name: "Balıkesir Üni.", city: "Balikesir", url: "https://www.balikesir.edu.tr/" },
-            { name: "Bandırma Onyedi Eylül Üni.", city: "Balikesir", url: "https://www.bandirma.edu.tr/" },
-            { name: "Bartın Üni.", city: "Bartin", url: "https://w3.bartin.edu.tr/" },
-            { name: "Batman Üni.", city: "Batman", url: "https://batman.edu.tr/" },
-            { name: "Bayburt Üni.", city: "Bayburt", url: "https://www.bayburt.edu.tr/" },
-            { name: "Bilecik Şeyh Edebali Üni.", city: "Bilecik", url: "http://www.bilecik.edu.tr/" },
-            { name: "Bingöl Üni.", city: "Bingol", url: "http://www.bingol.edu.tr/" },
-            { name: "Bitlis Eren Üni.", city: "Bitlis", url: "https://www.beu.edu.tr/" },
-            { name: "Boğaziçi Üni.", city: "Istanbul", url: "https://bogazici.edu.tr/" },
-            { name: "Bozok Üni.", city: "Yozgat", url: "https://bozok.edu.tr/" },
-            { name: "Bursa Teknik Üni.", city: "Bursa", url: "https://www.btu.edu.tr/" },
-            { name: "Bülent Ecevit Üni.", city: "Zonguldak", url: "https://w3.beun.edu.tr/" },
-            { name: "Celal Bayar Üni.", city: "Manisa", url: "https://www.mcbu.edu.tr/" },
-            { name: "Cumhuriyet Üni.", city: "Sivas", url: "https://www.cumhuriyet.edu.tr/" },
-            { name: "Çanakkale Onsekiz Mart Üni.", city: "Canakkale", url: "https://www.comu.edu.tr/" },
-            { name: "Çankırı Karatekin Üni.", city: "Cankiri", url: "https://karatekin.edu.tr/" },
-            { name: "Çukurova Üni.", city: "Adana", url: "https://www.cu.edu.tr/duyurular" },
-            { name: "Dicle Üni.", city: "Diyarbakir", url: "https://www.dicle.edu.tr/tr/duyurular" },
-            { name: "Dokuz Eylül Üni.", city: "Izmir", url: "https://www.deu.edu.tr/duyurular/" },
-            { name: "Dumlupınar Üni.", city: "Kutahya", url: "https://dpu.edu.tr/" },
-            { name: "Düzce Üni.", city: "Duzce", url: "https://duzce.edu.tr/" },
-            { name: "Ege Üni.", city: "Izmir", url: "https://ege.edu.tr/tr-0/duyurular.html" },
-            { name: "Erciyes Üni.", city: "Kayseri", url: "https://www.erciyes.edu.tr/tr/duyurular" },
-            { name: "Erzincan Binali Yıldırım Üni.", city: "Erzincan", url: "https://ebyu.edu.tr/" },
-            { name: "Erzurum Teknik Üni.", city: "Erzurum", url: "https://www.erzurum.edu.tr/" },
-            { name: "Eskişehir Osmangazi Üni.", city: "Eskisehir", url: "https://ogu.edu.tr/" },
-            { name: "Fırat Üni.", city: "Elazig", url: "http://www.firat.edu.tr/tr/duyurular" },
-            { name: "Galatasaray Üni.", city: "Istanbul", url: "https://gsu.edu.tr/" },
-            { name: "Gazi Üni.", city: "Ankara", url: "https://gazi.edu.tr/duyurular" },
-            { name: "Gaziantep Üni.", city: "Gaziantep", url: "https://www.gantep.edu.tr/" },
-            { name: "Gebze Teknik Üni.", city: "Kocaeli", url: "https://www.gtu.edu.tr/" },
-            { name: "Giresun Üni.", city: "Giresun", url: "https://giresun.edu.tr/" },
-            { name: "Gümüşhane Üni.", city: "Gumushane", url: "https://www.gumushane.edu.tr/" },
-            { name: "Hacettepe Üni.", city: "Ankara", url: "https://www.hacettepe.edu.tr/duyurular" },
-            { name: "Hakkari Üni.", city: "Hakkari", url: "https://www.hakkari.edu.tr/" },
-            { name: "Harran Üni.", city: "Sanliurfa", url: "https://www.harran.edu.tr/" },
-            { name: "Hitit Üni.", city: "Corum", url: "https://www.hitit.edu.tr/" },
-            { name: "Iğdır Üni.", city: "Igdir", url: "https://www.igdir.edu.tr/" },
-            { name: "İnönü Üni.", city: "Malatya", url: "https://www.inonu.edu.tr/" },
-            { name: "İskenderun Teknik Üni.", city: "Hatay", url: "https://iste.edu.tr/" },
-            { name: "İstanbul Medeniyet Üni.", city: "Istanbul", url: "https://medeniyet.edu.tr/" },
-            { name: "İstanbul Teknik Üni. (İTÜ)", city: "Istanbul", url: "https://www.itu.edu.tr/duyurular" },
-            { name: "İstanbul Üni.", city: "Istanbul", url: "https://www.istanbul.edu.tr/tr/duyurular" },
-            { name: "İzmir Katip Çelebi Üni.", city: "Izmir", url: "https://ikcu.edu.tr/" },
-            { name: "İzmir Yüksek Teknoloji Enstitüsü", city: "Izmir", url: "https://iyte.edu.tr/" },
-            { name: "Kafkas Üni.", city: "Kars", url: "https://www.kafkas.edu.tr/" },
-            { name: "Kahramanmaraş Sütçü İmam Üni.", city: "Kahramanmaras", url: "https://ksu.edu.tr/" },
-            { name: "Karabük Üni.", city: "Karabuk", url: "https://karabuk.edu.tr/" },
-            { name: "Karadeniz Teknik Üni. (KTÜ)", city: "Trabzon", url: "https://www.ktu.edu.tr/duyurular" },
-            { name: "Karamanoğlu Mehmetbey Üni.", city: "Karaman", url: "https://www.kmu.edu.tr/" },
-            { name: "Kastamonu Üni.", city: "Kastamonu", url: "https://kastamonu.edu.tr/" },
-            { name: "Kırıkkale Üni.", city: "Kirikkale", url: "https://kku.edu.tr/" },
-            { name: "Kırklareli Üni.", city: "Kirklareli", url: "https://klu.edu.tr/" },
-            { name: "Kilis 7 Aralık Üni.", city: "Kilis", url: "https://kilis.edu.tr/" },
-            { name: "Kocaeli Üni.", city: "Kocaeli", url: "https://kocaeli.edu.tr/" },
-            { name: "Konya Teknik Üni.", city: "Konya", url: "https://www.ktun.edu.tr/tr/Universite/Duyurular" },
-            { name: "KTO Karatay Üni.", city: "Konya", url: "https://www.karatay.edu.tr/duyurular" },
-            { name: "Marmara Üni.", city: "Istanbul", url: "https://www.marmara.edu.tr/duyurular" },
-            { name: "Mehmet Akif Ersoy Üni.", city: "Burdur", url: "https://www.mehmetakif.edu.tr/" },
-            { name: "Mersin Üni.", city: "Mersin", url: "https://mersin.edu.tr/" },
-            { name: "Mimar Sinan Güzel Sanatlar Üni.", city: "Istanbul", url: "https://msgsu.edu.tr/" },
-            { name: "Muğla Sıtkı Koçman Üni.", city: "Mugla", url: "https://mu.edu.tr/" },
-            { name: "Mustafa Kemal Üni.", city: "Hatay", url: "https://www.mku.edu.tr/" },
-            { name: "Muş Alparslan Üni.", city: "Mus", url: "https://alparslan.edu.tr/" },
-            { name: "Namık Kemal Üni.", city: "Tekirdag", url: "http://nku.edu.tr/" },
-            { name: "Necmettin Erbakan Üni.", city: "Konya", url: "https://www.erbakan.edu.tr/duyurular" },
-            { name: "Nevşehir Hacı Bektaş Veli Üni.", city: "Nevsehir", url: "https://nevsehir.edu.tr/" },
-            { name: "Niğde Ömer Halisdemir Üni.", city: "Nigde", url: "https://ohu.edu.tr/" },
-            { name: "Ondokuz Mayıs Üni.", city: "Samsun", url: "https://omu.edu.tr/" },
-            { name: "Ordu Üni.", city: "Ordu", url: "https://odu.edu.tr/" },
-            { name: "Orta Doğu Teknik Üni. (ODTÜ)", city: "Ankara", url: "https://www.metu.edu.tr/tr/duyurular" },
-            { name: "Osmaniye Korkut Ata Üni.", city: "Osmaniye", url: "https://osmaniye.edu.tr/" },
-            { name: "Pamukkale Üni.", city: "Denizli", url: "https://pau.edu.tr/" },
-            { name: "Recep Tayyip Erdoğan Üni.", city: "Rize", url: "https://erdogan.edu.tr/" },
-            { name: "Sakarya Uygulamalı Bilimler Üni.", city: "Sakarya", url: "https://subu.edu.tr/" },
-            { name: "Sakarya Üni.", city: "Sakarya", url: "https://sakarya.edu.tr/" },
-            { name: "Selçuk Üni.", city: "Konya", url: "https://www.selcuk.edu.tr/Duyurular" },
-            { name: "Siirt Üni.", city: "Siirt", url: "https://siirt.edu.tr/" },
-            { name: "Sinop Üni.", city: "Sinop", url: "https://sinop.edu.tr/" },
-            { name: "Süleyman Demirel Üni.", city: "Isparta", url: "https://sdu.edu.tr/" },
-            { name: "Şırnak Üni.", city: "Sirnak", url: "https://sirnak.edu.tr/" },
-            { name: "Trakya Üni.", city: "Edirne", url: "https://trakya.edu.tr/" },
-            { name: "TOBB ETU.", city: "Ankara", url: "https://www.etu.edu.tr/tr/haberler/" },
-            { name: "Tunceli Üni.", city: "Tunceli", url: "https://munzur.edu.tr/" },
-            { name: "Uludağ Üni.", city: "Bursa", url: "https://uludag.edu.tr/" },
-            { name: "Uşak Üni.", city: "Usak", url: "https://usak.edu.tr/" },
-            { name: "Yalova Üni.", city: "Yalova", url: "https://yalova.edu.tr/" },
-            { name: "Yıldız Teknik Üni.", city: "Istanbul", url: "https://yildiz.edu.tr/" },
-            { name: "Yüzüncü Yıl Üni.", city: "Van", url: "https://yyu.edu.tr/" }
-        ].sort((a, b) => a.name.localeCompare(b.name));
+        // University autocomplete - uses global API + manual entry
+        const UNI_SEARCH_API = 'https://universities.hipolabs.com/search?name=';
+        
+        // Autocomplete component for university search
+        const UniAutocomplete = ({ value, onChange, inputClass }) => {
+            const [query, setQuery] = React.useState(value || '');
+            const [results, setResults] = React.useState([]);
+            const [loading, setLoading] = React.useState(false);
+            const [showDrop, setShowDrop] = React.useState(false);
+            const debounceRef = React.useRef(null);
+            
+            React.useEffect(() => { setQuery(value || ''); }, [value]);
+            
+            const search = (q) => {
+                setQuery(q);
+                onChange({ name: q, city: '', url: '' }); // immediately update with custom text
+                if (debounceRef.current) clearTimeout(debounceRef.current);
+                if (q.length < 3) { setResults([]); setShowDrop(false); return; }
+                debounceRef.current = setTimeout(async () => {
+                    setLoading(true);
+                    try {
+                        const res = await fetch(UNI_SEARCH_API + encodeURIComponent(q));
+                        const data = await res.json();
+                        setResults(data.slice(0, 8).map(u => ({
+                            name: u.name,
+                            city: u.state_province || '',
+                            url: (u.web_pages && u.web_pages[0]) || '',
+                            country: u.country || ''
+                        })));
+                        setShowDrop(true);
+                    } catch(e) { setResults([]); }
+                    setLoading(false);
+                }, 400);
+            };
+            
+            const select = (u) => {
+                setQuery(u.name);
+                onChange(u);
+                setShowDrop(false);
+                setResults([]);
+            };
+            
+            return (
+                <div style={{position:'relative'}}>
+                    <div style={{position:'relative'}}>
+                        <input
+                            value={query}
+                            onChange={e => search(e.target.value)}
+                            onFocus={() => results.length > 0 && setShowDrop(true)}
+                            onBlur={() => setTimeout(() => setShowDrop(false), 200)}
+                            placeholder="Type your university name..."
+                            className={inputClass}
+                            autoComplete="off"
+                        />
+                        {loading && <span style={{position:'absolute',right:'10px',top:'50%',transform:'translateY(-50%)',color:'#64748b',fontSize:'12px'}}>⏳</span>}
+                    </div>
+                    {showDrop && results.length > 0 && (
+                        <div style={{position:'absolute',top:'100%',left:0,right:0,background:'#1e293b',border:'1px solid #334155',borderRadius:'8px',zIndex:9999,maxHeight:'220px',overflowY:'auto',boxShadow:'0 8px 24px rgba(0,0,0,0.5)'}}>
+                            {results.map((u, i) => (
+                                <div key={i} onMouseDown={() => select(u)} style={{padding:'10px 14px',cursor:'pointer',borderBottom:'1px solid #334155',transition:'background 0.15s'}}
+                                    onMouseEnter={e=>e.currentTarget.style.background='#334155'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                                    <div style={{color:'white',fontSize:'13px',fontWeight:'600'}}>{u.name}</div>
+                                    <div style={{color:'#64748b',fontSize:'11px'}}>{u.country}{u.city ? ' • ' + u.city : ''}</div>
+                                </div>
+                            ))}
+                            <div onMouseDown={() => { select({name: query, city:'', url:''}); }} style={{padding:'10px 14px',cursor:'pointer',color:'#3b82f6',fontSize:'12px',fontWeight:'600'}}>
+                                ✏️ Use "{query}" as custom name
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+
 
         const TITLES = ["Res. Asst.", "Lecturer", "Asst. Prof. Dr.", "Assoc. Prof. Dr.", "Prof. Dr."];
 
@@ -390,7 +357,18 @@
             "undergraduate": { label: "Undergrad", className: "lesson-lisans", btnClass: "btn-lisans", tag: "UG" },
             "graduate": { label: "Graduate", className: "lesson-yuksek", btnClass: "btn-yuksek", tag: "GR" },
             "doctoral": { label: "Doctoral", className: "lesson-doktora", btnClass: "btn-doktora", tag: "DR" },
-            "seminar": { label: "Seminar", className: "lesson-seminer", btnClass: "btn-seminer", tag: "SEM" }
+            "seminar": { label: "Seminar", className: "lesson-seminer", btnClass: "btn-seminer", tag: "SEM" },
+            // Legacy Turkish keys for backward compatibility
+            "lisans": { label: "Undergrad", className: "lesson-lisans", btnClass: "btn-lisans", tag: "UG" },
+            "yuksek": { label: "Graduate", className: "lesson-yuksek", btnClass: "btn-yuksek", tag: "GR" },
+            "doktora": { label: "Doctoral", className: "lesson-doktora", btnClass: "btn-doktora", tag: "DR" },
+            "seminer": { label: "Seminar", className: "lesson-seminer", btnClass: "btn-seminer", tag: "SEM" }
+        };
+        
+        // Normalize lesson type (handle legacy Turkish keys)
+        const normType = (t) => {
+            const map = { lisans:'undergraduate', yuksek:'graduate', doktora:'doctoral', seminer:'seminar' };
+            return map[t] || t || 'undergraduate';
         };
 
         const P2PdfModal = ({ images, setImages, onClose, sendToNative }) => {
@@ -652,7 +630,7 @@
                         if (l && l.name) {
                             const tStr = timeSlots[i] || "00:00";
                             const lessonDisplayTime = l.startTime || tStr;
-                            list.push({ id: `l-${i}`, title: l.name, time: lessonDisplayTime, type: "class", displayType: "class", lType: l.type, desc: LESSON_TYPES[l.type].label, classroom: l.classroom, sortTime: lessonDisplayTime });
+                            list.push({ id: `l-${i}`, title: l.name, time: lessonDisplayTime, type: "class", displayType: "class", lType: l.type, desc: LESSON_TYPES[normType(l.type)].label, classroom: l.classroom, sortTime: lessonDisplayTime });
                         }
                     });
                 }
@@ -694,7 +672,7 @@
                             if (l) {
                                 const lessonTime = l.startTime || timeSlots[i];
                                 const tMin = getMinutes(lessonTime) + (dayOffset * 1440);
-                                if (tMin >= windowStart && tMin <= windowEnd) events.push({ id: `l-${dayOffset}-${i}`, title: l.name, time: lessonTime, relativeMin: tMin, displayType: "class", lType: l.type, desc: LESSON_TYPES[l.type].label, classroom: l.classroom });
+                                if (tMin >= windowStart && tMin <= windowEnd) events.push({ id: `l-${dayOffset}-${i}`, title: l.name, time: lessonTime, relativeMin: tMin, displayType: "class", lType: l.type, desc: LESSON_TYPES[normType(l.type)].label, classroom: l.classroom });
                             }
                         });
                     }
@@ -1216,13 +1194,26 @@
                         <div className="w-full max-w-md glass p-8 rounded-2xl shadow-2xl">
                             <h1 className="text-2xl font-bold text-white mb-2 text-center">Academic Assistant</h1>
                             <p className="text-center text-slate-400 mb-6 text-sm">V2.4 • Zaphyros</p>
-                            <form onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.target); const u = UNIVERSITIES.find(x => x.name === fd.get('uni')); if (!u) return; setUser({ title: fd.get('title'), name: fd.get('name'), uni: u.name, city: u.city, url: u.url, enablePrayer: fd.get('enablePrayer') === 'on' }); }} className="space-y-4">
-                                <select name="title" className="w-full input-dark p-3 rounded-lg">{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select>
-                                <input name="name" required placeholder="Full Name" className="w-full input-dark p-3 rounded-lg" />
-                                <select name="uni" className="w-full input-dark p-3 rounded-lg">{UNIVERSITIES.map(u => <option key={u.name} value={u.name}>{u.name}</option>)}</select>
-                                <div className="flex items-center gap-3 pt-2"><input type="checkbox" name="enablePrayer" defaultChecked className="w-5 h-5 accent-blue-500" /><span className="text-sm text-slate-300">Show Prayer Times</span></div>
-                                <button className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl mt-2 hover:bg-blue-500 transition">START</button>
-                            </form>
+                            {(() => {
+                                const [setupTitle, setSetupTitle] = React.useState(TITLES[0]);
+                                const [setupName, setSetupName] = React.useState('');
+                                const [setupUni, setSetupUni] = React.useState({name:'',city:'',url:''});
+                                const [setupPrayer, setSetupPrayer] = React.useState(true);
+                                const handleSetup = (e) => {
+                                    e.preventDefault();
+                                    if (!setupName.trim() || !setupUni.name.trim()) return;
+                                    setUser({ title: setupTitle, name: setupName, uni: setupUni.name, city: setupUni.city, url: setupUni.url, enablePrayer: setupPrayer });
+                                };
+                                return (
+                                    <form onSubmit={handleSetup} className="space-y-4">
+                                        <select value={setupTitle} onChange={e=>setSetupTitle(e.target.value)} className="w-full input-dark p-3 rounded-lg">{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select>
+                                        <input value={setupName} onChange={e=>setSetupName(e.target.value)} required placeholder="Full Name" className="w-full input-dark p-3 rounded-lg" />
+                                        <UniAutocomplete value={setupUni.name} onChange={setSetupUni} inputClass="w-full input-dark p-3 rounded-lg" />
+                                        <div className="flex items-center gap-3 pt-2"><input type="checkbox" checked={setupPrayer} onChange={e=>setSetupPrayer(e.target.checked)} className="w-5 h-5 accent-blue-500" /><span className="text-sm text-slate-300">Show Prayer Times</span></div>
+                                        <button type="submit" className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl mt-2 hover:bg-blue-500 transition">START</button>
+                                    </form>
+                                );
+                            })()}
                         </div>
                     </div>
                 );
@@ -1319,7 +1310,7 @@
                             </div>
                         )}
                         
-                        {/* HOME - ÖNEMLİ LİNKLER BUTONU EKLENMİŞ, HAFTALIK DERS PROGRAMI KALDIRILMIŞ */}
+                        {/* HOME - IMPORTANT LINKS BUTONU EKLENMİŞ, WEEKLY CLASS SCHEDULE KALDIRILMIŞ */}
                         {view === 'home' && (
                             <div className="animate-enter space-y-4">
                                 {user.url && (
@@ -1348,11 +1339,11 @@
                                 <div className="grid grid-cols-2 gap-4">
                                     <button onClick={() => { const today = new Date().toISOString().split('T')[0]; setNewTask({title:"", date:today, time:"", desc:"", type:"task", category:"daily"}); setActiveModal('task'); setConflictWarn(null); }} className="bg-gradient-to-br from-blue-600 to-blue-700 text-white p-6 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition">
                                         <i className="fas fa-bell text-2xl"></i>
-                                        <span className="font-bold text-xs tracking-wide">HATIRLATICI</span>
+                                        <span className="font-bold text-xs tracking-wide">REMINDER</span>
                                     </button>
                                     <button onClick={() => setActiveModal('notes')} className="bg-slate-700 text-white p-6 rounded-xl flex flex-col items-center justify-center gap-2 border border-slate-600 shadow-lg active:scale-95 transition">
                                         <i className="fas fa-sticky-note text-2xl text-yellow-400"></i>
-                                        <span className="font-bold text-xs tracking-wide">NOT DEFTERİ</span>
+                                        <span className="font-bold text-xs tracking-wide">NOTEBOOK</span>
                                     </button>
                                 </div>
                                 <button onClick={() => setActiveModal('p2pdf')} className="w-full bg-gradient-to-r from-purple-600 to-purple-700 p-4 rounded-xl flex items-center justify-center gap-3 hover:from-purple-700 hover:to-purple-800 transition shadow-lg">
@@ -1361,25 +1352,25 @@
                                 </button>
                                 <button onClick={() => setActiveModal('importantLinks')} className="w-full bg-gradient-to-r from-orange-600 to-orange-700 p-4 rounded-xl flex items-center justify-center gap-3 hover:from-orange-700 hover:to-orange-800 transition shadow-lg">
                                     <i className="fas fa-link text-xl"></i>
-                                    <span className="font-bold text-sm">ÖNEMLİ LİNKLER</span>
+                                    <span className="font-bold text-sm">IMPORTANT LINKS</span>
                                 </button>
                                 <button onClick={exportScheduleToPDF} className="w-full bg-slate-800 p-4 rounded-xl flex items-center justify-between border border-slate-700 hover:bg-slate-700 transition shadow-lg">
-                                    <span className="font-bold text-sm">📄 Ders Programı PDF İndir</span>
+                                    <span className="font-bold text-sm">📄 Download Schedule PDF</span>
                                     <i className="fas fa-download text-slate-500"></i>
                                 </button>
                                 <button onClick={() => { setLessonSlots([{ id: Date.now(), day: "Monday", startTime: "09:00", endTime: "10:00", classroom: "" }]); setLessonName(""); setLessonType("undergraduate"); setActiveModal('addLesson'); }} className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 p-4 rounded-xl flex items-center justify-center gap-3 hover:from-emerald-700 hover:to-emerald-800 transition shadow-lg">
                                     <i className="fas fa-plus-circle text-xl"></i>
-                                    <span className="font-bold text-sm">YENİ DERS EKLE</span>
+                                    <span className="font-bold text-sm">ADD COURSE</span>
                                 </button>
                             </div>
                         )}{/* ANNUAL VIEW */}
-                        {view === 'annual' && (<div className="animate-enter pb-16"><div className="flex justify-between items-center mb-4"><h3 className="text-slate-300 font-bold text-sm uppercase">Yıllık Takvim</h3><div className="flex gap-2"><button onClick={() => window.open(user.url, '_blank')} className="text-[10px] bg-red-900 px-3 py-1.5 rounded border border-red-700 hover:text-white transition">Uni. Web</button><button onClick={() => fileInputRef.current.click()} className="text-[10px] bg-slate-800 px-3 py-1.5 rounded border border-slate-700 hover:border-blue-500 hover:text-white transition">Load ICS</button><input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".ics" /></div></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{Array.from({length: 12}, (_, i) => i).map(monthIdx => { const year = new Date().getFullYear(); const date = new Date(year, monthIdx, 1); const monthName = date.toLocaleString('en-US', { month: 'long' }); const daysInMonth = new Date(year, monthIdx + 1, 0).getDate(); const startDay = new Date(year, monthIdx, 1).getDay(); const offset = startDay === 0 ? 6 : startDay - 1; const today = new Date(); const isCurrentMonth = today.getMonth() === monthIdx && today.getFullYear() === year; const currentDay = today.getDate(); return (<div key={monthIdx} className="glass rounded-lg border border-slate-700 overflow-hidden"><div className="bg-slate-800 p-2 text-center font-bold text-blue-200 text-xs uppercase">{monthName}</div><div className="grid grid-cols-7 text-[9px] text-slate-500 text-center py-1 bg-slate-900/30"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div><div className="grid grid-cols-7 gap-px bg-slate-800 p-px">{Array(offset).fill(null).map((_,k)=><div key={`e-${k}`} className="bg-slate-900 h-6"></div>)}{Array(daysInMonth).fill(null).map((_,k)=>{ const d = k+1; const dStr = `${year}-${String(monthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; const events = getAllEvents().filter(e => e.date === dStr); let bg = "bg-slate-900 hover:bg-slate-700"; let text = "text-slate-500"; if (isCurrentMonth && d === currentDay) { bg = "bg-cyan-500 shadow-lg shadow-cyan-500/50 z-10 scale-110 rounded"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'academic')) { bg = "bg-red-900"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'special')) { bg = "bg-pink-700"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'official')) { bg = "bg-amber-700"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'daily')) { bg = "bg-blue-900"; text = "text-white font-bold"; } return (<button key={d} onClick={() => handleDayClick(dStr, events)} className={`h-6 flex items-center justify-center text-[9px] ${bg} ${text}`}>{d}</button>) })}</div></div>) })}</div></div>)}
+                        {view === 'annual' && (<div className="animate-enter pb-16"><div className="flex justify-between items-center mb-4"><h3 className="text-slate-300 font-bold text-sm uppercase">Annual Calendar</h3><div className="flex gap-2"><button onClick={() => window.open(user.url, '_blank')} className="text-[10px] bg-red-900 px-3 py-1.5 rounded border border-red-700 hover:text-white transition">Uni. Web</button><button onClick={() => fileInputRef.current.click()} className="text-[10px] bg-slate-800 px-3 py-1.5 rounded border border-slate-700 hover:border-blue-500 hover:text-white transition">Load ICS</button><input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".ics" /></div></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{Array.from({length: 12}, (_, i) => i).map(monthIdx => { const year = new Date().getFullYear(); const date = new Date(year, monthIdx, 1); const monthName = date.toLocaleString('en-US', { month: 'long' }); const daysInMonth = new Date(year, monthIdx + 1, 0).getDate(); const startDay = new Date(year, monthIdx, 1).getDay(); const offset = startDay === 0 ? 6 : startDay - 1; const today = new Date(); const isCurrentMonth = today.getMonth() === monthIdx && today.getFullYear() === year; const currentDay = today.getDate(); return (<div key={monthIdx} className="glass rounded-lg border border-slate-700 overflow-hidden"><div className="bg-slate-800 p-2 text-center font-bold text-blue-200 text-xs uppercase">{monthName}</div><div className="grid grid-cols-7 text-[9px] text-slate-500 text-center py-1 bg-slate-900/30"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div><div className="grid grid-cols-7 gap-px bg-slate-800 p-px">{Array(offset).fill(null).map((_,k)=><div key={`e-${k}`} className="bg-slate-900 h-6"></div>)}{Array(daysInMonth).fill(null).map((_,k)=>{ const d = k+1; const dStr = `${year}-${String(monthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; const events = getAllEvents().filter(e => e.date === dStr); let bg = "bg-slate-900 hover:bg-slate-700"; let text = "text-slate-500"; if (isCurrentMonth && d === currentDay) { bg = "bg-cyan-500 shadow-lg shadow-cyan-500/50 z-10 scale-110 rounded"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'academic')) { bg = "bg-red-900"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'special')) { bg = "bg-pink-700"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'official')) { bg = "bg-amber-700"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'daily')) { bg = "bg-blue-900"; text = "text-white font-bold"; } return (<button key={d} onClick={() => handleDayClick(dStr, events)} className={`h-6 flex items-center justify-center text-[9px] ${bg} ${text}`}>{d}</button>) })}</div></div>) })}</div></div>)}
                         
                         {/* SCHEDULE VIEW */}
                         {view === 'schedule' && (
                             <div className="animate-enter glass rounded-xl overflow-hidden border border-slate-700">
                                 <div className="p-3 bg-slate-800/50 flex justify-between items-center no-screenshot">
-                                    <div className="text-xs font-bold text-slate-400 uppercase">Haftalık Program</div>
+                                    <div className="text-xs font-bold text-slate-400 uppercase">Weekly Schedule</div>
                                     <button onClick={() => setIsScreenshotMode(true)} className="bg-blue-600 text-white px-3 py-1.5 rounded text-[10px] font-bold hover:bg-blue-500 flex items-center gap-1">
                                         <i className="fas fa-camera"></i> Screenshot
                                     </button>
@@ -1417,7 +1408,7 @@
                                                                     <div 
                                                                         draggable={!isScreenshotMode}
                                                                         onDragStart={(e) => handleDragStart(e, d, i)}
-                                                                        className={`w-full h-full rounded flex flex-col items-center justify-center text-center p-1 text-[9px] font-light shadow-sm ${LESSON_TYPES[l.type].className} ${draggedLesson?.day === d && draggedLesson?.index === i ? 'dragging' : ''}`} 
+                                                                        className={`w-full h-full rounded flex flex-col items-center justify-center text-center p-1 text-[9px] font-light shadow-sm ${LESSON_TYPES[normType(l.type)].className} ${draggedLesson?.day === d && draggedLesson?.index === i ? 'dragging' : ''}`} 
                                                                         style={{lineHeight:'1.1'}}
                                                                     >
                                                                         <span className="font-bold block truncate">{l.name}</span>
@@ -1451,7 +1442,7 @@
                                 <p className="text-xs text-cyan-600 mt-1 signature">ZAPHYROS</p>
                             </div>
                             <div className="w-full">
-                                <h2 className="text-xl font-bold mb-4 text-center underline">HAFTALIK DERS PROGRAMI</h2>
+                                <h2 className="text-xl font-bold mb-4 text-center underline">WEEKLY CLASS SCHEDULE</h2>
                                 <table className="w-full text-xs border-collapse">
                                     <thead>
                                         <tr>
@@ -1468,7 +1459,7 @@
                                                     return (
                                                         <td key={d} className="p-1 border border-black h-12 text-center relative">
                                                             {l && (
-                                                                <div className={`text-[10px] font-bold p-2 h-full flex flex-col items-center justify-center ${LESSON_TYPES[l.type].className}`} style={{border: '1px solid black', color: 'white'}}>
+                                                                <div className={`text-[10px] font-bold p-2 h-full flex flex-col items-center justify-center ${LESSON_TYPES[normType(l.type)].className}`} style={{border: '1px solid black', color: 'white'}}>
                                                                     <span className="block truncate w-full">{l.name}</span>
                                                                     {(l.startTime && l.endTime) && <span className="block text-[9px] bg-black/20 px-1 rounded my-0.5">{l.startTime} - {l.endTime}</span>}
                                                                     {l.classroom && <span className="text-[8px] italic">{l.classroom}</span>}
@@ -1494,7 +1485,7 @@
                     {/* POMODORO BUTTON */}
                     {!isScreenshotMode && <button onClick={() => setPomodoro(prev => ({...prev, active: !prev.active}))} className={`fixed bottom-24 left-4 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all border border-slate-700 no-screenshot ${pomodoro.active ? 'bg-yellow-400 animate-pulse text-black' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>{pomodoro.active ? <span className="text-xs font-bold">{Math.floor(pomodoro.time/60)}:{String(pomodoro.time%60).padStart(2,'0')}</span> : <i className="fas fa-stopwatch text-xl"></i>}</button>}{/* MODALLER */}
                     
-                    {/* ÖNEMLİ LİNKLER MODAL - YENİ */}
+                    {/* IMPORTANT LINKS MODAL - YENİ */}
                     {activeModal === 'importantLinks' && (
                         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot">
                             <div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[80vh] overflow-y-auto">
@@ -1713,7 +1704,7 @@
                         </div>
                     )}
 
-                    {/* YENİ DERS EKLEME MODALI */}
+                    {/* ADD COURSEME MODALI */}
                     {activeModal === 'addLesson' && (
                         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot overflow-y-auto">
                             <div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl my-8">
@@ -1842,7 +1833,28 @@
                         />
                     )}
 
-                    {activeModal === 'settings' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl relative"><button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><i className="fas fa-times"></i></button><h3 className="text-white font-bold mb-4">Settings</h3><form onSubmit={handleUpdateUser} className="space-y-4"><div><label className="text-xs text-slate-400">Full Name</label><input name="name" defaultValue={user.name} required className="w-full input-dark p-3 rounded-lg" /></div><div><label className="text-xs text-slate-400">University</label><select name="uni" defaultValue={user.uni} className="w-full input-dark p-3 rounded-lg">{UNIVERSITIES.map(u => <option key={u.name} value={u.name}>{u.name}</option>)}</select></div><div className="flex items-center gap-3 pt-2"><input type="checkbox" name="enablePrayer" defaultChecked={user.enablePrayer} className="w-5 h-5 accent-blue-500" /><span className="text-sm text-slate-300">Show Prayer Times</span></div><button className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-500">Save</button></form><hr className="border-slate-700 my-4" />
+                    {activeModal === 'settings' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl relative"><button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><i className="fas fa-times"></i></button><h3 className="text-white font-bold mb-4">Settings</h3>{(() => {
+                                const [editName, setEditName] = React.useState(user.name);
+                                const [editTitle, setEditTitle] = React.useState(user.title);
+                                const [editUni, setEditUni] = React.useState({name: user.uni, city: user.city, url: user.url});
+                                const [editPrayer, setEditPrayer] = React.useState(user.enablePrayer);
+                                const handleSave = (e) => {
+                                    e.preventDefault();
+                                    if (!editName.trim() || !editUni.name.trim()) return;
+                                    updateAcademicCalendar(editUni.name);
+                                    setUser({ ...user, title: editTitle, name: editName, uni: editUni.name, city: editUni.city || user.city, url: editUni.url || user.url, enablePrayer: editPrayer });
+                                    setActiveModal(null);
+                                };
+                                return (
+                                    <form onSubmit={handleSave} className="space-y-4">
+                                        <div><label className="text-xs text-slate-400">Title</label><select value={editTitle} onChange={e=>setEditTitle(e.target.value)} className="w-full input-dark p-3 rounded-lg mt-1">{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select></div>
+                                        <div><label className="text-xs text-slate-400">Full Name</label><input value={editName} onChange={e=>setEditName(e.target.value)} required className="w-full input-dark p-3 rounded-lg mt-1" /></div>
+                                        <div><label className="text-xs text-slate-400 block mb-1">University</label><UniAutocomplete value={editUni.name} onChange={setEditUni} inputClass="w-full input-dark p-3 rounded-lg" /></div>
+                                        <div className="flex items-center gap-3 pt-2"><input type="checkbox" checked={editPrayer} onChange={e=>setEditPrayer(e.target.checked)} className="w-5 h-5 accent-blue-500" /><span className="text-sm text-slate-300">Show Prayer Times</span></div>
+                                        <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-500">Save</button>
+                                    </form>
+                                );
+                            })()}<hr className="border-slate-700 my-4" />
                                 <div className="mb-4">
                                     <label className="text-xs text-slate-400 block mb-2">🔔 Bildirim Sesi</label>
                                     <div className="grid grid-cols-2 gap-2">
@@ -1934,7 +1946,7 @@
                                                 <button 
                                                     key={k} 
                                                     onClick={()=>setEditingLesson({...editingLesson,data:{...editingLesson.data,type:k}})} 
-                                                    className={`p-2 rounded border text-xs font-bold transition ${editingLesson.data.type===k?'ring-2 ring-white scale-105':'opacity-80'} ${v.btnClass}`}
+                                                    className={`p-2 rounded border text-xs font-bold transition ${normType(editingLesson.data.type)===k?'ring-2 ring-white scale-105':'opacity-80'} ${v.btnClass}`}
                                                 >
                                                     {v.label}
                                                 </button>
