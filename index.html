@@ -463,7 +463,101 @@
             );
         };
 
-                const DAYS_TR = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];const App = () => {
+                const DAYS_TR = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+        // ---- SetupForm: proper component so hooks are valid ----
+        const SetupForm = ({ setUser }) => {
+            const [setupTitle, setSetupTitle] = useState(TITLES[0]);
+            const [setupName, setSetupName] = useState('');
+            const [setupUni, setSetupUni] = useState({name:'',city:'',url:''});
+            const [setupPrayer, setSetupPrayer] = useState(true);
+            const handleSetup = (e) => {
+                e.preventDefault();
+                if (!setupName.trim() || !setupUni.name.trim()) return;
+                setUser({ title: setupTitle, name: setupName, uni: setupUni.name, city: setupUni.city || '', url: setupUni.url || '', enablePrayer: setupPrayer });
+            };
+            return (
+                <form onSubmit={handleSetup} className="space-y-4">
+                    <select value={setupTitle} onChange={e=>setSetupTitle(e.target.value)} className="w-full input-dark p-3 rounded-lg">
+                        {TITLES.map(t=><option key={t} value={t}>{t}</option>)}
+                    </select>
+                    <input value={setupName} onChange={e=>setSetupName(e.target.value)} required placeholder="Full Name" className="w-full input-dark p-3 rounded-lg" />
+                    <UniAutocomplete value={setupUni.name} onChange={setSetupUni} inputClass="w-full input-dark p-3 rounded-lg" />
+                    <div className="flex items-center gap-3 pt-2">
+                        <input type="checkbox" checked={setupPrayer} onChange={e=>setSetupPrayer(e.target.checked)} className="w-5 h-5 accent-blue-500" />
+                        <span className="text-sm text-slate-300">Show Prayer Times</span>
+                    </div>
+                    <button type="submit" className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl mt-2 hover:bg-blue-500 transition">START</button>
+                </form>
+            );
+        };
+
+        // ---- SettingsForm: proper component so hooks are valid ----
+        const SettingsForm = ({ user, setUser, setActiveModal, updateAcademicCalendar, notifSound, setNotifSound, sendToNative, exportData, importData }) => {
+            const [editName, setEditName] = useState(user.name);
+            const [editTitle, setEditTitle] = useState(user.title);
+            const [editUni, setEditUni] = useState({name: user.uni, city: user.city, url: user.url});
+            const [editPrayer, setEditPrayer] = useState(user.enablePrayer);
+            const handleSave = (e) => {
+                e.preventDefault();
+                if (!editName.trim() || !editUni.name.trim()) return;
+                updateAcademicCalendar(editUni.name);
+                setUser({ ...user, title: editTitle, name: editName, uni: editUni.name, city: editUni.city || user.city, url: editUni.url || user.url, enablePrayer: editPrayer });
+                setActiveModal(null);
+            };
+            return (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot">
+                    <div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl relative overflow-y-auto max-h-[90vh]">
+                        <button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><i className="fas fa-times"></i></button>
+                        <h3 className="text-white font-bold mb-4">Settings</h3>
+                        <form onSubmit={handleSave} className="space-y-4">
+                            <div>
+                                <label className="text-xs text-slate-400">Title</label>
+                                <select value={editTitle} onChange={e=>setEditTitle(e.target.value)} className="w-full input-dark p-3 rounded-lg mt-1">
+                                    {TITLES.map(t=><option key={t} value={t}>{t}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="text-xs text-slate-400">Full Name</label>
+                                <input value={editName} onChange={e=>setEditName(e.target.value)} required className="w-full input-dark p-3 rounded-lg mt-1" />
+                            </div>
+                            <div>
+                                <label className="text-xs text-slate-400 block mb-1">University</label>
+                                <UniAutocomplete value={editUni.name} onChange={setEditUni} inputClass="w-full input-dark p-3 rounded-lg" />
+                            </div>
+                            <div className="flex items-center gap-3 pt-2">
+                                <input type="checkbox" checked={editPrayer} onChange={e=>setEditPrayer(e.target.checked)} className="w-5 h-5 accent-blue-500" />
+                                <span className="text-sm text-slate-300">Show Prayer Times</span>
+                            </div>
+                            <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-500">Save</button>
+                        </form>
+                        <hr className="border-slate-700 my-4" />
+                        <div className="mb-4">
+                            <label className="text-xs text-slate-400 block mb-2">🔔 Notification Sound</label>
+                            <div className="grid grid-cols-2 gap-2">
+                                {[
+                                    {id:'default', label:'🔔 Default'},
+                                    {id:'alarm', label:'⏰ Alarm'},
+                                    {id:'chime', label:'🎵 Chime'},
+                                    {id:'silent', label:'🔇 Silent'},
+                                ].map(s => (
+                                    <button key={s.id} onClick={() => { setNotifSound(s.id); sendToNative({type:'SET_NOTIF_SOUND', sound: s.id}); }}
+                                        className={`p-2 rounded text-xs font-bold border transition ${notifSound===s.id ? 'bg-blue-600 border-blue-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}`}
+                                    >{s.label}</button>
+                                ))}
+                            </div>
+                        </div>
+                        <hr className="border-slate-700 my-4" />
+                        <div className="flex gap-2">
+                            <button onClick={exportData} className="flex-1 bg-green-900/50 border border-green-800 text-green-100 text-xs py-2 rounded hover:bg-green-800">Download Backup (.json)</button>
+                            <button onClick={importData} className="flex-1 bg-blue-900/50 border border-blue-800 text-blue-100 text-xs py-2 rounded hover:bg-blue-800">Load Backup</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
             // STATE - v48 anahtarı
             const [user, setUser] = useState(() => safeGet('user_v48', null));
             const [tasks, setTasks] = useState(() => safeGet('tasks_v48', []));
@@ -1194,26 +1288,7 @@
                         <div className="w-full max-w-md glass p-8 rounded-2xl shadow-2xl">
                             <h1 className="text-2xl font-bold text-white mb-2 text-center">Academic Assistant</h1>
                             <p className="text-center text-slate-400 mb-6 text-sm">V2.4 • Zaphyros</p>
-                            {(() => {
-                                const [setupTitle, setSetupTitle] = React.useState(TITLES[0]);
-                                const [setupName, setSetupName] = React.useState('');
-                                const [setupUni, setSetupUni] = React.useState({name:'',city:'',url:''});
-                                const [setupPrayer, setSetupPrayer] = React.useState(true);
-                                const handleSetup = (e) => {
-                                    e.preventDefault();
-                                    if (!setupName.trim() || !setupUni.name.trim()) return;
-                                    setUser({ title: setupTitle, name: setupName, uni: setupUni.name, city: setupUni.city, url: setupUni.url, enablePrayer: setupPrayer });
-                                };
-                                return (
-                                    <form onSubmit={handleSetup} className="space-y-4">
-                                        <select value={setupTitle} onChange={e=>setSetupTitle(e.target.value)} className="w-full input-dark p-3 rounded-lg">{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select>
-                                        <input value={setupName} onChange={e=>setSetupName(e.target.value)} required placeholder="Full Name" className="w-full input-dark p-3 rounded-lg" />
-                                        <UniAutocomplete value={setupUni.name} onChange={setSetupUni} inputClass="w-full input-dark p-3 rounded-lg" />
-                                        <div className="flex items-center gap-3 pt-2"><input type="checkbox" checked={setupPrayer} onChange={e=>setSetupPrayer(e.target.checked)} className="w-5 h-5 accent-blue-500" /><span className="text-sm text-slate-300">Show Prayer Times</span></div>
-                                        <button type="submit" className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl mt-2 hover:bg-blue-500 transition">START</button>
-                                    </form>
-                                );
-                            })()}
+                            <SetupForm setUser={setUser} />
                         </div>
                     </div>
                 );
@@ -1430,7 +1505,7 @@
                         )}
                         
                         {/* PROMOTION VIEW */}
-                        {view === 'promotion' && (<div className="animate-enter pb-20"><div className="glass p-4 rounded-xl border border-blue-500/20"><div className="flex justify-between items-center mb-4"><h3 className="font-bold text-slate-300 text-sm">PUAN CETVELİ</h3><button onClick={() => setCustomScores([...customScores, {id:Date.now(), name:"", value:0, count:0}])} className="text-[10px] bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-500"><i className="fas fa-plus mr-1"></i>Add</button></div><div className="grid grid-cols-12 gap-1 text-[9px] text-slate-500 uppercase font-bold px-1 mb-2"><div className="col-span-5">Activity</div><div className="col-span-2 text-center">Score</div><div className="col-span-2 text-center">Count</div><div className="col-span-2 text-center">Total</div><div className="col-span-1"></div></div><div className="space-y-2">{customScores.map(s => (<div key={s.id} className="grid grid-cols-12 gap-2 items-center bg-slate-900/50 p-2 rounded border border-slate-700"><div className="col-span-5"><input className="w-full bg-transparent text-sm text-slate-200 focus:outline-none placeholder-slate-600" placeholder="Activity" value={s.name} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,name:e.target.value}:x))} /></div><div className="col-span-2"><input type="number" className="w-full bg-slate-900 text-center text-xs text-slate-400 rounded p-1" value={s.value} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,value:e.target.value}:x))} /></div><div className="col-span-2"><input type="number" className="w-full bg-slate-900 text-center text-xs text-white font-bold rounded p-1 border border-slate-600" value={s.count} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,count:e.target.value}:x))} /></div><div className="col-span-2 text-center text-xs font-bold text-blue-400">{(parseInt(s.value)||0) * (parseInt(s.count)||0)}</div><div className="col-span-1 text-right"><button onClick={()=>setCustomScores(customScores.filter(x=>x.id!==s.id))} className="text-slate-600 hover:text-red-400"><i className="fas fa-trash-alt"></i></button></div></div>))}</div><div className="mt-6 bg-slate-900 p-4 rounded-xl border border-slate-700 shadow-xl"><div className="flex justify-between items-center mb-4"><span className="text-xs text-slate-400 uppercase font-bold">Hedef Puan:</span><input type="number" className="w-20 bg-slate-900 border border-slate-600 rounded p-1 text-center text-sm font-bold text-white focus:border-blue-500 outline-none" value={targetScore} onChange={e => setTargetScore(parseInt(e.target.value)||0)} /></div><div className="flex justify-between text-sm font-bold mb-2"><span className="text-slate-300">MEVCUT</span><span className={totalCalculated>=targetScore?"text-emerald-400":"text-rose-400"}>{totalCalculated} / {targetScore}</span></div><div className="h-3 bg-slate-900 rounded-full overflow-hidden mb-2 border border-slate-700/50"><div className={`h-full transition-all duration-1000 ${totalCalculated>=targetScore?'bg-emerald-500':'bg-gradient-to-r from-blue-600 to-red-600'}`} style={{width: `${Math.min((totalCalculated/targetScore)*100, 100)}%`}}></div></div></div></div></div>)}
+                        {view === 'promotion' && (<div className="animate-enter pb-20"><div className="glass p-4 rounded-xl border border-blue-500/20"><div className="flex justify-between items-center mb-4"><h3 className="font-bold text-slate-300 text-sm">SCORE TABLE</h3><button onClick={() => setCustomScores([...customScores, {id:Date.now(), name:"", value:0, count:0}])} className="text-[10px] bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-500"><i className="fas fa-plus mr-1"></i>Add</button></div><div className="grid grid-cols-12 gap-1 text-[9px] text-slate-500 uppercase font-bold px-1 mb-2"><div className="col-span-5">Activity</div><div className="col-span-2 text-center">Score</div><div className="col-span-2 text-center">Count</div><div className="col-span-2 text-center">Total</div><div className="col-span-1"></div></div><div className="space-y-2">{customScores.map(s => (<div key={s.id} className="grid grid-cols-12 gap-2 items-center bg-slate-900/50 p-2 rounded border border-slate-700"><div className="col-span-5"><input className="w-full bg-transparent text-sm text-slate-200 focus:outline-none placeholder-slate-600" placeholder="Activity" value={s.name} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,name:e.target.value}:x))} /></div><div className="col-span-2"><input type="number" className="w-full bg-slate-900 text-center text-xs text-slate-400 rounded p-1" value={s.value} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,value:e.target.value}:x))} /></div><div className="col-span-2"><input type="number" className="w-full bg-slate-900 text-center text-xs text-white font-bold rounded p-1 border border-slate-600" value={s.count} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,count:e.target.value}:x))} /></div><div className="col-span-2 text-center text-xs font-bold text-blue-400">{(parseInt(s.value)||0) * (parseInt(s.count)||0)}</div><div className="col-span-1 text-right"><button onClick={()=>setCustomScores(customScores.filter(x=>x.id!==s.id))} className="text-slate-600 hover:text-red-400"><i className="fas fa-trash-alt"></i></button></div></div>))}</div><div className="mt-6 bg-slate-900 p-4 rounded-xl border border-slate-700 shadow-xl"><div className="flex justify-between items-center mb-4"><span className="text-xs text-slate-400 uppercase font-bold">Target Score:</span><input type="number" className="w-20 bg-slate-900 border border-slate-600 rounded p-1 text-center text-sm font-bold text-white focus:border-blue-500 outline-none" value={targetScore} onChange={e => setTargetScore(parseInt(e.target.value)||0)} /></div><div className="flex justify-between text-sm font-bold mb-2"><span className="text-slate-300">CURRENT</span><span className={totalCalculated>=targetScore?"text-emerald-400":"text-rose-400"}>{totalCalculated} / {targetScore}</span></div><div className="h-3 bg-slate-900 rounded-full overflow-hidden mb-2 border border-slate-700/50"><div className={`h-full transition-all duration-1000 ${totalCalculated>=targetScore?'bg-emerald-500':'bg-gradient-to-r from-blue-600 to-red-600'}`} style={{width: `${Math.min((totalCalculated/targetScore)*100, 100)}%`}}></div></div></div></div></div>)}
                     </div>
 
                     {/* SCREENSHOT MODE */}
@@ -1833,46 +1908,7 @@
                         />
                     )}
 
-                    {activeModal === 'settings' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl relative"><button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><i className="fas fa-times"></i></button><h3 className="text-white font-bold mb-4">Settings</h3>{(() => {
-                                const [editName, setEditName] = React.useState(user.name);
-                                const [editTitle, setEditTitle] = React.useState(user.title);
-                                const [editUni, setEditUni] = React.useState({name: user.uni, city: user.city, url: user.url});
-                                const [editPrayer, setEditPrayer] = React.useState(user.enablePrayer);
-                                const handleSave = (e) => {
-                                    e.preventDefault();
-                                    if (!editName.trim() || !editUni.name.trim()) return;
-                                    updateAcademicCalendar(editUni.name);
-                                    setUser({ ...user, title: editTitle, name: editName, uni: editUni.name, city: editUni.city || user.city, url: editUni.url || user.url, enablePrayer: editPrayer });
-                                    setActiveModal(null);
-                                };
-                                return (
-                                    <form onSubmit={handleSave} className="space-y-4">
-                                        <div><label className="text-xs text-slate-400">Title</label><select value={editTitle} onChange={e=>setEditTitle(e.target.value)} className="w-full input-dark p-3 rounded-lg mt-1">{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select></div>
-                                        <div><label className="text-xs text-slate-400">Full Name</label><input value={editName} onChange={e=>setEditName(e.target.value)} required className="w-full input-dark p-3 rounded-lg mt-1" /></div>
-                                        <div><label className="text-xs text-slate-400 block mb-1">University</label><UniAutocomplete value={editUni.name} onChange={setEditUni} inputClass="w-full input-dark p-3 rounded-lg" /></div>
-                                        <div className="flex items-center gap-3 pt-2"><input type="checkbox" checked={editPrayer} onChange={e=>setEditPrayer(e.target.checked)} className="w-5 h-5 accent-blue-500" /><span className="text-sm text-slate-300">Show Prayer Times</span></div>
-                                        <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-500">Save</button>
-                                    </form>
-                                );
-                            })()}<hr className="border-slate-700 my-4" />
-                                <div className="mb-4">
-                                    <label className="text-xs text-slate-400 block mb-2">🔔 Bildirim Sesi</label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {[
-                                            {id:'default', label:'🔔 Default'},
-                                            {id:'alarm', label:'⏰ Alarm'},
-                                            {id:'chime', label:'🎵 Chime'},
-                                            {id:'silent', label:'🔇 Silent'},
-                                        ].map(s => (
-                                            <button 
-                                                key={s.id}
-                                                onClick={() => { setNotifSound(s.id); sendToNative({type:'SET_NOTIF_SOUND', sound: s.id}); }}
-                                                className={`p-2 rounded text-xs font-bold border transition ${notifSound===s.id ? 'bg-blue-600 border-blue-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}`}
-                                            >{s.label}</button>
-                                        ))}
-                                    </div>
-                                </div>
-                                <hr className="border-slate-700 my-4" /><div className="flex gap-2"><button onClick={exportData} className="flex-1 bg-green-900/50 border border-green-800 text-green-100 text-xs py-2 rounded hover:bg-green-800">Download Backup (.json)</button><button onClick={importData} className="flex-1 bg-blue-900/50 border border-blue-800 text-blue-100 text-xs py-2 rounded hover:bg-blue-800">Load Backup</button></div></div></div>)}
+                    {activeModal === 'settings' && <SettingsForm user={user} setUser={setUser} setActiveModal={setActiveModal} updateAcademicCalendar={updateAcademicCalendar} notifSound={notifSound} setNotifSound={setNotifSound} sendToNative={sendToNative} exportData={exportData} importData={importData} />}
                     
                     {/* GÖREV EKLEME/DÜZENLEME MODAL */}
                     {activeModal === 'task' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto"><h3 className="text-white font-bold mb-4">{editingTask ? 'Edit Task' : 'New Reminder'}</h3><div className="space-y-3"><input className="w-full input-dark p-3 rounded" placeholder="Title" value={newTask.title} onChange={e=>{setNewTask({...newTask,title:e.target.value}); setConflictWarn(null);}} /><div className="grid grid-cols-2 gap-2"><select className="w-full input-dark p-3 rounded" value={newTask.category} onChange={e=>setNewTask({...newTask,category:e.target.value})}><option value="daily">Daily Task (Blue)</option><option value="official">Official Meeting (Yellow)</option><option value="special">Special Day (Pink - Annual Repeat)</option></select><input type="time" className="w-full input-dark p-3 rounded" value={newTask.time} onChange={e=>{setNewTask({...newTask,time:e.target.value}); setConflictWarn(null);}} /></div><input type="date" className="w-full input-dark p-3 rounded" value={newTask.date} onChange={e=>{setNewTask({...newTask,date:e.target.value}); setConflictWarn(null);}} /><textarea className="w-full input-dark p-3 rounded h-20 resize-none" placeholder="Description..." value={newTask.desc} onChange={e=>setNewTask({...newTask,desc:e.target.value})}></textarea>{newTask.category !== 'special' && (<div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700"><div className="mb-2"><span className="text-xs text-slate-300 font-bold">Rutin Tekrar Seçeneği</span></div><select className="w-full input-dark p-2 rounded text-sm" value={recurringType} onChange={e=>setRecurringType(e.target.value)} disabled={!!editingTask}><option value="none">No Repeat</option><option value="weekly">Weekly</option><option value="biweekly">Bi-Weekly</option><option value="monthly">Monthly</option></select>{recurringType !== "none" && recurringType !== "monthly" && (<div className="flex items-center gap-2 mt-2 animate-enter"><span className="text-[10px] text-slate-400">Kaç Kez?</span><input type="number" value={recurringWeeks} onChange={e=>setRecurringWeeks(parseInt(e.target.value))} className="w-16 bg-slate-900 border border-slate-600 rounded p-1 text-center text-white text-xs" /></div>)}{recurringType === "monthly" && (<p className="text-[10px] text-slate-400 mt-2">12 ay boyunca her ay tekrarlanacak</p>)}</div>)}{newTask.category === 'special' && (<div className="bg-pink-900/20 p-3 rounded-lg border border-pink-700"><p className="text-xs text-pink-300"><i className="fas fa-info-circle mr-1"></i>Özel günler her yıl otomatik olarak tekrarlanır</p></div>)}</div><div className="flex gap-2 mt-4"><button onClick={()=>{setActiveModal(null); setEditingTask(null); setNewTask({title:"", date:"", time:"", desc:"", type:"task", category:"daily"}); setRecurringType("none");}} className="flex-1 py-3 rounded bg-slate-700 text-slate-400 hover:bg-slate-600">Cancel</button><button onClick={handleAddTask} className={`flex-1 py-3 rounded text-white font-bold transition ${conflictWarn ? 'bg-red-600 hover:bg-red-700 animate-pulse' : 'bg-blue-600 hover:bg-blue-500'}`}>{conflictWarn ? '⚠️ Add Anyway?' : (editingTask ? 'Update' : 'Save')}</button></div>{conflictWarn && <div className="mt-2 text-center text-xs text-red-300 bg-red-900/20 p-2 rounded">{conflictWarn}</div>}</div></div>)}
