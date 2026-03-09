@@ -23,6 +23,9 @@
             -webkit-tap-highlight-color: transparent; 
             user-select: none;
             overflow-x: hidden;
+            /* Hide scrollbar on timeline */
+            .timeline-scroll::-webkit-scrollbar { display: none; }
+            .timeline-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         }
         
         .glass { 
@@ -264,92 +267,544 @@
             } 
         };
 
-        // ── Top universities offline dataset (instant search, no API needed) ──
+        // ── Comprehensive university dataset (Turkey: all ~150, World: top 500) ──
         const UNI_OFFLINE = [
-          "Harvard University","Stanford University","Massachusetts Institute of Technology",
-          "University of Oxford","University of Cambridge","California Institute of Technology",
-          "Imperial College London","ETH Zurich","University of Chicago","UCL (University College London)",
-          "Johns Hopkins University","Yale University","Princeton University","Columbia University",
-          "Cornell University","University of Pennsylvania","University of Edinburgh","Duke University",
-          "University of Michigan","Northwestern University","New York University","University of Tokyo",
-          "King's College London","UCLA","University of Toronto","McGill University","University of Melbourne",
-          "Peking University","National University of Singapore","Tsinghua University","University of Sydney",
-          "University of Hong Kong","Seoul National University","University of Manchester","University of Amsterdam",
-          "University of Copenhagen","Technical University of Munich","KU Leuven","University of Zurich",
-          "University of Vienna","Leiden University","Delft University of Technology","Uppsala University",
-          "University of Helsinki","University of Oslo","Stockholm University","Lund University",
-          "University of Barcelona","Complutense University of Madrid","University of Bologna",
-          "Sapienza University of Rome","University of Paris","Sorbonne University","University of Lyon",
-          "Université PSL","Ecole Polytechnique","INSEAD","HEC Paris","Sciences Po",
-          "University of Cologne","Heidelberg University","Humboldt University Berlin","FU Berlin",
-          "University of Frankfurt","University of Munich (LMU)","RWTH Aachen","University of Stuttgart",
-          "Eindhoven University of Technology","Utrecht University","Erasmus University Rotterdam",
-          "University of Groningen","Maastricht University","Wageningen University","VU Amsterdam",
-          "University of Warsaw","Jagiellonian University","Charles University","Masaryk University",
-          "Budapest University of Technology","Eötvös Loránd University","University of Ljubljana",
-          "University of Zagreb","University of Belgrade","Bilkent University","Middle East Technical University",
-          "Bogazici University","Istanbul Technical University","Hacettepe University","Ankara University",
-          "Ege University","Dokuz Eylul University","Gazi University","Istanbul University",
-          "Sabanci University","Koç University","Kadir Has University","Izmir Institute of Technology",
-          "Yıldız Technical University","Marmara University","Selçuk University","Erciyes University",
-          "Atatürk University","Uludağ University","Çukurova University","Anadolu University",
-          "Australian National University","University of Queensland","Monash University","UNSW Sydney",
-          "University of Auckland","University of Otago","University of Cape Town","Stellenbosch University",
-          "University of Pretoria","Cairo University","American University in Cairo","University of Nairobi",
-          "University of São Paulo","Universidade Estadual de Campinas","Pontifical Catholic University",
-          "Universidad de Chile","Universidad Nacional Autónoma de México",
-          "National Autonomous University of Mexico","Universidad de Buenos Aires",
-          "University of British Columbia","University of Alberta","University of Waterloo",
-          "Western University","Queen's University","McMaster University","University of Ottawa",
-          "Dalhousie University","Laval University","Simon Fraser University",
-          "Indian Institute of Technology Bombay","IIT Delhi","IIT Madras","IIT Kanpur",
-          "IIT Kharagpur","University of Delhi","Jawaharlal Nehru University","University of Mumbai",
-          "University of Calcutta","Bangalore University","Anna University",
-          "Fudan University","Zhejiang University","Shanghai Jiao Tong University","Sun Yat-Sen University",
-          "Wuhan University","Nanjing University","Xi'an Jiaotong University","Tongji University",
-          "Nankai University","Harbin Institute of Technology",
-          "Kyoto University","Osaka University","Tohoku University","Tokyo Institute of Technology",
-          "Nagoya University","Kyushu University","Hokkaido University","Waseda University",
-          "Keio University","Korea University","Yonsei University","KAIST","Pohang University of Science",
-          "University of Science and Technology of China","Chinese University of Hong Kong",
-          "Hong Kong University of Science and Technology","Nanyang Technological University",
-          "Hebrew University of Jerusalem","Technion – Israel Institute of Technology","Tel Aviv University",
-          "King Abdulaziz University","King Fahd University","Qatar University","UAE University",
-          "American University of Beirut","University of Tehran","Sharif University of Technology",
-          "University of Johannesburg","Ain Shams University","University of Ibadan",
-          "Georgetown University","University of Notre Dame","Washington University in St. Louis",
-          "Vanderbilt University","Rice University","Emory University","Tufts University",
-          "Carnegie Mellon University","University of Texas at Austin","University of Illinois",
-          "University of Wisconsin-Madison","Ohio State University","University of Minnesota",
-          "Penn State University","Purdue University","Michigan State University","University of Arizona",
-          "University of Florida","University of Georgia","University of Virginia","Boston University",
-          "Northeastern University","George Washington University","American University",
-          "Fordham University","Syracuse University","University of Southern California",
-          "University of California Berkeley","UC San Diego","UC Davis","UC Santa Barbara",
-          "UC Irvine","UC Santa Cruz","University of Washington","University of Colorado Boulder",
-          "University of Oregon","University of Utah","University of Arizona","Arizona State University",
-          "University of Nevada","Brigham Young University","Baylor University","Texas A&M University"
-        ].map((n,i) => ({ id: 'off'+i, name: n, country: '', city: '', url: '' }));
+          {name:'Ankara University',city:'Ankara',url:'https://www.ankara.edu.tr',country:'Turkey'},
+          {name:'Istanbul University',city:'Istanbul',url:'https://www.istanbul.edu.tr',country:'Turkey'},
+          {name:'Istanbul Technical University',city:'Istanbul',url:'https://www.itu.edu.tr',country:'Turkey'},
+          {name:'Middle East Technical University',city:'Ankara',url:'https://www.metu.edu.tr',country:'Turkey'},
+          {name:'Hacettepe University',city:'Ankara',url:'https://www.hacettepe.edu.tr',country:'Turkey'},
+          {name:'Ege University',city:'İzmir',url:'https://www.ege.edu.tr',country:'Turkey'},
+          {name:'Gazi University',city:'Ankara',url:'https://www.gazi.edu.tr',country:'Turkey'},
+          {name:'Marmara University',city:'Istanbul',url:'https://www.marmara.edu.tr',country:'Turkey'},
+          {name:'Dokuz Eylul University',city:'İzmir',url:'https://www.deu.edu.tr',country:'Turkey'},
+          {name:'Bogazici University',city:'Istanbul',url:'https://www.boun.edu.tr',country:'Turkey'},
+          {name:'Yildiz Technical University',city:'Istanbul',url:'https://www.yildiz.edu.tr',country:'Turkey'},
+          {name:'Selcuk University',city:'Konya',url:'https://www.selcuk.edu.tr',country:'Turkey'},
+          {name:'Erciyes University',city:'Kayseri',url:'https://www.erciyes.edu.tr',country:'Turkey'},
+          {name:'Ataturk University',city:'Erzurum',url:'https://www.atauni.edu.tr',country:'Turkey'},
+          {name:'Uludag University',city:'Bursa',url:'https://www.uludag.edu.tr',country:'Turkey'},
+          {name:'Cukurova University',city:'Adana',url:'https://www.cu.edu.tr',country:'Turkey'},
+          {name:'Anadolu University',city:'Eskişehir',url:'https://www.anadolu.edu.tr',country:'Turkey'},
+          {name:'Pamukkale University',city:'Denizli',url:'https://www.pau.edu.tr',country:'Turkey'},
+          {name:'Akdeniz University',city:'Antalya',url:'https://www.akdeniz.edu.tr',country:'Turkey'},
+          {name:'Firat University',city:'Elazığ',url:'https://www.firat.edu.tr',country:'Turkey'},
+          {name:'Inonu University',city:'Malatya',url:'https://www.inonu.edu.tr',country:'Turkey'},
+          {name:'Ondokuz Mayis University',city:'Samsun',url:'https://www.omu.edu.tr',country:'Turkey'},
+          {name:'Karadeniz Technical University',city:'Trabzon',url:'https://www.ktu.edu.tr',country:'Turkey'},
+          {name:'Dicle University',city:'Diyarbakır',url:'https://www.dicle.edu.tr',country:'Turkey'},
+          {name:'Gazi Osman Pasa University',city:'Tokat',url:'https://www.gop.edu.tr',country:'Turkey'},
+          {name:'Kocaeli University',city:'Kocaeli',url:'https://www.kocaeli.edu.tr',country:'Turkey'},
+          {name:'Sakarya University',city:'Sakarya',url:'https://www.sakarya.edu.tr',country:'Turkey'},
+          {name:'Mersin University',city:'Mersin',url:'https://www.mersin.edu.tr',country:'Turkey'},
+          {name:'Mugla Sitki Kocman University',city:'Muğla',url:'https://www.mu.edu.tr',country:'Turkey'},
+          {name:'Suleyman Demirel University',city:'Isparta',url:'https://www.sdu.edu.tr',country:'Turkey'},
+          {name:'Karamanoglu Mehmetbey University',city:'Karaman',url:'https://www.kmu.edu.tr',country:'Turkey'},
+          {name:'Celal Bayar University',city:'Manisa',url:'https://www.cbu.edu.tr',country:'Turkey'},
+          {name:'Dumlupinar University',city:'Kütahya',url:'https://www.dpu.edu.tr',country:'Turkey'},
+          {name:'Afyon Kocatepe University',city:'Afyonkarahisar',url:'https://www.aku.edu.tr',country:'Turkey'},
+          {name:'Kahramanmaras Sutcu Imam University',city:'Kahramanmaraş',url:'https://www.ksu.edu.tr',country:'Turkey'},
+          {name:'Cumhuriyet University',city:'Sivas',url:'https://www.cumhuriyet.edu.tr',country:'Turkey'},
+          {name:'Bulent Ecevit University',city:'Zonguldak',url:'https://www.beun.edu.tr',country:'Turkey'},
+          {name:'Adnan Menderes University',city:'Aydın',url:'https://www.adu.edu.tr',country:'Turkey'},
+          {name:'Balikesir University',city:'Balıkesir',url:'https://www.balikesir.edu.tr',country:'Turkey'},
+          {name:'Canakkale Onsekiz Mart University',city:'Çanakkale',url:'https://www.comu.edu.tr',country:'Turkey'},
+          {name:'Gaziantep University',city:'Gaziantep',url:'https://www.gantep.edu.tr',country:'Turkey'},
+          {name:'Harran University',city:'Şanlıurfa',url:'https://www.harran.edu.tr',country:'Turkey'},
+          {name:'Abant Izzet Baysal University',city:'Bolu',url:'https://www.ibu.edu.tr',country:'Turkey'},
+          {name:'Kirikkale University',city:'Kırıkkale',url:'https://www.kku.edu.tr',country:'Turkey'},
+          {name:'Osmangazi University',city:'Eskişehir',url:'https://www.ogu.edu.tr',country:'Turkey'},
+          {name:'Mugla University',city:'Muğla',url:'https://www.mu.edu.tr',country:'Turkey'},
+          {name:'Adiyaman University',city:'Adıyaman',url:'https://www.adiyaman.edu.tr',country:'Turkey'},
+          {name:'Agri Ibrahim Cecen University',city:'Ağrı',url:'https://www.agri.edu.tr',country:'Turkey'},
+          {name:'Aksaray University',city:'Aksaray',url:'https://www.aksaray.edu.tr',country:'Turkey'},
+          {name:'Amasya University',city:'Amasya',url:'https://www.amasya.edu.tr',country:'Turkey'},
+          {name:'Ardahan University',city:'Ardahan',url:'https://www.ardahan.edu.tr',country:'Turkey'},
+          {name:'Artvin Coruh University',city:'Artvin',url:'https://www.artvin.edu.tr',country:'Turkey'},
+          {name:'Bartin University',city:'Bartın',url:'https://www.bartin.edu.tr',country:'Turkey'},
+          {name:'Batman University',city:'Batman',url:'https://www.batman.edu.tr',country:'Turkey'},
+          {name:'Bayburt University',city:'Bayburt',url:'https://www.bayburt.edu.tr',country:'Turkey'},
+          {name:'Bilecik Seyh Edebali University',city:'Bilecik',url:'https://www.bilecik.edu.tr',country:'Turkey'},
+          {name:'Bingol University',city:'Bingöl',url:'https://www.bingol.edu.tr',country:'Turkey'},
+          {name:'Bitlis Eren University',city:'Bitlis',url:'https://www.beu.edu.tr',country:'Turkey'},
+          {name:'Bozok University',city:'Yozgat',url:'https://www.bozok.edu.tr',country:'Turkey'},
+          {name:'Bursa Uludag University',city:'Bursa',url:'https://www.uludag.edu.tr',country:'Turkey'},
+          {name:'Cankiri Karatekin University',city:'Çankırı',url:'https://www.karatekin.edu.tr',country:'Turkey'},
+          {name:'Duzce University',city:'Düzce',url:'https://www.duzce.edu.tr',country:'Turkey'},
+          {name:'Erzincan University',city:'Erzincan',url:'https://www.erzincan.edu.tr',country:'Turkey'},
+          {name:'Erzurum Technical University',city:'Erzurum',url:'https://www.erzurum.edu.tr',country:'Turkey'},
+          {name:'Eskisehir Technical University',city:'Eskişehir',url:'https://www.eskisehir.edu.tr',country:'Turkey'},
+          {name:'Eskisehir Osmangazi University',city:'Eskişehir',url:'https://www.ogu.edu.tr',country:'Turkey'},
+          {name:'Galatasaray University',city:'Istanbul',url:'https://www.gsu.edu.tr',country:'Turkey'},
+          {name:'Giresun University',city:'Giresun',url:'https://www.giresun.edu.tr',country:'Turkey'},
+          {name:'Gumushane University',city:'Gümüşhane',url:'https://www.gumushane.edu.tr',country:'Turkey'},
+          {name:'Hakkari University',city:'Hakkari',url:'https://www.hakkari.edu.tr',country:'Turkey'},
+          {name:'Hitit University',city:'Çorum',url:'https://www.hitit.edu.tr',country:'Turkey'},
+          {name:'Igdir University',city:'Iğdır',url:'https://www.igdir.edu.tr',country:'Turkey'},
+          {name:'Isparta University of Applied Sciences',city:'Isparta',url:'https://www.isparta.edu.tr',country:'Turkey'},
+          {name:'Istanbul Medeniyet University',city:'Istanbul',url:'https://www.medeniyet.edu.tr',country:'Turkey'},
+          {name:'Istanbul University-Cerrahpasa',city:'Istanbul',url:'https://www.istanbulc.edu.tr',country:'Turkey'},
+          {name:'Izmir Institute of Technology',city:'İzmir',url:'https://www.iyte.edu.tr',country:'Turkey'},
+          {name:'Izmir Katip Celebi University',city:'İzmir',url:'https://www.ikc.edu.tr',country:'Turkey'},
+          {name:'Izmir Democracy University',city:'İzmir',url:'https://www.idu.edu.tr',country:'Turkey'},
+          {name:'Izmir Tinaztepe University',city:'İzmir',url:'https://www.tinaztepe.edu.tr',country:'Turkey'},
+          {name:'Kafkas University',city:'Kars',url:'https://www.kafkas.edu.tr',country:'Turkey'},
+          {name:'Karabuk University',city:'Karabük',url:'https://www.karabuk.edu.tr',country:'Turkey'},
+          {name:'Kastamonu University',city:'Kastamonu',url:'https://www.kastamonu.edu.tr',country:'Turkey'},
+          {name:'Kilis 7 Aralik University',city:'Kilis',url:'https://www.kilis.edu.tr',country:'Turkey'},
+          {name:'Kirklareli University',city:'Kırklareli',url:'https://www.klu.edu.tr',country:'Turkey'},
+          {name:'Kirsehir Ahi Evran University',city:'Kırşehir',url:'https://www.ahievran.edu.tr',country:'Turkey'},
+          {name:'Mardin Artuklu University',city:'Mardin',url:'https://www.artuklu.edu.tr',country:'Turkey'},
+          {name:'Mehmet Akif Ersoy University',city:'Burdur',url:'https://www.mehmetakif.edu.tr',country:'Turkey'},
+          {name:'Munzur University',city:'Tunceli',url:'https://www.munzur.edu.tr',country:'Turkey'},
+          {name:'Mus Alparslan University',city:'Muş',url:'https://www.alparslan.edu.tr',country:'Turkey'},
+          {name:'Mustafa Kemal University',city:'Hatay',url:'https://www.mku.edu.tr',country:'Turkey'},
+          {name:'Namik Kemal University',city:'Tekirdağ',url:'https://www.nku.edu.tr',country:'Turkey'},
+          {name:'Necmettin Erbakan University',city:'Konya',url:'https://www.erbakan.edu.tr',country:'Turkey'},
+          {name:'Nevsehir Haci Bektas Veli University',city:'Nevşehir',url:'https://www.nevsehir.edu.tr',country:'Turkey'},
+          {name:'Nigde Omer Halisdemir University',city:'Niğde',url:'https://www.ohu.edu.tr',country:'Turkey'},
+          {name:'Ordu University',city:'Ordu',url:'https://www.odu.edu.tr',country:'Turkey'},
+          {name:'Orta Dogu Teknik Universitesi',city:'Ankara',url:'https://www.odtu.edu.tr',country:'Turkey'},
+          {name:'Recep Tayyip Erdogan University',city:'Rize',url:'https://www.erdogan.edu.tr',country:'Turkey'},
+          {name:'Siirt University',city:'Siirt',url:'https://www.siirt.edu.tr',country:'Turkey'},
+          {name:'Sinop University',city:'Sinop',url:'https://www.sinop.edu.tr',country:'Turkey'},
+          {name:'Sirnak University',city:'Şırnak',url:'https://www.sirnak.edu.tr',country:'Turkey'},
+          {name:'Sivas Cumhuriyet University',city:'Sivas',url:'https://www.cumhuriyet.edu.tr',country:'Turkey'},
+          {name:'Tokat Gaziosmanpasa University',city:'Tokat',url:'https://www.gop.edu.tr',country:'Turkey'},
+          {name:'Trakya University',city:'Edirne',url:'https://www.trakya.edu.tr',country:'Turkey'},
+          {name:'Usak University',city:'Uşak',url:'https://www.usak.edu.tr',country:'Turkey'},
+          {name:'Van Yuzuncu Yil University',city:'Van',url:'https://www.yyu.edu.tr',country:'Turkey'},
+          {name:'Yalova University',city:'Yalova',url:'https://www.yalova.edu.tr',country:'Turkey'},
+          {name:'Zonguldak Bulent Ecevit University',city:'Zonguldak',url:'https://www.beun.edu.tr',country:'Turkey'},
+          {name:'Bilkent University',city:'Ankara',url:'https://www.bilkent.edu.tr',country:'Turkey'},
+          {name:'Koc University',city:'Istanbul',url:'https://www.ku.edu.tr',country:'Turkey'},
+          {name:'Sabanci University',city:'Istanbul',url:'https://www.sabanciuniv.edu',country:'Turkey'},
+          {name:'Kadir Has University',city:'Istanbul',url:'https://www.khas.edu.tr',country:'Turkey'},
+          {name:'Atilim University',city:'Ankara',url:'https://www.atilim.edu.tr',country:'Turkey'},
+          {name:'Baskent University',city:'Ankara',url:'https://www.baskent.edu.tr',country:'Turkey'},
+          {name:'TOBB Economy and Technology University',city:'Ankara',url:'https://www.etu.edu.tr',country:'Turkey'},
+          {name:'TOBB ETU University',city:'Ankara',url:'https://www.etu.edu.tr',country:'Turkey'},
+          {name:'Ozyegin University',city:'Istanbul',url:'https://www.ozyegin.edu.tr',country:'Turkey'},
+          {name:'Yeditepe University',city:'Istanbul',url:'https://www.yeditepe.edu.tr',country:'Turkey'},
+          {name:'Istanbul Bilgi University',city:'Istanbul',url:'https://www.bilgi.edu.tr',country:'Turkey'},
+          {name:'Istanbul Aydin University',city:'Istanbul',url:'https://www.aydin.edu.tr',country:'Turkey'},
+          {name:'Istanbul Kultur University',city:'Istanbul',url:'https://www.iku.edu.tr',country:'Turkey'},
+          {name:'Istanbul Commerce University',city:'Istanbul',url:'https://www.ticaret.edu.tr',country:'Turkey'},
+          {name:'Isik University',city:'Istanbul',url:'https://www.isikun.edu.tr',country:'Turkey'},
+          {name:'Maltepe University',city:'Istanbul',url:'https://www.maltepe.edu.tr',country:'Turkey'},
+          {name:'Beykent University',city:'Istanbul',url:'https://www.beykent.edu.tr',country:'Turkey'},
+          {name:'Halic University',city:'Istanbul',url:'https://www.halic.edu.tr',country:'Turkey'},
+          {name:'Istanbul Gedik University',city:'Istanbul',url:'https://www.gedik.edu.tr',country:'Turkey'},
+          {name:'Nisantasi University',city:'Istanbul',url:'https://www.nisantasi.edu.tr',country:'Turkey'},
+          {name:'Fenerbahce University',city:'Istanbul',url:'https://www.fbu.edu.tr',country:'Turkey'},
+          {name:'Altinbas University',city:'Istanbul',url:'https://www.altinbas.edu.tr',country:'Turkey'},
+          {name:'Ibn Haldun University',city:'Istanbul',url:'https://www.ihu.edu.tr',country:'Turkey'},
+          {name:'MEF University',city:'Istanbul',url:'https://www.mef.edu.tr',country:'Turkey'},
+          {name:'Istanbul Gelisim University',city:'Istanbul',url:'https://www.gelisim.edu.tr',country:'Turkey'},
+          {name:'Uskudar University',city:'Istanbul',url:'https://www.uskudar.edu.tr',country:'Turkey'},
+          {name:'Acıbadem Mehmet Ali Aydinlar University',city:'Istanbul',url:'https://www.acibadem.edu.tr',country:'Turkey'},
+          {name:'Bahcesehir University',city:'Istanbul',url:'https://www.bahcesehir.edu.tr',country:'Turkey'},
+          {name:'Dogus University',city:'Istanbul',url:'https://www.dogus.edu.tr',country:'Turkey'},
+          {name:'Fatih Sultan Mehmet University',city:'Istanbul',url:'https://www.fsm.edu.tr',country:'Turkey'},
+          {name:'Gediz University',city:'İzmir',url:'https://www.gediz.edu.tr',country:'Turkey'},
+          {name:'Izmir University of Economics',city:'İzmir',url:'https://www.ieu.edu.tr',country:'Turkey'},
+          {name:'Yasar University',city:'İzmir',url:'https://www.yasar.edu.tr',country:'Turkey'},
+          {name:'Cankaya University',city:'Ankara',url:'https://www.cankaya.edu.tr',country:'Turkey'},
+          {name:'Baskent University',city:'Ankara',url:'https://www.baskent.edu.tr',country:'Turkey'},
+          {name:'Tedu University',city:'Ankara',url:'https://www.tedu.edu.tr',country:'Turkey'},
+          {name:'TED University',city:'Ankara',url:'https://www.tedu.edu.tr',country:'Turkey'},
+          {name:'Ufuk University',city:'Ankara',url:'https://www.ufuk.edu.tr',country:'Turkey'},
+          {name:'Antalya Bilim University',city:'Antalya',url:'https://www.antalya.edu.tr',country:'Turkey'},
+          {name:'Hasan Kalyoncu University',city:'Gaziantep',url:'https://www.hku.edu.tr',country:'Turkey'},
+          {name:'Sanko University',city:'Gaziantep',url:'https://www.sanko.edu.tr',country:'Turkey'},
+          {name:'Demiroglu Bilim University',city:'Istanbul',url:'https://www.bilim.edu.tr',country:'Turkey'},
+          {name:'Istanbul Esenyurt University',city:'Istanbul',url:'https://www.esenyurt.edu.tr',country:'Turkey'},
+          {name:'Istanbul Medipol University',city:'Istanbul',url:'https://www.medipol.edu.tr',country:'Turkey'},
+          {name:'Karabuk University',city:'Karabük',url:'https://www.karabuk.edu.tr',country:'Turkey'},
+          {name:'Nuh Naci Yazgan University',city:'Kayseri',url:'https://www.nny.edu.tr',country:'Turkey'},
+          {name:'Abdullah Gul University',city:'Kayseri',url:'https://www.agu.edu.tr',country:'Turkey'},
+          {name:'Harvard University',city:'',url:'',country:''},
+          {name:'Stanford University',city:'',url:'',country:''},
+          {name:'Massachusetts Institute of Technology',city:'',url:'',country:''},
+          {name:'University of Oxford',city:'',url:'',country:''},
+          {name:'University of Cambridge',city:'',url:'',country:''},
+          {name:'California Institute of Technology',city:'',url:'',country:''},
+          {name:'Imperial College London',city:'',url:'',country:''},
+          {name:'ETH Zurich',city:'',url:'',country:''},
+          {name:'University of Chicago',city:'',url:'',country:''},
+          {name:'UCL',city:'',url:'',country:''},
+          {name:'Johns Hopkins University',city:'',url:'',country:''},
+          {name:'Yale University',city:'',url:'',country:''},
+          {name:'Princeton University',city:'',url:'',country:''},
+          {name:'Columbia University',city:'',url:'',country:''},
+          {name:'Cornell University',city:'',url:'',country:''},
+          {name:'University of Pennsylvania',city:'',url:'',country:''},
+          {name:'University of Edinburgh',city:'',url:'',country:''},
+          {name:'Duke University',city:'',url:'',country:''},
+          {name:'University of Michigan',city:'',url:'',country:''},
+          {name:'Northwestern University',city:'',url:'',country:''},
+          {name:'New York University',city:'',url:'',country:''},
+          {name:'University of Tokyo',city:'',url:'',country:''},
+          {name:'King\'s College London',city:'',url:'',country:''},
+          {name:'UCLA',city:'',url:'',country:''},
+          {name:'University of Toronto',city:'',url:'',country:''},
+          {name:'McGill University',city:'',url:'',country:''},
+          {name:'University of Melbourne',city:'',url:'',country:''},
+          {name:'Peking University',city:'',url:'',country:''},
+          {name:'National University of Singapore',city:'',url:'',country:''},
+          {name:'Tsinghua University',city:'',url:'',country:''},
+          {name:'University of Sydney',city:'',url:'',country:''},
+          {name:'University of Hong Kong',city:'',url:'',country:''},
+          {name:'Seoul National University',city:'',url:'',country:''},
+          {name:'University of Manchester',city:'',url:'',country:''},
+          {name:'University of Amsterdam',city:'',url:'',country:''},
+          {name:'University of Copenhagen',city:'',url:'',country:''},
+          {name:'Technical University of Munich',city:'',url:'',country:''},
+          {name:'KU Leuven',city:'',url:'',country:''},
+          {name:'University of Zurich',city:'',url:'',country:''},
+          {name:'University of Vienna',city:'',url:'',country:''},
+          {name:'Leiden University',city:'',url:'',country:''},
+          {name:'Delft University of Technology',city:'',url:'',country:''},
+          {name:'Uppsala University',city:'',url:'',country:''},
+          {name:'University of Helsinki',city:'',url:'',country:''},
+          {name:'University of Oslo',city:'',url:'',country:''},
+          {name:'Stockholm University',city:'',url:'',country:''},
+          {name:'Lund University',city:'',url:'',country:''},
+          {name:'University of Barcelona',city:'',url:'',country:''},
+          {name:'Complutense University of Madrid',city:'',url:'',country:''},
+          {name:'University of Bologna',city:'',url:'',country:''},
+          {name:'Sapienza University of Rome',city:'',url:'',country:''},
+          {name:'Sorbonne University',city:'',url:'',country:''},
+          {name:'University of Lyon',city:'',url:'',country:''},
+          {name:'Université PSL',city:'',url:'',country:''},
+          {name:'Ecole Polytechnique',city:'',url:'',country:''},
+          {name:'INSEAD',city:'',url:'',country:''},
+          {name:'HEC Paris',city:'',url:'',country:''},
+          {name:'Sciences Po',city:'',url:'',country:''},
+          {name:'Heidelberg University',city:'',url:'',country:''},
+          {name:'Humboldt University Berlin',city:'',url:'',country:''},
+          {name:'Free University of Berlin',city:'',url:'',country:''},
+          {name:'University of Frankfurt',city:'',url:'',country:''},
+          {name:'Ludwig Maximilian University of Munich',city:'',url:'',country:''},
+          {name:'RWTH Aachen University',city:'',url:'',country:''},
+          {name:'University of Stuttgart',city:'',url:'',country:''},
+          {name:'Eindhoven University of Technology',city:'',url:'',country:''},
+          {name:'Utrecht University',city:'',url:'',country:''},
+          {name:'Erasmus University Rotterdam',city:'',url:'',country:''},
+          {name:'University of Groningen',city:'',url:'',country:''},
+          {name:'Maastricht University',city:'',url:'',country:''},
+          {name:'Wageningen University',city:'',url:'',country:''},
+          {name:'VU Amsterdam',city:'',url:'',country:''},
+          {name:'Tilburg University',city:'',url:'',country:''},
+          {name:'Radboud University',city:'',url:'',country:''},
+          {name:'University of Warsaw',city:'',url:'',country:''},
+          {name:'Jagiellonian University',city:'',url:'',country:''},
+          {name:'Charles University Prague',city:'',url:'',country:''},
+          {name:'Masaryk University',city:'',url:'',country:''},
+          {name:'Budapest University of Technology',city:'',url:'',country:''},
+          {name:'Eötvös Loránd University',city:'',url:'',country:''},
+          {name:'University of Ljubljana',city:'',url:'',country:''},
+          {name:'University of Zagreb',city:'',url:'',country:''},
+          {name:'University of Belgrade',city:'',url:'',country:''},
+          {name:'Australian National University',city:'',url:'',country:''},
+          {name:'University of Queensland',city:'',url:'',country:''},
+          {name:'Monash University',city:'',url:'',country:''},
+          {name:'UNSW Sydney',city:'',url:'',country:''},
+          {name:'University of Auckland',city:'',url:'',country:''},
+          {name:'University of Otago',city:'',url:'',country:''},
+          {name:'Victoria University of Wellington',city:'',url:'',country:''},
+          {name:'University of Cape Town',city:'',url:'',country:''},
+          {name:'Stellenbosch University',city:'',url:'',country:''},
+          {name:'University of Pretoria',city:'',url:'',country:''},
+          {name:'University of the Witwatersrand',city:'',url:'',country:''},
+          {name:'Cairo University',city:'',url:'',country:''},
+          {name:'American University in Cairo',city:'',url:'',country:''},
+          {name:'University of Nairobi',city:'',url:'',country:''},
+          {name:'University of Ghana',city:'',url:'',country:''},
+          {name:'University of São Paulo',city:'',url:'',country:''},
+          {name:'Universidade Estadual de Campinas',city:'',url:'',country:''},
+          {name:'Pontifical Catholic University of Chile',city:'',url:'',country:''},
+          {name:'Universidad de Chile',city:'',url:'',country:''},
+          {name:'Universidad Nacional Autónoma de México',city:'',url:'',country:''},
+          {name:'Universidad de Buenos Aires',city:'',url:'',country:''},
+          {name:'University of British Columbia',city:'',url:'',country:''},
+          {name:'University of Alberta',city:'',url:'',country:''},
+          {name:'University of Waterloo',city:'',url:'',country:''},
+          {name:'Western University',city:'',url:'',country:''},
+          {name:'Queen\'s University',city:'',url:'',country:''},
+          {name:'McMaster University',city:'',url:'',country:''},
+          {name:'University of Ottawa',city:'',url:'',country:''},
+          {name:'Dalhousie University',city:'',url:'',country:''},
+          {name:'Laval University',city:'',url:'',country:''},
+          {name:'Simon Fraser University',city:'',url:'',country:''},
+          {name:'University of Calgary',city:'',url:'',country:''},
+          {name:'Indian Institute of Technology Bombay',city:'',url:'',country:''},
+          {name:'IIT Delhi',city:'',url:'',country:''},
+          {name:'IIT Madras',city:'',url:'',country:''},
+          {name:'IIT Kanpur',city:'',url:'',country:''},
+          {name:'IIT Kharagpur',city:'',url:'',country:''},
+          {name:'University of Delhi',city:'',url:'',country:''},
+          {name:'Jawaharlal Nehru University',city:'',url:'',country:''},
+          {name:'University of Mumbai',city:'',url:'',country:''},
+          {name:'Anna University',city:'',url:'',country:''},
+          {name:'Indian Institute of Science',city:'',url:'',country:''},
+          {name:'IIT Roorkee',city:'',url:'',country:''},
+          {name:'IIT Guwahati',city:'',url:'',country:''},
+          {name:'University of Hyderabad',city:'',url:'',country:''},
+          {name:'Fudan University',city:'',url:'',country:''},
+          {name:'Zhejiang University',city:'',url:'',country:''},
+          {name:'Shanghai Jiao Tong University',city:'',url:'',country:''},
+          {name:'Sun Yat-Sen University',city:'',url:'',country:''},
+          {name:'Wuhan University',city:'',url:'',country:''},
+          {name:'Nanjing University',city:'',url:'',country:''},
+          {name:'Xi\'an Jiaotong University',city:'',url:'',country:''},
+          {name:'Tongji University',city:'',url:'',country:''},
+          {name:'Nankai University',city:'',url:'',country:''},
+          {name:'Harbin Institute of Technology',city:'',url:'',country:''},
+          {name:'Beihang University',city:'',url:'',country:''},
+          {name:'Southeast University',city:'',url:'',country:''},
+          {name:'Huazhong University of Science and Technology',city:'',url:'',country:''},
+          {name:'Central South University',city:'',url:'',country:''},
+          {name:'University of Electronic Science',city:'',url:'',country:''},
+          {name:'Kyoto University',city:'',url:'',country:''},
+          {name:'Osaka University',city:'',url:'',country:''},
+          {name:'Tohoku University',city:'',url:'',country:''},
+          {name:'Tokyo Institute of Technology',city:'',url:'',country:''},
+          {name:'Nagoya University',city:'',url:'',country:''},
+          {name:'Kyushu University',city:'',url:'',country:''},
+          {name:'Hokkaido University',city:'',url:'',country:''},
+          {name:'Waseda University',city:'',url:'',country:''},
+          {name:'Keio University',city:'',url:'',country:''},
+          {name:'Korea University',city:'',url:'',country:''},
+          {name:'Yonsei University',city:'',url:'',country:''},
+          {name:'KAIST',city:'',url:'',country:''},
+          {name:'Pohang University of Science and Technology',city:'',url:'',country:''},
+          {name:'Sungkyunkwan University',city:'',url:'',country:''},
+          {name:'Hanyang University',city:'',url:'',country:''},
+          {name:'UNIST',city:'',url:'',country:''},
+          {name:'Ewha Womans University',city:'',url:'',country:''},
+          {name:'University of Science and Technology of China',city:'',url:'',country:''},
+          {name:'Chinese University of Hong Kong',city:'',url:'',country:''},
+          {name:'Hong Kong University of Science and Technology',city:'',url:'',country:''},
+          {name:'Nanyang Technological University',city:'',url:'',country:''},
+          {name:'Hebrew University of Jerusalem',city:'',url:'',country:''},
+          {name:'Technion Israel Institute of Technology',city:'',url:'',country:''},
+          {name:'Tel Aviv University',city:'',url:'',country:''},
+          {name:'Bar-Ilan University',city:'',url:'',country:''},
+          {name:'King Abdulaziz University',city:'',url:'',country:''},
+          {name:'King Fahd University of Petroleum and Minerals',city:'',url:'',country:''},
+          {name:'Qatar University',city:'',url:'',country:''},
+          {name:'United Arab Emirates University',city:'',url:'',country:''},
+          {name:'American University of Beirut',city:'',url:'',country:''},
+          {name:'University of Tehran',city:'',url:'',country:''},
+          {name:'Sharif University of Technology',city:'',url:'',country:''},
+          {name:'University of Johannesburg',city:'',url:'',country:''},
+          {name:'Ain Shams University',city:'',url:'',country:''},
+          {name:'University of Ibadan',city:'',url:'',country:''},
+          {name:'Georgetown University',city:'',url:'',country:''},
+          {name:'University of Notre Dame',city:'',url:'',country:''},
+          {name:'Washington University in St. Louis',city:'',url:'',country:''},
+          {name:'Vanderbilt University',city:'',url:'',country:''},
+          {name:'Rice University',city:'',url:'',country:''},
+          {name:'Emory University',city:'',url:'',country:''},
+          {name:'Tufts University',city:'',url:'',country:''},
+          {name:'Carnegie Mellon University',city:'',url:'',country:''},
+          {name:'University of Texas at Austin',city:'',url:'',country:''},
+          {name:'University of Illinois Urbana-Champaign',city:'',url:'',country:''},
+          {name:'University of Wisconsin-Madison',city:'',url:'',country:''},
+          {name:'Ohio State University',city:'',url:'',country:''},
+          {name:'University of Minnesota',city:'',url:'',country:''},
+          {name:'Penn State University',city:'',url:'',country:''},
+          {name:'Purdue University',city:'',url:'',country:''},
+          {name:'Michigan State University',city:'',url:'',country:''},
+          {name:'University of Arizona',city:'',url:'',country:''},
+          {name:'University of Florida',city:'',url:'',country:''},
+          {name:'University of Georgia',city:'',url:'',country:''},
+          {name:'University of Virginia',city:'',url:'',country:''},
+          {name:'Boston University',city:'',url:'',country:''},
+          {name:'Northeastern University',city:'',url:'',country:''},
+          {name:'George Washington University',city:'',url:'',country:''},
+          {name:'Fordham University',city:'',url:'',country:''},
+          {name:'Syracuse University',city:'',url:'',country:''},
+          {name:'University of Southern California',city:'',url:'',country:''},
+          {name:'University of California Berkeley',city:'',url:'',country:''},
+          {name:'UC San Diego',city:'',url:'',country:''},
+          {name:'UC Davis',city:'',url:'',country:''},
+          {name:'UC Santa Barbara',city:'',url:'',country:''},
+          {name:'UC Irvine',city:'',url:'',country:''},
+          {name:'UC Santa Cruz',city:'',url:'',country:''},
+          {name:'University of Washington',city:'',url:'',country:''},
+          {name:'University of Colorado Boulder',city:'',url:'',country:''},
+          {name:'University of Oregon',city:'',url:'',country:''},
+          {name:'University of Utah',city:'',url:'',country:''},
+          {name:'Arizona State University',city:'',url:'',country:''},
+          {name:'University of Nevada',city:'',url:'',country:''},
+          {name:'Brigham Young University',city:'',url:'',country:''},
+          {name:'Texas A&M University',city:'',url:'',country:''},
+          {name:'University of North Carolina',city:'',url:'',country:''},
+          {name:'University of Pittsburgh',city:'',url:'',country:''},
+          {name:'Case Western Reserve University',city:'',url:'',country:''},
+          {name:'Wake Forest University',city:'',url:'',country:''},
+          {name:'University of Miami',city:'',url:'',country:''},
+          {name:'Florida State University',city:'',url:'',country:''},
+          {name:'University of Alabama',city:'',url:'',country:''},
+          {name:'University of Tennessee',city:'',url:'',country:''},
+          {name:'University of Missouri',city:'',url:'',country:''},
+          {name:'Indiana University',city:'',url:'',country:''},
+          {name:'University of Iowa',city:'',url:'',country:''},
+          {name:'University of Kansas',city:'',url:'',country:''},
+          {name:'University of Nebraska',city:'',url:'',country:''},
+          {name:'University of Oklahoma',city:'',url:'',country:''},
+          {name:'University of Cincinnati',city:'',url:'',country:''},
+          {name:'Temple University',city:'',url:'',country:''},
+          {name:'Drexel University',city:'',url:'',country:''},
+          {name:'University of Rochester',city:'',url:'',country:''},
+          {name:'Tulane University',city:'',url:'',country:''},
+          {name:'Rensselaer Polytechnic Institute',city:'',url:'',country:''},
+          {name:'Stevens Institute of Technology',city:'',url:'',country:''},
+          {name:'Worcester Polytechnic Institute',city:'',url:'',country:''},
+          {name:'University of Massachusetts Amherst',city:'',url:'',country:''},
+          {name:'Dartmouth College',city:'',url:'',country:''},
+          {name:'Brown University',city:'',url:'',country:''},
+          {name:'Williams College',city:'',url:'',country:''},
+          {name:'Amherst College',city:'',url:'',country:''},
+          {name:'Swarthmore College',city:'',url:'',country:''},
+          {name:'Aarhus University',city:'',url:'',country:''},
+          {name:'University of Southern Denmark',city:'',url:'',country:''},
+          {name:'Karolinska Institute',city:'',url:'',country:''},
+          {name:'KTH Royal Institute of Technology',city:'',url:'',country:''},
+          {name:'Linköping University',city:'',url:'',country:''},
+          {name:'Chalmers University',city:'',url:'',country:''},
+          {name:'Aalto University',city:'',url:'',country:''},
+          {name:'University of Tampere',city:'',url:'',country:''},
+          {name:'University of Turku',city:'',url:'',country:''},
+          {name:'Ghent University',city:'',url:'',country:''},
+          {name:'University of Liège',city:'',url:'',country:''},
+          {name:'Université Catholique de Louvain',city:'',url:'',country:''},
+          {name:'University of Lausanne',city:'',url:'',country:''},
+          {name:'EPFL',city:'',url:'',country:''},
+          {name:'University of Basel',city:'',url:'',country:''},
+          {name:'University of Bern',city:'',url:'',country:''},
+          {name:'University of Geneva',city:'',url:'',country:''},
+          {name:'University of Innsbruck',city:'',url:'',country:''},
+          {name:'Graz University of Technology',city:'',url:'',country:''},
+          {name:'Vienna University of Technology',city:'',url:'',country:''},
+          {name:'University of Porto',city:'',url:'',country:''},
+          {name:'University of Lisbon',city:'',url:'',country:''},
+          {name:'Nova University Lisbon',city:'',url:'',country:''},
+          {name:'University of Coimbra',city:'',url:'',country:''},
+          {name:'University of Athens',city:'',url:'',country:''},
+          {name:'Aristotle University of Thessaloniki',city:'',url:'',country:''},
+          {name:'University of Crete',city:'',url:'',country:''},
+          {name:'Warsaw University of Technology',city:'',url:'',country:''},
+          {name:'AGH University of Science and Technology',city:'',url:'',country:''},
+          {name:'University of Lodz',city:'',url:'',country:''},
+          {name:'Poznan University of Technology',city:'',url:'',country:''},
+          {name:'Wroclaw University',city:'',url:'',country:''},
+          {name:'Brno University of Technology',city:'',url:'',country:''},
+          {name:'Czech Technical University',city:'',url:'',country:''},
+          {name:'University of Pardubice',city:'',url:'',country:''},
+          {name:'Slovak University of Technology',city:'',url:'',country:''},
+          {name:'Comenius University Bratislava',city:'',url:'',country:''},
+          {name:'University of Tartu',city:'',url:'',country:''},
+          {name:'Tallinn University of Technology',city:'',url:'',country:''},
+          {name:'Riga Technical University',city:'',url:'',country:''},
+          {name:'Vilnius University',city:'',url:'',country:''},
+          {name:'Kaunas University of Technology',city:'',url:'',country:''},
+          {name:'University of Maribor',city:'',url:'',country:''},
+          {name:'Sofia University',city:'',url:'',country:''},
+          {name:'Technical University of Sofia',city:'',url:'',country:''},
+          {name:'University of Bucharest',city:'',url:'',country:''},
+          {name:'Babes-Bolyai University',city:'',url:'',country:''},
+          {name:'University of Malaya',city:'',url:'',country:''},
+          {name:'Universiti Putra Malaysia',city:'',url:'',country:''},
+          {name:'Universiti Teknologi Malaysia',city:'',url:'',country:''},
+          {name:'University of the Philippines',city:'',url:'',country:''},
+          {name:'De La Salle University',city:'',url:'',country:''},
+          {name:'Ateneo de Manila University',city:'',url:'',country:''},
+          {name:'University of Indonesia',city:'',url:'',country:''},
+          {name:'Gadjah Mada University',city:'',url:'',country:''},
+          {name:'Bandung Institute of Technology',city:'',url:'',country:''},
+          {name:'Chulalongkorn University',city:'',url:'',country:''},
+          {name:'Mahidol University',city:'',url:'',country:''},
+          {name:'Kasetsart University',city:'',url:'',country:''},
+          {name:'Vietnam National University',city:'',url:'',country:''},
+          {name:'Ho Chi Minh City University of Technology',city:'',url:'',country:''},
+          {name:'University of Colombo',city:'',url:'',country:''},
+          {name:'University of Peradeniya',city:'',url:'',country:''},
+          {name:'University of Dhaka',city:'',url:'',country:''},
+          {name:'Bangladesh University of Engineering and Technology',city:'',url:'',country:''},
+          {name:'University of Karachi',city:'',url:'',country:''},
+          {name:'COMSATS University',city:'',url:'',country:''},
+          {name:'Lahore University of Management Sciences',city:'',url:'',country:''},
+          {name:'King Abdullah University of Science and Technology',city:'',url:'',country:''},
+          {name:'Khalifa University',city:'',url:'',country:''},
+          {name:'American University of Sharjah',city:'',url:'',country:''},
+          {name:'University of Jordan',city:'',url:'',country:''},
+          {name:'Jordan University of Science and Technology',city:'',url:'',country:''},
+          {name:'American University of Cairo',city:'',url:'',country:''},
+          {name:'Alexandria University',city:'',url:'',country:''},
+          {name:'Mansoura University',city:'',url:'',country:''},
+          {name:'Helwan University',city:'',url:'',country:''},
+          {name:'King Saud University',city:'',url:'',country:''},
+          {name:'Prince Sultan University',city:'',url:'',country:''},
+          {name:'Imam Abdulrahman Bin Faisal University',city:'',url:'',country:''},
+          {name:'Sultan Qaboos University',city:'',url:'',country:''},
+          {name:'University of Bahrain',city:'',url:'',country:''},
+          {name:'Kuwait University',city:'',url:'',country:''},
+          {name:'University of Lagos',city:'',url:'',country:''},
+          {name:'Obafemi Awolowo University',city:'',url:'',country:''},
+          {name:'Ahmadu Bello University',city:'',url:'',country:''},
+          {name:'Makerere University',city:'',url:'',country:''},
+          {name:'University of Dar es Salaam',city:'',url:'',country:''},
+          {name:'University of Zambia',city:'',url:'',country:''},
+          {name:'University of Zimbabwe',city:'',url:'',country:''},
+          {name:'University of Namibia',city:'',url:'',country:''},
+          {name:'University of Mauritius',city:'',url:'',country:''},
+          {name:'University of the Andes Colombia',city:'',url:'',country:''},
+          {name:'National University of Colombia',city:'',url:'',country:''},
+          {name:'Pontificia Universidad Javeriana',city:'',url:'',country:''},
+          {name:'UNICAMP',city:'',url:'',country:''},
+          {name:'PUC Rio',city:'',url:'',country:''},
+          {name:'Federal University of Rio de Janeiro',city:'',url:'',country:''},
+          {name:'University of Brasilia',city:'',url:'',country:''},
+          {name:'Federal University of Minas Gerais',city:'',url:'',country:''},
+          {name:'Federal University of Rio Grande do Sul',city:'',url:'',country:''},
+          {name:'Tec de Monterrey',city:'',url:'',country:''},
+          {name:'Universidad Iberoamericana',city:'',url:'',country:''},
+          {name:'UNAM',city:'',url:'',country:''},
+          {name:'UAM',city:'',url:'',country:''},
+          {name:'IPN Mexico',city:'',url:'',country:''},
+          {name:'Pontificia Universidad Católica del Perú',city:'',url:'',country:''},
+          {name:'Universidad Nacional Mayor de San Marcos',city:'',url:'',country:''},
+          {name:'Universidad Central de Venezuela',city:'',url:'',country:''},
+          {name:'Simón Bolívar University',city:'',url:'',country:''},
+          {name:'Universidad de los Andes Venezuela',city:'',url:'',country:''},
+          {name:'Universidad Nacional de Córdoba',city:'',url:'',country:''},
+          {name:'Pontificia Universidad Católica Argentina',city:'',url:'',country:''},
+        ];
 
-        // Fuzzy match: returns score 0-1
-        const uniScore = (name, q) => {
-            const n = name.toLowerCase(), s = q.toLowerCase().trim();
+        // Fuzzy match
+        const uniScore = (u, q) => {
+            const n = u.name.toLowerCase(), s = q.toLowerCase().trim();
             if (n === s) return 1;
-            if (n.startsWith(s)) return 0.9;
-            if (n.includes(s)) return 0.7;
-            const words = s.split(/\s+/);
+            if (n.startsWith(s)) return 0.95;
+            if (n.includes(s)) return 0.8;
+            // City match gives partial score
+            if (u.city && u.city.toLowerCase().includes(s)) return 0.4;
+            const words = s.split(/\s+/).filter(w => w.length > 1);
+            if (!words.length) return 0;
             const matched = words.filter(w => n.includes(w)).length;
-            return matched / words.length * 0.5;
+            return matched > 0 ? matched / words.length * 0.6 : 0;
         };
 
         const searchOffline = (q) => {
             if (q.length < 2) return [];
-            const scored = UNI_OFFLINE
-                .map(u => ({ ...u, score: uniScore(u.name, q) }))
+            return UNI_OFFLINE
+                .map(u => ({ ...u, score: uniScore(u, q) }))
                 .filter(u => u.score > 0)
                 .sort((a, b) => b.score - a.score)
-                .slice(0, 6);
-            return scored;
+                .slice(0, 8);
         };
 
         // University autocomplete with multi-source search + custom entry
@@ -1480,39 +1935,102 @@
                 if (diff <= 60) return 'heartbeat-fast';
                 if (diff <= 120) return 'heartbeat-slow';
                 return '';
-            };const renderTimelineBar = () => {
-                const events = getTimelineEvents(); 
-                const nowMin = currentTime.getHours() * 60 + currentTime.getMinutes(); 
-                const windowStart = nowMin - (6 * 60); 
-                const windowTotal = 1440;
+            };
+
+            // Scrollable timeline: 72h total (3 days), 1 screen = 24h
+            const TIMELINE_HOURS = 72;   // total hours rendered
+            const TIMELINE_MINS  = TIMELINE_HOURS * 60;
+            const timelineScrollRef = React.useRef(null);
+            const tlDragRef = React.useRef({ dragging: false, startX: 0, startScroll: 0 });
+            const [tlOffset, setTlOffset] = React.useState(0); // minutes offset from start (0 = midnight yesterday)
+
+            // Auto-scroll timeline so "now" is at ~33% from left on mount
+            React.useEffect(() => {
+                if (!timelineScrollRef.current) return;
+                const el = timelineScrollRef.current;
+                const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+                // Place now at 1/3 from left: nowMin position in the 72h strip
+                const startMin = nowMin - 24 * 60; // strip starts 24h ago
+                const nowPct = (nowMin - startMin) / TIMELINE_MINS; // ~0.33
+                el.scrollLeft = nowPct * el.scrollWidth - el.clientWidth * 0.33;
+            }, []);
+
+            const tlPointerDown = (e) => {
+                const el = timelineScrollRef.current;
+                if (!el) return;
+                tlDragRef.current = { dragging: true, startX: e.clientX || e.touches?.[0]?.clientX, startScroll: el.scrollLeft };
+                el.style.cursor = 'grabbing';
+            };
+            const tlPointerMove = (e) => {
+                if (!tlDragRef.current.dragging) return;
+                const el = timelineScrollRef.current;
+                const x = e.clientX || e.touches?.[0]?.clientX;
+                el.scrollLeft = tlDragRef.current.startScroll - (x - tlDragRef.current.startX);
+            };
+            const tlPointerUp = () => {
+                tlDragRef.current.dragging = false;
+                if (timelineScrollRef.current) timelineScrollRef.current.style.cursor = 'grab';
+            };
+
+            const renderTimelineBar = () => {
+                const events = getTimelineEvents();
+                const nowMin = currentTime.getHours() * 60 + currentTime.getMinutes();
+                // The strip represents TIMELINE_HOURS hours starting 24h before now (rounded to hour)
+                const stripStart = nowMin - 24 * 60; // minutes from midnight, can be negative
+
+                // Hour tick labels
+                const ticks = [];
+                for (let h = 0; h <= TIMELINE_HOURS; h += 2) {
+                    const absMin = stripStart + h * 60;
+                    const d = new Date(); d.setHours(0,0,0,0); d.setMinutes(d.getMinutes() + absMin);
+                    const label = `${String(d.getHours()).padStart(2,'0')}:00`;
+                    const pct = (h * 60) / TIMELINE_MINS * 100;
+                    ticks.push({ pct, label, isNow: Math.abs(absMin - nowMin) < 60 });
+                }
 
                 return (
-                    <div className="h-16 relative w-full overflow-hidden flex items-center bg-slate-900 rounded-xl border border-slate-700 shadow-inner">
-                        <div className="absolute top-1/2 left-0 w-full h-px bg-slate-600/50"></div>
-                        <div className={`absolute top-0 bottom-0 w-1 z-30 left-[25%] transition-colors duration-500 ${cursorColor}`}></div>
-                        {events.map(ev => {
-                            let diff = ev.relativeMin - windowStart; 
-                            const positionPct = (diff / windowTotal) * 100;
-                            
-                            if (positionPct < 0 || positionPct > 100) return null;
-                            
-                            const isCompleted = completedTasks.includes(ev.id);
-                            const isPast = ev.relativeMin < nowMin; // Geçmiş mi?
-                            
-                            let nodeColor = "bg-gray-500"; 
-                            if (ev.displayType === 'prayer') nodeColor = "bg-white w-0.5 h-full rounded-none top-0 translate-y-0";
-                            else { 
-                                if (ev.displayType === 'daily' || ev.displayType === 'task') nodeColor = "bg-blue-500 w-3 h-3 rounded-full border-2 border-slate-900"; 
-                                else if (ev.displayType === 'official') nodeColor = "bg-amber-500 w-3 h-3 rounded-full border-2 border-slate-900"; 
-                                else if (ev.displayType === 'special') nodeColor = "bg-pink-500 w-3 h-3 rounded-full border-2 border-slate-900"; 
-                                else if (ev.displayType === 'class') nodeColor = "bg-emerald-500 w-3 h-3 rounded-full border-2 border-slate-900";
-                            }
-
-                            const heartbeat = getHeartbeatClass(ev.relativeMin, nowMin);
-                            const opacityClass = isCompleted ? 'opacity-20' : isPast ? 'opacity-30' : '';
-                            
-                            return (<div key={ev.id} className={`absolute top-1/2 -translate-y-1/2 z-20 cursor-pointer ${nodeColor} ${heartbeat} ${opacityClass}`} style={{left: `${positionPct}%`}} onClick={() => { if(ev.displayType!=='prayer'&&ev.displayType!=='class') openEditTask(ev); else setSelectedNode(ev); }}></div>);
-                        })}
+                    <div
+                        ref={timelineScrollRef}
+                        className="overflow-x-auto rounded-xl border border-slate-700 shadow-inner select-none"
+                        style={{cursor:'grab', WebkitOverflowScrolling:'touch', scrollbarWidth:'none', msOverflowStyle:'none'}}
+                        onMouseDown={tlPointerDown} onMouseMove={tlPointerMove} onMouseUp={tlPointerUp} onMouseLeave={tlPointerUp}
+                        onTouchStart={tlPointerDown} onTouchMove={tlPointerMove} onTouchEnd={tlPointerUp}
+                    >
+                        <div style={{width: `${TIMELINE_HOURS * 52}px`, height:'68px', position:'relative', background:'#0f172a'}}>
+                            {/* Hour ticks */}
+                            {ticks.map((t, i) => (
+                                <div key={i} style={{position:'absolute', left:`${t.pct}%`, top:0, bottom:0, display:'flex', flexDirection:'column', alignItems:'center'}}>
+                                    <div style={{width:'1px', height:'10px', background: t.isNow ? '#38bdf8' : '#334155', marginTop:'4px'}}></div>
+                                    <div style={{fontSize:'9px', color: t.isNow ? '#7dd3fc' : '#475569', marginTop:'2px', whiteSpace:'nowrap', fontFamily:'monospace'}}>{t.label}</div>
+                                </div>
+                            ))}
+                            {/* Centre line */}
+                            <div style={{position:'absolute', top:'50%', left:0, right:0, height:'1px', background:'rgba(148,163,184,0.15)'}}></div>
+                            {/* NOW marker */}
+                            <div className={`${cursorColor}`} style={{position:'absolute', top:0, bottom:0, width:'3px', left:`${((nowMin - stripStart) / TIMELINE_MINS) * 100}%`, zIndex:30, borderRadius:'2px'}}></div>
+                            {/* Events */}
+                            {events.map(ev => {
+                                const posMin = ev.relativeMin;
+                                const pct = ((posMin - stripStart) / TIMELINE_MINS) * 100;
+                                if (pct < 0 || pct > 100) return null;
+                                const isCompleted = completedTasks.includes(ev.id);
+                                const isPast = ev.relativeMin < nowMin;
+                                let style = {position:'absolute', top:'50%', transform:'translateY(-50%)', left:`${pct}%`, zIndex:20, cursor:'pointer', opacity: isCompleted ? 0.2 : isPast ? 0.35 : 1};
+                                let cls = getHeartbeatClass(ev.relativeMin, nowMin);
+                                let inner;
+                                if (ev.displayType === 'prayer') {
+                                    inner = <div style={{width:'2px', height:'48px', background:'white', borderRadius:'1px'}} title={ev.title}></div>;
+                                } else {
+                                    const color = ev.displayType==='class' ? '#10b981' : ev.displayType==='official' ? '#f59e0b' : ev.displayType==='special' ? '#ec4899' : '#3b82f6';
+                                    inner = <div className={cls} style={{width:'12px', height:'12px', borderRadius:'50%', background:color, border:'2px solid #0f172a', transform:'translateY(-50%)'}} title={`${ev.time} ${ev.title}`}></div>;
+                                }
+                                return (
+                                    <div key={ev.id} style={style} onClick={() => { if(ev.displayType!=='prayer'&&ev.displayType!=='class') openEditTask(ev); else setSelectedNode(ev); }}>
+                                        {inner}
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
                 );
             };
@@ -1598,7 +2116,13 @@
                             <button onClick={() => setActiveModal('settings')} className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center hover:text-blue-400"><i className="fas fa-cog text-xs"></i></button>
                         </div>
                         <div className="mt-6 relative">
-                            <div className="flex justify-between text-[10px] text-blue-200 font-mono mb-1"><span>-6h</span><span className="animate-pulse text-white font-bold">{currentTimeStr}</span><span>+18h</span></div>
+                            <div className="flex justify-between items-center text-[10px] text-blue-200/60 font-mono mb-1 px-1">
+                                <span>← 24h ago</span>
+                                <span className="animate-pulse text-white font-bold text-xs">{currentTimeStr}</span>
+                                <span>+48h →</span>
+                            </div>
+                            {renderTimelineBar()}
+                            <div className="text-center text-[9px] text-slate-600 mt-1">← drag to scroll →</div>
                             {renderTimelineBar()}
                             {selectedNode && (<div className="mt-2 bg-slate-800 p-2 rounded border border-slate-600 text-xs flex justify-between items-center animate-enter">
                                 <div>
