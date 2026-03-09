@@ -264,73 +264,117 @@
             } 
         };
 
-        // University autocomplete - uses global API + manual entry
-        const UNI_SEARCH_API = 'https://universities.hipolabs.com/search?name=';
-        
-        // Autocomplete component for university search
+        // University autocomplete - global university search with manual fallback
         const UniAutocomplete = ({ value, onChange, inputClass }) => {
             const [query, setQuery] = React.useState(value || '');
             const [results, setResults] = React.useState([]);
             const [loading, setLoading] = React.useState(false);
-            const [showDrop, setShowDrop] = React.useState(false);
+            const [open, setOpen] = React.useState(false);
+            const [selected, setSelected] = React.useState(false);
             const debounceRef = React.useRef(null);
-            
-            React.useEffect(() => { setQuery(value || ''); }, [value]);
-            
-            const search = (q) => {
-                setQuery(q);
-                onChange({ name: q, city: '', url: '' }); // immediately update with custom text
+            const containerRef = React.useRef(null);
+
+            // Sync if parent resets value
+            React.useEffect(() => {
+                if (!selected) setQuery(value || '');
+            }, [value]);
+
+            // Close on outside click
+            React.useEffect(() => {
+                const handler = (e) => {
+                    if (containerRef.current && !containerRef.current.contains(e.target)) {
+                        setOpen(false);
+                    }
+                };
+                document.addEventListener('mousedown', handler);
+                document.addEventListener('touchstart', handler);
+                return () => { document.removeEventListener('mousedown', handler); document.removeEventListener('touchstart', handler); };
+            }, []);
+
+            const doSearch = (q) => {
                 if (debounceRef.current) clearTimeout(debounceRef.current);
-                if (q.length < 3) { setResults([]); setShowDrop(false); return; }
+                if (q.length < 2) { setResults([]); setOpen(false); return; }
                 debounceRef.current = setTimeout(async () => {
                     setLoading(true);
                     try {
-                        const res = await fetch(UNI_SEARCH_API + encodeURIComponent(q));
+                        const res = await fetch('https://universities.hipolabs.com/search?name=' + encodeURIComponent(q));
+                        if (!res.ok) throw new Error('API error');
                         const data = await res.json();
-                        setResults(data.slice(0, 8).map(u => ({
+                        const mapped = data.slice(0, 10).map(u => ({
                             name: u.name,
                             city: u.state_province || '',
-                            url: (u.web_pages && u.web_pages[0]) || '',
+                            url: (u.web_pages && u.web_pages[0]) ? u.web_pages[0].replace(/\/$/, '') : '',
                             country: u.country || ''
-                        })));
-                        setShowDrop(true);
-                    } catch(e) { setResults([]); }
+                        }));
+                        setResults(mapped);
+                        setOpen(mapped.length > 0);
+                    } catch(e) {
+                        setResults([]);
+                        setOpen(false);
+                    }
                     setLoading(false);
-                }, 400);
+                }, 350);
             };
-            
-            const select = (u) => {
+
+            const handleChange = (e) => {
+                const q = e.target.value;
+                setQuery(q);
+                setSelected(false);
+                onChange({ name: q, city: '', url: '' });
+                doSearch(q);
+            };
+
+            const handleSelect = (u) => {
                 setQuery(u.name);
-                onChange(u);
-                setShowDrop(false);
+                setSelected(true);
+                setOpen(false);
                 setResults([]);
+                onChange(u);
             };
-            
+
+            const handleUseCustom = () => {
+                setSelected(true);
+                setOpen(false);
+                onChange({ name: query, city: '', url: '' });
+            };
+
             return (
-                <div style={{position:'relative'}}>
-                    <div style={{position:'relative'}}>
+                <div ref={containerRef} style={{position:'relative'}}>
+                    <div style={{position:'relative', display:'flex', alignItems:'center'}}>
                         <input
                             value={query}
-                            onChange={e => search(e.target.value)}
-                            onFocus={() => results.length > 0 && setShowDrop(true)}
-                            onBlur={() => setTimeout(() => setShowDrop(false), 200)}
+                            onChange={handleChange}
+                            onFocus={() => { if (results.length > 0) setOpen(true); }}
                             placeholder="Type your university name..."
                             className={inputClass}
+                            style={{paddingRight: '36px'}}
                             autoComplete="off"
                         />
-                        {loading && <span style={{position:'absolute',right:'10px',top:'50%',transform:'translateY(-50%)',color:'#64748b',fontSize:'12px'}}>⏳</span>}
+                        <span style={{position:'absolute',right:'10px',color: selected ? '#10b981' : '#64748b',fontSize:'14px',pointerEvents:'none'}}>
+                            {loading ? '⏳' : selected ? '✓' : query.length >= 2 ? '🔍' : '🏫'}
+                        </span>
                     </div>
-                    {showDrop && results.length > 0 && (
-                        <div style={{position:'absolute',top:'100%',left:0,right:0,background:'#1e293b',border:'1px solid #334155',borderRadius:'8px',zIndex:9999,maxHeight:'220px',overflowY:'auto',boxShadow:'0 8px 24px rgba(0,0,0,0.5)'}}>
+                    {open && (
+                        <div style={{position:'absolute',top:'calc(100% + 4px)',left:0,right:0,background:'#1e293b',border:'1px solid #475569',borderRadius:'10px',zIndex:99999,maxHeight:'260px',overflowY:'auto',boxShadow:'0 12px 32px rgba(0,0,0,0.6)'}}>
                             {results.map((u, i) => (
-                                <div key={i} onMouseDown={() => select(u)} style={{padding:'10px 14px',cursor:'pointer',borderBottom:'1px solid #334155',transition:'background 0.15s'}}
-                                    onMouseEnter={e=>e.currentTarget.style.background='#334155'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                                <div
+                                    key={i}
+                                    onPointerDown={(e) => { e.preventDefault(); handleSelect(u); }}
+                                    style={{padding:'10px 14px',cursor:'pointer',borderBottom:'1px solid #334155'}}
+                                    onMouseEnter={e=>e.currentTarget.style.background='#334155'}
+                                    onMouseLeave={e=>e.currentTarget.style.background='transparent'}
+                                >
                                     <div style={{color:'white',fontSize:'13px',fontWeight:'600'}}>{u.name}</div>
-                                    <div style={{color:'#64748b',fontSize:'11px'}}>{u.country}{u.city ? ' • ' + u.city : ''}</div>
+                                    <div style={{color:'#94a3b8',fontSize:'11px',marginTop:'2px'}}>{u.country}{u.city ? ' — ' + u.city : ''}</div>
                                 </div>
                             ))}
-                            <div onMouseDown={() => { select({name: query, city:'', url:''}); }} style={{padding:'10px 14px',cursor:'pointer',color:'#3b82f6',fontSize:'12px',fontWeight:'600'}}>
-                                ✏️ Use "{query}" as custom name
+                            <div
+                                onPointerDown={(e) => { e.preventDefault(); handleUseCustom(); }}
+                                style={{padding:'10px 14px',cursor:'pointer',color:'#60a5fa',fontSize:'12px',fontWeight:'600',borderTop:'1px solid #475569'}}
+                                onMouseEnter={e=>e.currentTarget.style.background='#1e3a5f'}
+                                onMouseLeave={e=>e.currentTarget.style.background='transparent'}
+                            >
+                                ✏️ Save "{query}" as custom name
                             </div>
                         </div>
                     )}
@@ -471,10 +515,16 @@
             const [setupName, setSetupName] = useState('');
             const [setupUni, setSetupUni] = useState({name:'',city:'',url:''});
             const [setupPrayer, setSetupPrayer] = useState(true);
+            const [setupCity, setSetupCity] = React.useState('');
             const handleSetup = (e) => {
                 e.preventDefault();
                 if (!setupName.trim() || !setupUni.name.trim()) return;
-                setUser({ title: setupTitle, name: setupName, uni: setupUni.name, city: setupUni.city || '', url: setupUni.url || '', enablePrayer: setupPrayer });
+                const city = setupUni.city || setupCity || '';
+                setUser({ title: setupTitle, name: setupName, uni: setupUni.name, city, url: setupUni.url || '', enablePrayer: setupPrayer });
+            };
+            const handleUniChange = (u) => {
+                setSetupUni(u);
+                if (u.city) setSetupCity(u.city);
             };
             return (
                 <form onSubmit={handleSetup} className="space-y-4">
@@ -482,7 +532,7 @@
                         {TITLES.map(t=><option key={t} value={t}>{t}</option>)}
                     </select>
                     <input value={setupName} onChange={e=>setSetupName(e.target.value)} required placeholder="Full Name" className="w-full input-dark p-3 rounded-lg" />
-                    <UniAutocomplete value={setupUni.name} onChange={setSetupUni} inputClass="w-full input-dark p-3 rounded-lg" />
+                    <UniAutocomplete value={setupUni.name} onChange={handleUniChange} inputClass="w-full input-dark p-3 rounded-lg" />
                     <div className="flex items-center gap-3 pt-2">
                         <input type="checkbox" checked={setupPrayer} onChange={e=>setSetupPrayer(e.target.checked)} className="w-5 h-5 accent-blue-500" />
                         <span className="text-sm text-slate-300">Show Prayer Times</span>
@@ -502,7 +552,9 @@
                 e.preventDefault();
                 if (!editName.trim() || !editUni.name.trim()) return;
                 updateAcademicCalendar(editUni.name);
-                setUser({ ...user, title: editTitle, name: editName, uni: editUni.name, city: editUni.city || user.city, url: editUni.url || user.url, enablePrayer: editPrayer });
+                const newCity = editUni.city || user.city || '';
+                const newUrl = editUni.url || user.url || '';
+                setUser({ ...user, title: editTitle, name: editName, uni: editUni.name, city: newCity, url: newUrl, enablePrayer: editPrayer });
                 setActiveModal(null);
             };
             return (
@@ -1134,11 +1186,13 @@
             const x = startX + 20 + (dayIndex * cellWidth);
             
             if (lesson) {
-                // Renk seçimi
-                if (lesson.type === 'undergraduate') doc.setFillColor(13, 148, 136);
-                else if (lesson.type === 'graduate') doc.setFillColor(79, 70, 229);
-                else if (lesson.type === 'doctoral') doc.setFillColor(225, 29, 72);
-                else if (lesson.type === 'seminar') doc.setFillColor(217, 119, 6);
+                // Color by normalized type (handles legacy Turkish keys too)
+                const lt = normType(lesson.type);
+                if (lt === 'undergraduate') doc.setFillColor(13, 148, 136);
+                else if (lt === 'graduate') doc.setFillColor(79, 70, 229);
+                else if (lt === 'doctoral') doc.setFillColor(225, 29, 72);
+                else if (lt === 'seminar') doc.setFillColor(217, 119, 6);
+                else doc.setFillColor(13, 148, 136); // fallback: teal
                 
                 doc.rect(x, y, cellWidth, cellHeight, 'FD');
                 doc.setTextColor(255, 255, 255);
