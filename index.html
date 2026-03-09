@@ -435,6 +435,24 @@
             const handleSelect = (u) => {
                 setQuery(u.name); setConfirmed(true); setOpen(false); setResults([]);
                 onChange(u);
+                // If selected from offline list (no URL/city), enrich from API in background
+                if (!u.url || !u.city) {
+                    fetch('https://universities.hipolabs.com/search?name=' + encodeURIComponent(u.name))
+                        .then(r => r.json())
+                        .then(data => {
+                            if (Array.isArray(data) && data.length > 0) {
+                                const exact = data.find(d => d.name.toLowerCase() === u.name.toLowerCase()) || data[0];
+                                const enriched = {
+                                    name: u.name,
+                                    city: exact.state_province || u.city || '',
+                                    url: (exact.web_pages && exact.web_pages[0]) ? exact.web_pages[0].replace(/\/$/, '') : u.url || '',
+                                    country: exact.country || u.country || ''
+                                };
+                                if (enriched.url || enriched.city) onChange(enriched);
+                            }
+                        })
+                        .catch(() => {});
+                }
             };
 
             const handleCustom = () => {
@@ -995,44 +1013,67 @@
                     else if (pomodoro.active && pomodoro.time === 0) { setPomodoro({active: false, time: 25 * 60}); alert("Focus session ended!"); }
                 };
                 tick(); const timer = setInterval(tick, 1000); 
-                if (user?.enablePrayer && user?.city && !prayerTimes) fetchPrayerTimes(user.city);
+                if (user?.enablePrayer && !prayerTimes) fetchPrayerTimes(user.city || '');
                 return () => clearInterval(timer);
             }, [getTimelineEvents, alertState, pomodoro.active, user, dismissedAlerts]);
 
             // Refetch prayer times when city or enablePrayer changes
             useEffect(() => {
-                if (user?.enablePrayer && user?.city) { setPrayerTimes(null); fetchPrayerTimes(user.city); }
-            }, [user?.city, user?.enablePrayer]);
+                if (user?.enablePrayer) {
+                    setPrayerTimes(null);
+                    fetchPrayerTimes(user.city || '');
+                }
+            }, [user?.city, user?.uni, user?.enablePrayer]);
 
             const dismissAlert = () => { if (alertState) { setDismissedAlerts(prev => [...prev, alertState.id]); setAlertState(null); if(audioRef.current) { audioRef.current.pause(); audioRef.current.currentTime = 0; } } };
-            const fetchPrayerTimes = async (city) => {
-                if (!city) return;
+            const fetchPrayerTimes = async (cityHint) => {
+                // Use city if available, otherwise geocode by university name
+                const searchTerm = cityHint || user?.uni || '';
+                if (!searchTerm) return;
                 const d = new Date();
                 const dateStr = `${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}`;
-                // Try multiple approaches: coords-less city search, then with Turkey fallback
-                const attempts = [
-                    `https://api.aladhan.com/v1/timingsByCity/${dateStr}?city=${encodeURIComponent(city)}&method=13`,
-                    `https://api.aladhan.com/v1/timingsByCity/${dateStr}?city=${encodeURIComponent(city)}&country=Turkey&method=13`,
-                    `https://api.aladhan.com/v1/timingsByCity/${dateStr}?city=${encodeURIComponent(city)}&country=&method=2`,
-                ];
-                for (const url of attempts) {
-                    try {
-                        const res = await fetch(url);
-                        const json = await res.json();
-                        if (json.data && json.data.timings) { setPrayerTimes(json.data.timings); return; }
-                    } catch(e) {}
+                const saveTimes = (timings) => {
+                    setPrayerTimes(timings);
+                    try { localStorage.setItem('prayer_cache_v48', JSON.stringify(timings)); } catch(e) {}
+                };
+                // Step 1: city-based API attempts
+                if (cityHint) {
+                    const attempts = [
+                        `https://api.aladhan.com/v1/timingsByCity/${dateStr}?city=${encodeURIComponent(cityHint)}&method=13`,
+                        `https://api.aladhan.com/v1/timingsByCity/${dateStr}?city=${encodeURIComponent(cityHint)}&method=2`,
+                    ];
+                    for (const url of attempts) {
+                        try {
+                            const res = await fetch(url);
+                            const json = await res.json();
+                            if (json.data?.timings) { saveTimes(json.data.timings); return; }
+                        } catch(e) {}
+                    }
                 }
-                // Final fallback: try coordinates via geocoding
+                // Step 2: Geocode by searchTerm (city or university name) → coordinates
                 try {
-                    const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(city)}&format=json&limit=1`);
+                    const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchTerm)}&format=json&limit=1`);
                     const geoData = await geoRes.json();
-                    if (geoData && geoData[0]) {
+                    if (geoData?.[0]) {
                         const { lat, lon } = geoData[0];
                         const coordRes = await fetch(`https://api.aladhan.com/v1/timings/${dateStr}?latitude=${lat}&longitude=${lon}&method=2`);
                         const coordJson = await coordRes.json();
-                        if (coordJson.data && coordJson.data.timings) setPrayerTimes(coordJson.data.timings);
+                        if (coordJson.data?.timings) { saveTimes(coordJson.data.timings); return; }
                     }
-                } catch(e) { console.error('Prayer fetch failed', e); }
+                } catch(e) {}
+                // Step 3: If nothing worked and we used city, retry with uni name directly
+                if (cityHint && user?.uni && cityHint !== user.uni) {
+                    try {
+                        const geoRes2 = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(user.uni)}&format=json&limit=1`);
+                        const geo2 = await geoRes2.json();
+                        if (geo2?.[0]) {
+                            const { lat, lon } = geo2[0];
+                            const r = await fetch(`https://api.aladhan.com/v1/timings/${dateStr}?latitude=${lat}&longitude=${lon}&method=2`);
+                            const j = await r.json();
+                            if (j.data?.timings) saveTimes(j.data.timings);
+                        }
+                    } catch(e) { console.error('Prayer fetch failed completely', e); }
+                }
             };
             const updateAcademicCalendar = (uniName) => { const newData = ACADEMIC_DATA[uniName] || ACADEMIC_DATA['default']; setCalendarEvents(newData); };
             const handleUpdateUser = (e) => { e.preventDefault(); const fd = new FormData(e.target); const u = UNIVERSITIES.find(x => x.name === fd.get('uni')); if (!u) return; updateAcademicCalendar(u.name); setUser({ ...user, title: fd.get('title'), name: fd.get('name'), uni: u.name, city: u.city, url: u.url, enablePrayer: fd.get('enablePrayer') === 'on' }); setActiveModal(null); };const handleAddTask = () => { 
