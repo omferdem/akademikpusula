@@ -267,6 +267,122 @@
             } 
         };
 
+
+        // ── i18n ──────────────────────────────────────────────────
+        const TRANSLATIONS = {
+          en: {
+            // Nav
+            nav_flow:"Flow", nav_home:"Home", nav_schedule:"Schedule", nav_calendar:"Calendar", nav_score:"Score",
+            // Header
+            daily_flow:"Daily Flow", flow_empty:{t('flow_empty')},
+            // Home buttons
+            btn_reminder:"REMINDER", btn_notebook:"NOTEBOOK", btn_ai:"AI TOOLS",
+            btn_p2pdf:"P2PDF", btn_links:"IMPORTANT LINKS", btn_schedule_pdf:"Download Schedule PDF", btn_add_course:"ADD COURSE",
+            btn_acal:"Academic Calendar", acal_open:"Open link", acal_add:"Add link",
+            // Setup
+            setup_title:"Title", setup_name:"Full Name", setup_uni:"University", setup_prayer:"Show Prayer Times", setup_start:"START",
+            setup_placeholder_name:"Full Name", setup_uni_placeholder:"Type your university name...",
+            // Settings
+            settings_title:"Settings", settings_save:"Save", settings_notif:"🔔 Notification Sound",
+            settings_backup:"💾 Backup & Restore", settings_export:"Export", settings_import:"Import",
+            settings_notif_default:"🔔 Default", settings_notif_alarm:"⏰ Alarm",
+            settings_notif_chime:"🎵 Chime", settings_notif_silent:"🔇 Silent",
+            // Schedule
+            schedule_title:"WEEKLY CLASS SCHEDULE", schedule_download:"Download PDF",
+            // Add course modal
+            add_course_title:"Add New Course", add_course_name:"Course Name",
+            add_course_type:"Course Type", add_course_slots:"Time Slots",
+            add_course_day:"Day", add_course_start:"Start", add_course_end:"End",
+            add_course_room:"Room", add_course_add_slot:"+ Add Slot", add_course_save:"Save",
+            add_course_cancel:"Cancel",
+            // Tasks
+            task_title:"Title", task_date:"Date", task_time:"Time", task_desc:"Description",
+            task_type:"Type", task_cat:"Category", task_save:"Save", task_cancel:"Cancel",
+            task_recurring:"Recurring", task_weeks:"weeks",
+            // Notes
+            notes_title:"NOTEBOOK", notes_add:"Add note...", notes_save:"Save",
+            // Important Links
+            links_title:"Important Links", links_add:"Add", links_tip:"Links with {name} in URL will auto-search your name.",
+            links_use_typed:"Save as custom name", links_save:"Save", links_cancel:"Cancel", links_delete:"Delete",
+            links_name_placeholder:"Link Name", links_url_placeholder:"https://... (use {name} for your name)",
+            links_tip_name:"Tip: put {name} anywhere in URL to insert your name",
+            // AI Tools
+            ai_title:"AI Tools", ai_add:"Add", ai_save:"Save", ai_cancel:"Cancel", ai_delete:"Delete",
+            ai_name_placeholder:"AI Name", ai_url_placeholder:"https://...",
+            // Score
+            score_title:"SCORE TABLE", score_add:"Add", score_activity:"Activity",
+            score_pts:"Score", score_count:"Count", score_total:"Total",
+            score_target:"Target Score:", score_current:"CURRENT",
+            // Calendar
+            cal_title:"Annual Calendar", cal_uni_web:"Uni. Web", cal_uni_url:"🔍 Uni URL",
+            cal_load_ics:"Load ICS",
+            // Prayer
+            prayer_label:"Prayer",
+            // Misc
+            drag_to_scroll:{t('drag_to_scroll')}, timeline_ago:"← 24h ago", timeline_ahead:"+48h →",
+            use_as_typed:"Use as typed:", uni_use_typed:"✏️ Use as typed:",
+            // Academic Calendar modal
+            acal_modal_title:"Academic Calendar Link",
+            acal_modal_url_placeholder:"https://your-university.edu/calendar",
+            acal_modal_open:"Open Link", acal_modal_save:"Save",
+            acal_modal_hint:"Paste your university's academic calendar URL",
+            // Misc alerts
+            alert_slot_required:"At least one time slot is required!",
+            alert_pdf_loading:"PDF library loading, please wait...",
+            alert_pdf_error:"PDF generation error:",
+            alert_no_photos:"No photos!",
+            alert_enter_name:"Please enter a link name!",
+          },
+          tr: {
+            nav_flow:"Akış", nav_home:"Ana Sayfa", nav_schedule:"Ders", nav_calendar:"Takvim", nav_score:"Puan",
+            daily_flow:"Günlük Akış", flow_empty:"Akış boş.",
+            btn_reminder:"HATIRLATICI", btn_notebook:"NOT DEFTERİ", btn_ai:"YAPAY ZEKA",
+            btn_p2pdf:"F2PDF", btn_links:"ÖNEMLİ LİNKLER", btn_schedule_pdf:"Ders Programı PDF İndir", btn_add_course:"DERS EKLE",
+            btn_acal:"Akademik Takvim", acal_open:"Linki aç", acal_add:"Link ekle",
+            setup_title:"Unvan", setup_name:"Ad Soyad", setup_uni:"Üniversite",
+            setup_prayer:"Namaz Vakitlerini Göster", setup_start:"BAŞLA",
+            setup_placeholder_name:"Ad Soyad", setup_uni_placeholder:"Üniversite adı yazın...",
+            settings_title:"Ayarlar", settings_save:"Kaydet", settings_notif:"🔔 Bildirim Sesi",
+            settings_backup:"💾 Yedekle & Geri Yükle", settings_export:"Dışa Aktar", settings_import:"İçe Aktar",
+            settings_notif_default:"🔔 Varsayılan", settings_notif_alarm:"⏰ Alarm",
+            settings_notif_chime:"🎵 Melodi", settings_notif_silent:"🔇 Sessiz",
+            schedule_title:"HAFTALIK DERS PROGRAMI", schedule_download:"PDF İndir",
+            add_course_title:"Yeni Ders Ekle", add_course_name:"Ders Adı",
+            add_course_type:"Ders Türü", add_course_slots:"Zaman Dilimleri",
+            add_course_day:"Gün", add_course_start:"Başlangıç", add_course_end:"Bitiş",
+            add_course_room:"Derslik", add_course_add_slot:"+ Dilim Ekle", add_course_save:"Kaydet",
+            add_course_cancel:"İptal",
+            task_title:"Başlık", task_date:"Tarih", task_time:"Saat", task_desc:"Açıklama",
+            task_type:"Tür", task_cat:"Kategori", task_save:"Kaydet", task_cancel:"İptal",
+            task_recurring:"Tekrarlı", task_weeks:"hafta",
+            notes_title:"NOT DEFTERİ", notes_add:"Not ekle...", notes_save:"Kaydet",
+            links_title:"Önemli Linkler", links_add:"Ekle",
+            links_tip:"URL içinde {name} olan linkler adınızı otomatik arar.",
+            links_use_typed:"Özel isim olarak kaydet", links_save:"Kaydet", links_cancel:"İptal", links_delete:"Sil",
+            links_name_placeholder:"Link Adı", links_url_placeholder:"https://... ({name} adınız için)",
+            links_tip_name:"İpucu: URL'ye {name} yazarsanız adınız otomatik eklenir",
+            ai_title:"Yapay Zeka Araçları", ai_add:"Ekle", ai_save:"Kaydet", ai_cancel:"İptal", ai_delete:"Sil",
+            ai_name_placeholder:"Yapay Zeka Adı", ai_url_placeholder:"https://...",
+            score_title:"PUAN CETVELİ", score_add:"Ekle", score_activity:"Aktivite",
+            score_pts:"Puan", score_count:"Sayı", score_total:"Toplam",
+            score_target:"Hedef Puan:", score_current:"MEVCUT",
+            cal_title:"Yıllık Takvim", cal_uni_web:"Üni. Web", cal_uni_url:"🔍 Üni URL",
+            cal_load_ics:"ICS Yükle",
+            prayer_label:"Namaz",
+            drag_to_scroll:"← sürükle →", timeline_ago:"← 24s önce", timeline_ahead:"+48s →",
+            use_as_typed:"Yazıldığı gibi:", uni_use_typed:"✏️ Yazıldığı gibi:",
+            acal_modal_title:"Akademik Takvim Linki",
+            acal_modal_url_placeholder:"https://universite.edu.tr/takvim",
+            acal_modal_open:"Linki Aç", acal_modal_save:"Kaydet",
+            acal_modal_hint:"Üniversitenizin akademik takvim URL'sini yapıştırın",
+            alert_slot_required:"En az bir zaman dilimi gereklidir!",
+            alert_pdf_loading:"PDF kütüphanesi yükleniyor, lütfen bekleyin...",
+            alert_pdf_error:"PDF oluşturma hatası:",
+            alert_no_photos:"Fotoğraf yok!",
+            alert_enter_name:"Lütfen bir link adı girin!",
+          }
+        };
+
         // ── Comprehensive university dataset (Turkey: all ~150, World: top 500) ──
         const UNI_OFFLINE = [
           {name:'Ankara University',city:'Ankara',url:'https://www.ankara.edu.tr',country:'Turkey'},
@@ -922,7 +1038,7 @@
                             value={query}
                             onChange={handleChange}
                             onFocus={() => { if (results.length > 0 || apiError) setOpen(true); }}
-                            placeholder="Type your university name..."
+                            placeholder={t('setup_uni_placeholder')}
                             className={inputClass}
                             style={{paddingRight:'36px'}}
                             autoComplete="off"
@@ -1114,13 +1230,13 @@
                     <select value={setupTitle} onChange={e=>setSetupTitle(e.target.value)} className="w-full input-dark p-3 rounded-lg">
                         {TITLES.map(t=><option key={t} value={t}>{t}</option>)}
                     </select>
-                    <input value={setupName} onChange={e=>setSetupName(e.target.value)} required placeholder="Full Name" className="w-full input-dark p-3 rounded-lg" />
+                    <input value={setupName} onChange={e=>setSetupName(e.target.value)} required placeholder={t('setup_placeholder_name')} className="w-full input-dark p-3 rounded-lg" />
                     <UniAutocomplete value={setupUni.name} onChange={handleUniChange} inputClass="w-full input-dark p-3 rounded-lg" />
                     <div className="flex items-center gap-3 pt-2">
                         <input type="checkbox" checked={setupPrayer} onChange={e=>setSetupPrayer(e.target.checked)} className="w-5 h-5 accent-blue-500" />
                         <span className="text-sm text-slate-300">Show Prayer Times</span>
                     </div>
-                    <button type="submit" className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl mt-2 hover:bg-blue-500 transition">START</button>
+                    <button type="submit" className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl mt-2 hover:bg-blue-500 transition">{t('setup_start')}</button>
                 </form>
             );
         };
@@ -1146,7 +1262,7 @@
                                 setEditUni(prev => ({
                                     ...prev,
                                     city: prev.city || match.state_province || '',
-                                    url: prev.url || (match.web_pages?.[0]?.replace(/\/$/, '') || ''),
+                                    url: prev.url || ((match.web_pages && match.web_pages[0])?.replace(/\/$/, '') || ''),
                                     country: prev.country || match.country || ''
                                 }));
                             }
@@ -1171,7 +1287,7 @@
                         <h3 className="text-white font-bold mb-4">Settings</h3>
                         <form onSubmit={handleSave} className="space-y-4">
                             <div>
-                                <label className="text-xs text-slate-400">Title</label>
+                                <label className="text-xs text-slate-400">{t('setup_title')}</label>
                                 <select value={editTitle} onChange={e=>setEditTitle(e.target.value)} className="w-full input-dark p-3 rounded-lg mt-1">
                                     {TITLES.map(t=><option key={t} value={t}>{t}</option>)}
                                 </select>
@@ -1333,6 +1449,9 @@
             const [cursorColor, setCursorColor] = useState("bg-emerald-500 shadow-[0_0_10px_#10b981]");
             const [pomodoro, setPomodoro] = useState({ active: false, time: 25 * 60 });
             
+            const [tlOffset, setTlOffset] = useState(0);
+            const [lang, setLang] = useState(() => safeGet('lang_v1', 'en'));
+            const t = (k) => (TRANSLATIONS[lang] || TRANSLATIONS['en'])[k] || k;
             const fileInputRef = useRef(null);
             const audioRef = useRef(null);
             const [currentTime, setCurrentTime] = useState(new Date());
@@ -1353,6 +1472,7 @@
             
             // Özelleştirilebilir linkler localStorage
             useEffect(() => { safeSave('custom_links_v49', customLinks); }, [customLinks]);
+            useEffect(() => { safeSave('lang_v1', lang); }, [lang]);
             useEffect(() => { safeSave('ai_links_v49', aiLinks); }, [aiLinks]);
 
             const getMinutes = (timeStr) => { if(!timeStr) return 0; const [h, m] = timeStr.split(':').map(Number); return h * 60 + m; };
@@ -1525,7 +1645,7 @@
                         try {
                             const res = await fetch(url);
                             const json = await res.json();
-                            if (json.data?.timings) { saveTimes(json.data.timings); return; }
+                            if (json.data && json.data.timings) { saveTimes(json.data.timings); return; }
                         } catch(e) {}
                     }
                 }
@@ -1533,11 +1653,11 @@
                 try {
                     const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchTerm)}&format=json&limit=1`);
                     const geoData = await geoRes.json();
-                    if (geoData?.[0]) {
+                    if ((geoData && geoData[0])) {
                         const { lat, lon } = geoData[0];
                         const coordRes = await fetch(`https://api.aladhan.com/v1/timings/${dateStr}?latitude=${lat}&longitude=${lon}&method=2`);
                         const coordJson = await coordRes.json();
-                        if (coordJson.data?.timings) { saveTimes(coordJson.data.timings); return; }
+                        if (coordJson.data && coordJson.data.timings) { saveTimes(coordJson.data.timings); return; }
                     }
                 } catch(e) {}
                 // Step 3: If nothing worked and we used city, retry with uni name directly
@@ -1545,7 +1665,7 @@
                     try {
                         const geoRes2 = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(user.uni)}&format=json&limit=1`);
                         const geo2 = await geoRes2.json();
-                        if (geo2?.[0]) {
+                        if ((geo2 && geo2[0])) {
                             const { lat, lon } = geo2[0];
                             const r = await fetch(`https://api.aladhan.com/v1/timings/${dateStr}?latitude=${lat}&longitude=${lon}&method=2`);
                             const j = await r.json();
@@ -1961,8 +2081,6 @@
                 const pct = fl.scrollTop / (fl.scrollHeight - fl.clientHeight);
                 tl.scrollLeft = pct * (tl.scrollWidth - tl.clientWidth);
             }, []);
-            const [tlOffset, setTlOffset] = React.useState(0); // minutes offset from start (0 = midnight yesterday)
-
             // Auto-scroll timeline so "now" is at ~33% from left on mount
             React.useEffect(() => {
                 if (!timelineScrollRef.current) return;
@@ -1977,13 +2095,14 @@
             const tlPointerDown = (e) => {
                 const el = timelineScrollRef.current;
                 if (!el) return;
-                tlDragRef.current = { dragging: true, startX: e.clientX || e.touches?.[0]?.clientX, startScroll: el.scrollLeft };
+                var tx = e.touches && e.touches[0] ? e.touches[0].clientX : e.clientX;
+                tlDragRef.current = { dragging: true, startX: tx, startScroll: el.scrollLeft };
                 el.style.cursor = 'grabbing';
             };
             const tlPointerMove = (e) => {
                 if (!tlDragRef.current.dragging) return;
                 const el = timelineScrollRef.current;
-                const x = e.clientX || e.touches?.[0]?.clientX;
+                const x = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
                 el.scrollLeft = tlDragRef.current.startScroll - (x - tlDragRef.current.startX);
             };
             const tlPointerUp = () => {
@@ -2133,13 +2252,16 @@
                         <div className="absolute top-3 right-5 text-cyan-400/80 text-[11px] tracking-wider signature z-50 leading-none pointer-events-none">ZAPHYROS</div>
                         <div className="flex justify-between items-start">
                             <div><h2 className="text-xl font-bold text-white">{user.name}</h2><div className="text-xs text-blue-300 mt-1">{user.title}</div></div>
-                            <button onClick={() => setActiveModal('settings')} className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center hover:text-blue-400"><i className="fas fa-cog text-xs"></i></button>
+                            <div className="flex items-center gap-2">
+                                <button onClick={() => setLang(l => l === 'en' ? 'tr' : 'en')} className="h-8 px-2 rounded-full bg-slate-800 text-slate-300 text-xs font-bold flex items-center justify-center hover:text-blue-400 border border-slate-700">{lang === 'en' ? '🇹🇷 TR' : '🇬🇧 EN'}</button>
+                                <button onClick={() => setActiveModal('settings')} className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center hover:text-blue-400"><i className="fas fa-cog text-xs"></i></button>
+                            </div>
                         </div>
                         <div className="mt-6 relative">
                             <div className="flex justify-between items-center text-[10px] text-blue-200/60 font-mono mb-1 px-1">
-                                <span>← 24h ago</span>
+                                <span>{t('timeline_ago')}</span>
                                 <span className="animate-pulse text-white font-bold text-xs">{currentTimeStr}</span>
-                                <span>+48h →</span>
+                                <span>{t('timeline_ahead')}</span>
                             </div>
                             {renderTimelineBar()}
                             <div className="text-center text-[9px] text-slate-600 mt-1">← drag to scroll →</div>
@@ -2158,7 +2280,7 @@
                         {/* AKIŞ - TİK BUTONU EKLENMİŞ */}
                         {view === 'flow' && (
                             <div className="animate-enter">
-                                <h3 className="text-sm font-bold text-slate-400 uppercase border-b border-slate-700 pb-2 mb-4 ml-1">Daily Flow</h3>
+                                <h3 className="text-sm font-bold text-slate-400 uppercase border-b border-slate-700 pb-2 mb-4 ml-1">{t('daily_flow')}</h3>
                                 <div ref={flowListRef} onScroll={syncTimelineToFlow} style={{maxHeight:'calc(100vh - 260px)', overflowY:'auto', scrollbarWidth:'none', msOverflowStyle:'none'}} className="space-y-3 pr-1">
                                 {getTimelineList().length === 0 ? <div className="text-center py-12 opacity-30 text-sm border-2 border-dashed border-slate-700 rounded-xl">Flow is empty.</div> : 
                                     getTimelineList().map((item, i) => { 
@@ -2218,7 +2340,7 @@
                                         <div className="flex items-center gap-4">
                                             <div className="w-10 h-10 rounded-full bg-red-900/50 flex items-center justify-center text-white text-xl"><i className="fas fa-calendar-alt"></i></div>
                                             <div className="text-left">
-                                                <div className="text-xs text-slate-400">{academicCalendarUrl ? 'Open link' : 'Add link'}</div>
+                                                <div className="text-xs text-slate-400">{academicCalendarUrl ? t('acal_open') : t('acal_add')}</div>
                                                 <div className="text-base font-bold text-white">📅 Academic Calendar</div>
                                             </div>
                                         </div>
@@ -2237,15 +2359,15 @@
                                 <div className="grid grid-cols-3 gap-3">
                                     <button onClick={() => { const today = new Date().toISOString().split('T')[0]; setNewTask({title:"", date:today, time:"", desc:"", type:"task", category:"daily"}); setActiveModal('task'); setConflictWarn(null); }} className="bg-gradient-to-br from-blue-600 to-blue-700 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition">
                                         <i className="fas fa-bell text-xl"></i>
-                                        <span className="font-bold text-[10px] tracking-wide">REMINDER</span>
+                                        <span className="font-bold text-[10px] tracking-wide">{t('btn_reminder')}</span>
                                     </button>
                                     <button onClick={() => setActiveModal('notes')} className="bg-slate-700 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 border border-slate-600 shadow-lg active:scale-95 transition">
                                         <i className="fas fa-sticky-note text-xl text-yellow-400"></i>
-                                        <span className="font-bold text-[10px] tracking-wide">NOTEBOOK</span>
+                                        <span className="font-bold text-[10px] tracking-wide">{t('btn_notebook')}</span>
                                     </button>
                                     <button onClick={() => setActiveModal('aiLinks')} className="bg-gradient-to-br from-violet-600 to-fuchsia-700 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition">
                                         <i className="fas fa-robot text-xl"></i>
-                                        <span className="font-bold text-[10px] tracking-wide">AI TOOLS</span>
+                                        <span className="font-bold text-[10px] tracking-wide">{t('btn_ai')}</span>
                                     </button>
                                 </div>
                                 <button onClick={() => setActiveModal('p2pdf')} className="w-full bg-gradient-to-r from-purple-600 to-purple-700 p-4 rounded-xl flex items-center justify-center gap-3 hover:from-purple-700 hover:to-purple-800 transition shadow-lg">
@@ -2266,7 +2388,7 @@
                                 </button>
                             </div>
                         )}{/* ANNUAL VIEW */}
-                        {view === 'annual' && (<div className="animate-enter pb-16"><div className="flex justify-between items-center mb-4"><h3 className="text-slate-300 font-bold text-sm uppercase">Annual Calendar</h3><div className="flex gap-2"><button onClick={async () => {
+                        {view === 'annual' && (<div className="animate-enter pb-16"><div className="flex justify-between items-center mb-4"><h3 className="text-slate-300 font-bold text-sm uppercase">{t('cal_title')}</h3><div className="flex gap-2"><button onClick={async () => {
     if (user.url) { window.open(fixUrl(user.url), '_blank'); return; }
     // Try to fetch URL from API using university name
     if (user.uni) {
@@ -2275,7 +2397,7 @@
             const data = await res.json();
             if (Array.isArray(data) && data.length > 0) {
                 const match = data.find(d => d.name.toLowerCase() === user.uni.toLowerCase()) || data[0];
-                const url = match.web_pages?.[0]?.replace(/\/$/, '');
+                const url = (match.web_pages && match.web_pages[0])?.replace(/\/$/, '');
                 if (url) {
                     setUser(prev => ({ ...prev, url }));
                     window.open(fixUrl(url), '_blank');
@@ -2285,7 +2407,7 @@
         } catch(e) {}
     }
     setActiveModal('settings');
-}} className="text-[10px] bg-red-900 px-3 py-1.5 rounded border border-red-700 hover:text-white transition">{user.url ? 'Uni. Web' : '🔍 Uni URL'}</button><button onClick={() => fileInputRef.current.click()} className="text-[10px] bg-slate-800 px-3 py-1.5 rounded border border-slate-700 hover:border-blue-500 hover:text-white transition">Load ICS</button><input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".ics" /></div></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{Array.from({length: 12}, (_, i) => i).map(monthIdx => { const year = new Date().getFullYear(); const date = new Date(year, monthIdx, 1); const monthName = date.toLocaleString('en-US', { month: 'long' }); const daysInMonth = new Date(year, monthIdx + 1, 0).getDate(); const startDay = new Date(year, monthIdx, 1).getDay(); const offset = startDay === 0 ? 6 : startDay - 1; const today = new Date(); const isCurrentMonth = today.getMonth() === monthIdx && today.getFullYear() === year; const currentDay = today.getDate(); return (<div key={monthIdx} className="glass rounded-lg border border-slate-700 overflow-hidden"><div className="bg-slate-800 p-2 text-center font-bold text-blue-200 text-xs uppercase">{monthName}</div><div className="grid grid-cols-7 text-[9px] text-slate-500 text-center py-1 bg-slate-900/30"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div><div className="grid grid-cols-7 gap-px bg-slate-800 p-px">{Array(offset).fill(null).map((_,k)=><div key={`e-${k}`} className="bg-slate-900 h-6"></div>)}{Array(daysInMonth).fill(null).map((_,k)=>{ const d = k+1; const dStr = `${year}-${String(monthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; const events = getAllEvents().filter(e => e.date === dStr); let bg = "bg-slate-900 hover:bg-slate-700"; let text = "text-slate-500"; if (isCurrentMonth && d === currentDay) { bg = "bg-cyan-500 shadow-lg shadow-cyan-500/50 z-10 scale-110 rounded"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'academic')) { bg = "bg-red-900"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'special')) { bg = "bg-pink-700"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'official')) { bg = "bg-amber-700"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'daily')) { bg = "bg-blue-900"; text = "text-white font-bold"; } return (<button key={d} onClick={() => handleDayClick(dStr, events)} className={`h-6 flex items-center justify-center text-[9px] ${bg} ${text}`}>{d}</button>) })}</div></div>) })}</div></div>)}
+}} className="text-[10px] bg-red-900 px-3 py-1.5 rounded border border-red-700 hover:text-white transition">{user.url ? t('cal_uni_web') : t('cal_uni_url')}</button><button onClick={() => fileInputRef.current.click()} className="text-[10px] bg-slate-800 px-3 py-1.5 rounded border border-slate-700 hover:border-blue-500 hover:text-white transition">{t('cal_load_ics')}</button><input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".ics" /></div></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{Array.from({length: 12}, (_, i) => i).map(monthIdx => { const year = new Date().getFullYear(); const date = new Date(year, monthIdx, 1); const monthName = date.toLocaleString('en-US', { month: 'long' }); const daysInMonth = new Date(year, monthIdx + 1, 0).getDate(); const startDay = new Date(year, monthIdx, 1).getDay(); const offset = startDay === 0 ? 6 : startDay - 1; const today = new Date(); const isCurrentMonth = today.getMonth() === monthIdx && today.getFullYear() === year; const currentDay = today.getDate(); return (<div key={monthIdx} className="glass rounded-lg border border-slate-700 overflow-hidden"><div className="bg-slate-800 p-2 text-center font-bold text-blue-200 text-xs uppercase">{monthName}</div><div className="grid grid-cols-7 text-[9px] text-slate-500 text-center py-1 bg-slate-900/30"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div><div className="grid grid-cols-7 gap-px bg-slate-800 p-px">{Array(offset).fill(null).map((_,k)=><div key={`e-${k}`} className="bg-slate-900 h-6"></div>)}{Array(daysInMonth).fill(null).map((_,k)=>{ const d = k+1; const dStr = `${year}-${String(monthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; const events = getAllEvents().filter(e => e.date === dStr); let bg = "bg-slate-900 hover:bg-slate-700"; let text = "text-slate-500"; if (isCurrentMonth && d === currentDay) { bg = "bg-cyan-500 shadow-lg shadow-cyan-500/50 z-10 scale-110 rounded"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'academic')) { bg = "bg-red-900"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'special')) { bg = "bg-pink-700"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'official')) { bg = "bg-amber-700"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'daily')) { bg = "bg-blue-900"; text = "text-white font-bold"; } return (<button key={d} onClick={() => handleDayClick(dStr, events)} className={`h-6 flex items-center justify-center text-[9px] ${bg} ${text}`}>{d}</button>) })}</div></div>) })}</div></div>)}
                         
                         {/* SCHEDULE VIEW */}
                         {view === 'schedule' && (
@@ -2351,7 +2473,7 @@
                         )}
                         
                         {/* PROMOTION VIEW */}
-                        {view === 'promotion' && (<div className="animate-enter pb-20"><div className="glass p-4 rounded-xl border border-blue-500/20"><div className="flex justify-between items-center mb-4"><h3 className="font-bold text-slate-300 text-sm">SCORE TABLE</h3><button onClick={() => setCustomScores([...customScores, {id:Date.now(), name:"", value:0, count:0}])} className="text-[10px] bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-500"><i className="fas fa-plus mr-1"></i>Add</button></div><div className="grid grid-cols-12 gap-1 text-[9px] text-slate-500 uppercase font-bold px-1 mb-2"><div className="col-span-5">Activity</div><div className="col-span-2 text-center">Score</div><div className="col-span-2 text-center">Count</div><div className="col-span-2 text-center">Total</div><div className="col-span-1"></div></div><div className="space-y-2">{customScores.map(s => (<div key={s.id} className="grid grid-cols-12 gap-2 items-center bg-slate-900/50 p-2 rounded border border-slate-700"><div className="col-span-5"><input className="w-full bg-transparent text-sm text-slate-200 focus:outline-none placeholder-slate-600" placeholder="Activity" value={s.name} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,name:e.target.value}:x))} /></div><div className="col-span-2"><input type="number" className="w-full bg-slate-900 text-center text-xs text-slate-400 rounded p-1" value={s.value} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,value:e.target.value}:x))} /></div><div className="col-span-2"><input type="number" className="w-full bg-slate-900 text-center text-xs text-white font-bold rounded p-1 border border-slate-600" value={s.count} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,count:e.target.value}:x))} /></div><div className="col-span-2 text-center text-xs font-bold text-blue-400">{(parseInt(s.value)||0) * (parseInt(s.count)||0)}</div><div className="col-span-1 text-right"><button onClick={()=>setCustomScores(customScores.filter(x=>x.id!==s.id))} className="text-slate-600 hover:text-red-400"><i className="fas fa-trash-alt"></i></button></div></div>))}</div><div className="mt-6 bg-slate-900 p-4 rounded-xl border border-slate-700 shadow-xl"><div className="flex justify-between items-center mb-4"><span className="text-xs text-slate-400 uppercase font-bold">Target Score:</span><input type="number" className="w-20 bg-slate-900 border border-slate-600 rounded p-1 text-center text-sm font-bold text-white focus:border-blue-500 outline-none" value={targetScore} onChange={e => setTargetScore(parseInt(e.target.value)||0)} /></div><div className="flex justify-between text-sm font-bold mb-2"><span className="text-slate-300">CURRENT</span><span className={totalCalculated>=targetScore?"text-emerald-400":"text-rose-400"}>{totalCalculated} / {targetScore}</span></div><div className="h-3 bg-slate-900 rounded-full overflow-hidden mb-2 border border-slate-700/50"><div className={`h-full transition-all duration-1000 ${totalCalculated>=targetScore?'bg-emerald-500':'bg-gradient-to-r from-blue-600 to-red-600'}`} style={{width: `${Math.min((totalCalculated/targetScore)*100, 100)}%`}}></div></div></div></div></div>)}
+                        {view === 'promotion' && (<div className="animate-enter pb-20"><div className="glass p-4 rounded-xl border border-blue-500/20"><div className="flex justify-between items-center mb-4"><h3 className="font-bold text-slate-300 text-sm">{t('score_title')}</h3><button onClick={() => setCustomScores([...customScores, {id:Date.now(), name:"", value:0, count:0}])} className="text-[10px] bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-500"><i className="fas fa-plus mr-1"></i>Add</button></div><div className="grid grid-cols-12 gap-1 text-[9px] text-slate-500 uppercase font-bold px-1 mb-2"><div className="col-span-5">Activity</div><div className="col-span-2 text-center">Score</div><div className="col-span-2 text-center">Count</div><div className="col-span-2 text-center">Total</div><div className="col-span-1"></div></div><div className="space-y-2">{customScores.map(s => (<div key={s.id} className="grid grid-cols-12 gap-2 items-center bg-slate-900/50 p-2 rounded border border-slate-700"><div className="col-span-5"><input className="w-full bg-transparent text-sm text-slate-200 focus:outline-none placeholder-slate-600" placeholder="Activity" value={s.name} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,name:e.target.value}:x))} /></div><div className="col-span-2"><input type="number" className="w-full bg-slate-900 text-center text-xs text-slate-400 rounded p-1" value={s.value} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,value:e.target.value}:x))} /></div><div className="col-span-2"><input type="number" className="w-full bg-slate-900 text-center text-xs text-white font-bold rounded p-1 border border-slate-600" value={s.count} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,count:e.target.value}:x))} /></div><div className="col-span-2 text-center text-xs font-bold text-blue-400">{(parseInt(s.value)||0) * (parseInt(s.count)||0)}</div><div className="col-span-1 text-right"><button onClick={()=>setCustomScores(customScores.filter(x=>x.id!==s.id))} className="text-slate-600 hover:text-red-400"><i className="fas fa-trash-alt"></i></button></div></div>))}</div><div className="mt-6 bg-slate-900 p-4 rounded-xl border border-slate-700 shadow-xl"><div className="flex justify-between items-center mb-4"><span className="text-xs text-slate-400 uppercase font-bold">{t('score_target')}</span><input type="number" className="w-20 bg-slate-900 border border-slate-600 rounded p-1 text-center text-sm font-bold text-white focus:border-blue-500 outline-none" value={targetScore} onChange={e => setTargetScore(parseInt(e.target.value)||0)} /></div><div className="flex justify-between text-sm font-bold mb-2"><span className="text-slate-300">{t('score_current')}</span><span className={totalCalculated>=targetScore?"text-emerald-400":"text-rose-400"}>{totalCalculated} / {targetScore}</span></div><div className="h-3 bg-slate-900 rounded-full overflow-hidden mb-2 border border-slate-700/50"><div className={`h-full transition-all duration-1000 ${totalCalculated>=targetScore?'bg-emerald-500':'bg-gradient-to-r from-blue-600 to-red-600'}`} style={{width: `${Math.min((totalCalculated/targetScore)*100, 100)}%`}}></div></div></div></div></div>)}
                     </div>
 
                     {/* SCREENSHOT MODE */}
@@ -2363,7 +2485,7 @@
                                 <p className="text-xs text-cyan-600 mt-1 signature">ZAPHYROS</p>
                             </div>
                             <div className="w-full">
-                                <h2 className="text-xl font-bold mb-4 text-center underline">WEEKLY CLASS SCHEDULE</h2>
+                                <h2 className="text-xl font-bold mb-4 text-center underline">{t('schedule_title')}</h2>
                                 <table className="w-full text-xs border-collapse">
                                     <thead>
                                         <tr>
@@ -2402,7 +2524,7 @@
                     <div className="fixed bottom-0 w-full max-w-md bg-slate-900/95 backdrop-blur border-t border-slate-800 z-50 no-screenshot" style={{paddingBottom:'env(safe-area-inset-bottom,16px)'}}>
                         <div className="overflow-x-auto" style={{scrollbarWidth:'none',msOverflowStyle:'none'}}>
                             <div className="flex items-center py-3 px-2" style={{gap:'0',minWidth:'max-content'}}>
-                                {[{id:'flow',icon:'stream',label:'Flow'},{id:'home',icon:'home',label:'Home'},{id:'schedule',icon:'table',label:'Schedule'},{id:'annual',icon:'calendar-alt',label:'Calendar'},{id:'promotion',icon:'chart-pie',label:'Score'}].map(t => (
+                                {[{id:'flow',icon:'stream',label:t('nav_flow')},{id:'home',icon:'home',label:t('nav_home')},{id:'schedule',icon:'table',label:t('nav_schedule')},{id:'annual',icon:'calendar-alt',label:t('nav_calendar')},{id:'promotion',icon:'chart-pie',label:t('nav_score')}].map(t => (
                                     <button key={t.id} onClick={() => navigateTo(t.id)}
                                         className={`flex flex-col items-center gap-1 px-5 py-1 transition-all ${view === t.id ? 'text-blue-400' : 'text-slate-500 hover:text-slate-400'}`}
                                     >
@@ -2424,7 +2546,7 @@
                                 <div className="flex justify-between items-center p-5 pb-3 shrink-0">
                                     <div className="flex items-center gap-2">
                                         <i className="fas fa-robot text-violet-400 text-lg"></i>
-                                        <h3 className="text-white font-bold">AI Tools</h3>
+                                        <h3 className="text-white font-bold">{t('ai_title')}</h3>
                                     </div>
                                     <div className="flex gap-2">
                                         <button onClick={() => setAiLinks([...aiLinks, {id:Date.now(), name:"New AI", url:"", icon:"robot", color:"from-slate-600 to-slate-700"}])} className="text-[10px] bg-violet-600 text-white px-3 py-1.5 rounded hover:bg-violet-500">
@@ -2488,7 +2610,7 @@
                         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot">
                             <div className="bg-slate-800 w-full max-w-sm rounded-2xl border border-slate-700 shadow-2xl max-h-[85vh] flex flex-col">
                                 <div className="flex justify-between items-center p-5 pb-3 shrink-0">
-                                    <h3 className="text-white font-bold">Important Links</h3>
+                                    <h3 className="text-white font-bold">{t('links_title')}</h3>
                                     <div className="flex gap-2">
                                         <button onClick={() => setCustomLinks([...customLinks, {id: Date.now(), name: "New Link", url: "", icon: "link", color: "", isSearch: false}])} className="text-[10px] bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-500">
                                             <i className="fas fa-plus mr-1"></i>Add
@@ -2615,7 +2737,7 @@
                     {activeModal === 'addLesson' && (
                         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot overflow-y-auto">
                             <div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl my-8">
-                                <h3 className="text-white font-bold mb-4 text-lg">Add New Course</h3>
+                                <h3 className="text-white font-bold mb-4 text-lg">{t('add_course_title')}</h3>
                                 
                                 <div className="space-y-4">
                                     <div>
