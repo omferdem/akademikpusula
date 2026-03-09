@@ -264,6 +264,94 @@
             } 
         };
 
+        // ── Top universities offline dataset (instant search, no API needed) ──
+        const UNI_OFFLINE = [
+          "Harvard University","Stanford University","Massachusetts Institute of Technology",
+          "University of Oxford","University of Cambridge","California Institute of Technology",
+          "Imperial College London","ETH Zurich","University of Chicago","UCL (University College London)",
+          "Johns Hopkins University","Yale University","Princeton University","Columbia University",
+          "Cornell University","University of Pennsylvania","University of Edinburgh","Duke University",
+          "University of Michigan","Northwestern University","New York University","University of Tokyo",
+          "King's College London","UCLA","University of Toronto","McGill University","University of Melbourne",
+          "Peking University","National University of Singapore","Tsinghua University","University of Sydney",
+          "University of Hong Kong","Seoul National University","University of Manchester","University of Amsterdam",
+          "University of Copenhagen","Technical University of Munich","KU Leuven","University of Zurich",
+          "University of Vienna","Leiden University","Delft University of Technology","Uppsala University",
+          "University of Helsinki","University of Oslo","Stockholm University","Lund University",
+          "University of Barcelona","Complutense University of Madrid","University of Bologna",
+          "Sapienza University of Rome","University of Paris","Sorbonne University","University of Lyon",
+          "Université PSL","Ecole Polytechnique","INSEAD","HEC Paris","Sciences Po",
+          "University of Cologne","Heidelberg University","Humboldt University Berlin","FU Berlin",
+          "University of Frankfurt","University of Munich (LMU)","RWTH Aachen","University of Stuttgart",
+          "Eindhoven University of Technology","Utrecht University","Erasmus University Rotterdam",
+          "University of Groningen","Maastricht University","Wageningen University","VU Amsterdam",
+          "University of Warsaw","Jagiellonian University","Charles University","Masaryk University",
+          "Budapest University of Technology","Eötvös Loránd University","University of Ljubljana",
+          "University of Zagreb","University of Belgrade","Bilkent University","Middle East Technical University",
+          "Bogazici University","Istanbul Technical University","Hacettepe University","Ankara University",
+          "Ege University","Dokuz Eylul University","Gazi University","Istanbul University",
+          "Sabanci University","Koç University","Kadir Has University","Izmir Institute of Technology",
+          "Yıldız Technical University","Marmara University","Selçuk University","Erciyes University",
+          "Atatürk University","Uludağ University","Çukurova University","Anadolu University",
+          "Australian National University","University of Queensland","Monash University","UNSW Sydney",
+          "University of Auckland","University of Otago","University of Cape Town","Stellenbosch University",
+          "University of Pretoria","Cairo University","American University in Cairo","University of Nairobi",
+          "University of São Paulo","Universidade Estadual de Campinas","Pontifical Catholic University",
+          "Universidad de Chile","Universidad Nacional Autónoma de México",
+          "National Autonomous University of Mexico","Universidad de Buenos Aires",
+          "University of British Columbia","University of Alberta","University of Waterloo",
+          "Western University","Queen's University","McMaster University","University of Ottawa",
+          "Dalhousie University","Laval University","Simon Fraser University",
+          "Indian Institute of Technology Bombay","IIT Delhi","IIT Madras","IIT Kanpur",
+          "IIT Kharagpur","University of Delhi","Jawaharlal Nehru University","University of Mumbai",
+          "University of Calcutta","Bangalore University","Anna University",
+          "Fudan University","Zhejiang University","Shanghai Jiao Tong University","Sun Yat-Sen University",
+          "Wuhan University","Nanjing University","Xi'an Jiaotong University","Tongji University",
+          "Nankai University","Harbin Institute of Technology",
+          "Kyoto University","Osaka University","Tohoku University","Tokyo Institute of Technology",
+          "Nagoya University","Kyushu University","Hokkaido University","Waseda University",
+          "Keio University","Korea University","Yonsei University","KAIST","Pohang University of Science",
+          "University of Science and Technology of China","Chinese University of Hong Kong",
+          "Hong Kong University of Science and Technology","Nanyang Technological University",
+          "Hebrew University of Jerusalem","Technion – Israel Institute of Technology","Tel Aviv University",
+          "King Abdulaziz University","King Fahd University","Qatar University","UAE University",
+          "American University of Beirut","University of Tehran","Sharif University of Technology",
+          "University of Johannesburg","Ain Shams University","University of Ibadan",
+          "Georgetown University","University of Notre Dame","Washington University in St. Louis",
+          "Vanderbilt University","Rice University","Emory University","Tufts University",
+          "Carnegie Mellon University","University of Texas at Austin","University of Illinois",
+          "University of Wisconsin-Madison","Ohio State University","University of Minnesota",
+          "Penn State University","Purdue University","Michigan State University","University of Arizona",
+          "University of Florida","University of Georgia","University of Virginia","Boston University",
+          "Northeastern University","George Washington University","American University",
+          "Fordham University","Syracuse University","University of Southern California",
+          "University of California Berkeley","UC San Diego","UC Davis","UC Santa Barbara",
+          "UC Irvine","UC Santa Cruz","University of Washington","University of Colorado Boulder",
+          "University of Oregon","University of Utah","University of Arizona","Arizona State University",
+          "University of Nevada","Brigham Young University","Baylor University","Texas A&M University"
+        ].map((n,i) => ({ id: 'off'+i, name: n, country: '', city: '', url: '' }));
+
+        // Fuzzy match: returns score 0-1
+        const uniScore = (name, q) => {
+            const n = name.toLowerCase(), s = q.toLowerCase().trim();
+            if (n === s) return 1;
+            if (n.startsWith(s)) return 0.9;
+            if (n.includes(s)) return 0.7;
+            const words = s.split(/\s+/);
+            const matched = words.filter(w => n.includes(w)).length;
+            return matched / words.length * 0.5;
+        };
+
+        const searchOffline = (q) => {
+            if (q.length < 2) return [];
+            const scored = UNI_OFFLINE
+                .map(u => ({ ...u, score: uniScore(u.name, q) }))
+                .filter(u => u.score > 0)
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 6);
+            return scored;
+        };
+
         // University autocomplete with multi-source search + custom entry
         const UniAutocomplete = ({ value, onChange, inputClass }) => {
             const [query, setQuery] = React.useState(value || '');
@@ -289,38 +377,44 @@
             }, []);
 
             const searchUni = async (q) => {
-                setLoading(true); setApiError(false);
-                const tryFetch = async (url) => {
+                // Step 1: Show offline results instantly
+                const offline = searchOffline(q);
+                if (offline.length > 0) { setResults(offline); setOpen(true); }
+
+                // Step 2: Try API in background
+                setLoading(true);
+                const PROXIES = [
+                    'https://universities.hipolabs.com/search?name=',
+                    'https://corsproxy.io/?' + 'https://universities.hipolabs.com/search?name=',
+                    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://universities.hipolabs.com/search?name='),
+                ];
+                let apiData = null;
+                for (const proxy of PROXIES) {
                     const ctrl = new AbortController();
-                    const timer = setTimeout(() => ctrl.abort(), 5000);
+                    const timer = setTimeout(() => ctrl.abort(), 4000);
                     try {
-                        const res = await fetch(url, { signal: ctrl.signal });
+                        const url = proxy.startsWith('https://universities') 
+                            ? proxy + encodeURIComponent(q)
+                            : proxy + encodeURIComponent('https://universities.hipolabs.com/search?name=' + encodeURIComponent(q));
+                        // For the first proxy (direct), don't double-encode
+                        const finalUrl = proxy === PROXIES[0] ? proxy + encodeURIComponent(q) : proxy + encodeURIComponent('https://universities.hipolabs.com/search?name=' + encodeURIComponent(q));
+                        const res = await fetch(proxy === PROXIES[0] ? proxy + encodeURIComponent(q) : finalUrl, { signal: ctrl.signal });
                         clearTimeout(timer);
-                        if (!res.ok) throw new Error();
-                        return await res.json();
-                    } catch(e) { clearTimeout(timer); return null; }
-                };
-
-                // Try direct API first
-                let data = await tryFetch('https://universities.hipolabs.com/search?name=' + encodeURIComponent(q));
-                
-                // Fallback: CORS proxy
-                if (!data || !Array.isArray(data)) {
-                    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://universities.hipolabs.com/search?name=' + encodeURIComponent(q));
-                    data = await tryFetch(proxyUrl);
+                        if (res.ok) { const d = await res.json(); if (Array.isArray(d)) { apiData = d; break; } }
+                    } catch(e) { clearTimeout(timer); }
                 }
-
                 setLoading(false);
-                if (data && Array.isArray(data) && data.length > 0) {
-                    const mapped = data.slice(0, 8).map(u => ({
-                        name: u.name,
-                        city: u.state_province || '',
-                        url: (u.web_pages && u.web_pages[0]) ? u.web_pages[0].replace(/\/$/, '') : '',
-                        country: u.country || ''
+                if (apiData && apiData.length > 0) {
+                    const apiMapped = apiData.slice(0, 8).map(u => ({
+                        name: u.name, city: u.state_province||'',
+                        url: (u.web_pages&&u.web_pages[0]) ? u.web_pages[0].replace(/\/$/, '') : '',
+                        country: u.country||''
                     }));
-                    setResults(mapped); setOpen(true); setApiError(false);
-                } else {
-                    setResults([]); setApiError(true); setOpen(true);
+                    // Merge: API results first, then offline ones not already in API
+                    const names = new Set(apiMapped.map(u=>u.name.toLowerCase()));
+                    const extra = offline.filter(u => !names.has(u.name.toLowerCase()));
+                    setResults([...apiMapped, ...extra].slice(0, 10));
+                    setOpen(true);
                 }
             };
 
@@ -330,7 +424,11 @@
                 onChange({ name: q, city: '', url: '' });
                 if (debounceRef.current) clearTimeout(debounceRef.current);
                 if (q.trim().length >= 2) {
-                    debounceRef.current = setTimeout(() => searchUni(q.trim()), 400);
+                    // Show offline results immediately
+                    const off = searchOffline(q.trim());
+                    if (off.length > 0) { setResults(off); setOpen(true); }
+                    // Then query API with debounce
+                    debounceRef.current = setTimeout(() => searchUni(q.trim()), 500);
                 } else { setResults([]); setOpen(false); setApiError(false); }
             };
 
@@ -653,6 +751,21 @@
             const [editingLinkId, setEditingLinkId] = useState(null);
             const [tempLinkName, setTempLinkName] = useState("");
             const [tempLinkUrl, setTempLinkUrl] = useState("");
+            const [aiLinks, setAiLinks] = useState(() => safeGet('ai_links_v49', [
+                {id:1,  name:"ChatGPT",      url:"https://chat.openai.com",          icon:"robot",         color:"from-emerald-600 to-teal-700"},
+                {id:2,  name:"NotebookLM",   url:"https://notebooklm.google.com",    icon:"book-open",     color:"from-blue-600 to-blue-700"},
+                {id:3,  name:"Gemini",       url:"https://gemini.google.com",        icon:"magic",         color:"from-blue-500 to-indigo-600"},
+                {id:4,  name:"Claude",       url:"https://claude.ai",                icon:"brain",         color:"from-orange-500 to-amber-600"},
+                {id:5,  name:"Scite.ai",     url:"https://scite.ai",                 icon:"microscope",    color:"from-purple-600 to-purple-700"},
+                {id:6,  name:"Gamma",        url:"https://gamma.app",                icon:"presentation",  color:"from-pink-600 to-rose-700"},
+                {id:7,  name:"Jenni AI",     url:"https://jenni.ai",                 icon:"pen-fancy",     color:"from-violet-600 to-violet-700"},
+                {id:8,  name:"Kimi",         url:"https://kimi.moonshot.cn",         icon:"moon",          color:"from-slate-600 to-slate-700"},
+                {id:9,  name:"DeepSeek",     url:"https://chat.deepseek.com",        icon:"search",        color:"from-cyan-600 to-cyan-700"},
+                {id:10, name:"Perplexity",   url:"https://perplexity.ai",            icon:"question-circle", color:"from-indigo-500 to-blue-600"}
+            ]));
+            const [editingAiId, setEditingAiId] = useState(null);
+            const [tempAiName, setTempAiName] = useState("");
+            const [tempAiUrl, setTempAiUrl] = useState("");
             const [notifSound, setNotifSound] = useState(() => safeGet('notif_sound_v48', 'default'));
             const [p2pdfImages, setP2pdfImages] = useState([]);
             
@@ -741,10 +854,9 @@
             useEffect(() => { localStorage.setItem('academic_calendar_url_v48', JSON.stringify(academicCalendarUrl)); }, [academicCalendarUrl]);
             useEffect(() => { safeSave('notif_sound_v48', notifSound); }, [notifSound]);
             
-            // YENİ: Özelleştirilebilir linkler localStorage
-            useEffect(() => {
-                safeSave('custom_links_v48', customLinks);
-            }, [customLinks]);
+            // Özelleştirilebilir linkler localStorage
+            useEffect(() => { safeSave('custom_links_v49', customLinks); }, [customLinks]);
+            useEffect(() => { safeSave('ai_links_v49', aiLinks); }, [aiLinks]);
 
             const getMinutes = (timeStr) => { if(!timeStr) return 0; const [h, m] = timeStr.split(':').map(Number); return h * 60 + m; };
             const getDayKey = (dateStr) => { const d = new Date(dateStr); const map = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]; return map[d.getDay()]; };
@@ -1481,14 +1593,18 @@
                                     )}
                                 </div>
                                 )}
-                                <div className="grid grid-cols-2 gap-4">
-                                    <button onClick={() => { const today = new Date().toISOString().split('T')[0]; setNewTask({title:"", date:today, time:"", desc:"", type:"task", category:"daily"}); setActiveModal('task'); setConflictWarn(null); }} className="bg-gradient-to-br from-blue-600 to-blue-700 text-white p-6 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition">
-                                        <i className="fas fa-bell text-2xl"></i>
-                                        <span className="font-bold text-xs tracking-wide">REMINDER</span>
+                                <div className="grid grid-cols-3 gap-3">
+                                    <button onClick={() => { const today = new Date().toISOString().split('T')[0]; setNewTask({title:"", date:today, time:"", desc:"", type:"task", category:"daily"}); setActiveModal('task'); setConflictWarn(null); }} className="bg-gradient-to-br from-blue-600 to-blue-700 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition">
+                                        <i className="fas fa-bell text-xl"></i>
+                                        <span className="font-bold text-[10px] tracking-wide">REMINDER</span>
                                     </button>
-                                    <button onClick={() => setActiveModal('notes')} className="bg-slate-700 text-white p-6 rounded-xl flex flex-col items-center justify-center gap-2 border border-slate-600 shadow-lg active:scale-95 transition">
-                                        <i className="fas fa-sticky-note text-2xl text-yellow-400"></i>
-                                        <span className="font-bold text-xs tracking-wide">NOTEBOOK</span>
+                                    <button onClick={() => setActiveModal('notes')} className="bg-slate-700 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 border border-slate-600 shadow-lg active:scale-95 transition">
+                                        <i className="fas fa-sticky-note text-xl text-yellow-400"></i>
+                                        <span className="font-bold text-[10px] tracking-wide">NOTEBOOK</span>
+                                    </button>
+                                    <button onClick={() => setActiveModal('aiLinks')} className="bg-gradient-to-br from-violet-600 to-fuchsia-700 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition">
+                                        <i className="fas fa-robot text-xl"></i>
+                                        <span className="font-bold text-[10px] tracking-wide">AI TOOLS</span>
                                     </button>
                                 </div>
                                 <button onClick={() => setActiveModal('p2pdf')} className="w-full bg-gradient-to-r from-purple-600 to-purple-700 p-4 rounded-xl flex items-center justify-center gap-3 hover:from-purple-700 hover:to-purple-800 transition shadow-lg">
@@ -1630,6 +1746,72 @@
                     {/* POMODORO BUTTON */}
                     {!isScreenshotMode && <button onClick={() => setPomodoro(prev => ({...prev, active: !prev.active}))} className={`fixed bottom-24 left-4 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all border border-slate-700 no-screenshot ${pomodoro.active ? 'bg-yellow-400 animate-pulse text-black' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>{pomodoro.active ? <span className="text-xs font-bold">{Math.floor(pomodoro.time/60)}:{String(pomodoro.time%60).padStart(2,'0')}</span> : <i className="fas fa-stopwatch text-xl"></i>}</button>}{/* MODALLER */}
                     
+                    {/* AI TOOLS MODAL */}
+                    {activeModal === 'aiLinks' && (
+                        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot">
+                            <div className="bg-slate-800 w-full max-w-sm rounded-2xl border border-slate-700 shadow-2xl max-h-[85vh] flex flex-col">
+                                <div className="flex justify-between items-center p-5 pb-3 shrink-0">
+                                    <div className="flex items-center gap-2">
+                                        <i className="fas fa-robot text-violet-400 text-lg"></i>
+                                        <h3 className="text-white font-bold">AI Tools</h3>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <button onClick={() => setAiLinks([...aiLinks, {id:Date.now(), name:"New AI", url:"", icon:"robot", color:"from-slate-600 to-slate-700"}])} className="text-[10px] bg-violet-600 text-white px-3 py-1.5 rounded hover:bg-violet-500">
+                                            <i className="fas fa-plus mr-1"></i>Add
+                                        </button>
+                                        <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-white w-7 h-7 flex items-center justify-center">
+                                            <i className="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="overflow-y-auto flex-1 px-4 pb-4 space-y-2">
+                                    {aiLinks.map((link) => (
+                                        <div key={link.id}>
+                                            {editingAiId === link.id ? (
+                                                <div className="bg-slate-700 p-3 rounded-xl border border-violet-500 space-y-2">
+                                                    <input type="text" className="w-full input-dark p-2 rounded text-sm" placeholder="AI Name" value={tempAiName} onChange={e => setTempAiName(e.target.value)} />
+                                                    <input type="text" className="w-full input-dark p-2 rounded text-sm font-mono" placeholder="https://..." value={tempAiUrl} onChange={e => setTempAiUrl(e.target.value)} />
+                                                    <div className="flex gap-2">
+                                                        <button onClick={() => {
+                                                            if (!tempAiName.trim()) return;
+                                                            setAiLinks(aiLinks.map(l => l.id === editingAiId ? {...l, name: tempAiName, url: tempAiUrl ? fixUrl(tempAiUrl) : ''} : l));
+                                                            setEditingAiId(null); setTempAiName(""); setTempAiUrl("");
+                                                        }} className="flex-1 bg-violet-600 text-white py-2 rounded text-sm">
+                                                            <i className="fas fa-check mr-1"></i>Save
+                                                        </button>
+                                                        <button onClick={() => setAiLinks(aiLinks.filter(l => l.id !== link.id))} className="bg-red-900/50 border border-red-800 text-red-300 px-3 rounded text-sm">
+                                                            <i className="fas fa-trash"></i>
+                                                        </button>
+                                                        <button onClick={() => { setEditingAiId(null); setTempAiName(""); setTempAiUrl(""); }} className="flex-1 bg-slate-600 text-white py-2 rounded text-sm">Cancel</button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="flex gap-2 items-stretch">
+                                                    <button
+                                                        onClick={() => { if (link.url) window.open(fixUrl(link.url), '_blank'); else { setEditingAiId(link.id); setTempAiName(link.name); setTempAiUrl(link.url); } }}
+                                                        className={`flex-1 p-3 rounded-xl text-white flex items-center justify-between transition bg-gradient-to-r ${link.color || 'from-slate-600 to-slate-700'} hover:opacity-90 active:scale-95`}
+                                                    >
+                                                        <div className="flex items-center gap-3">
+                                                            <i className={`fas fa-${link.icon || 'robot'} text-lg`}></i>
+                                                            <span className="font-semibold text-sm">{link.name}</span>
+                                                        </div>
+                                                        <i className="fas fa-external-link-alt text-xs opacity-70"></i>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => { setEditingAiId(link.id); setTempAiName(link.name); setTempAiUrl(link.url || ''); }}
+                                                        className="bg-slate-700 hover:bg-violet-700 text-slate-400 hover:text-white w-10 rounded-xl flex items-center justify-center transition"
+                                                    >
+                                                        <i className="fas fa-pen text-xs"></i>
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* IMPORTANT LINKS MODAL - fully customizable */}
                     {activeModal === 'importantLinks' && (
                         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot">
