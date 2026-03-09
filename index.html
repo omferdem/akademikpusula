@@ -676,12 +676,36 @@
             const [editTitle, setEditTitle] = useState(user.title);
             const [editUni, setEditUni] = useState({name: user.uni, city: user.city, url: user.url});
             const [editPrayer, setEditPrayer] = useState(user.enablePrayer);
+            const [uniChanged, setUniChanged] = useState(false);
+
+            const handleUniChange = (u) => {
+                setEditUni(u);
+                setUniChanged(u.name !== user.uni);
+                // If API already gave us url/city, great. If from offline list (no url), enrich in background
+                if (u.name && (!u.url || !u.city)) {
+                    fetch('https://universities.hipolabs.com/search?name=' + encodeURIComponent(u.name))
+                        .then(r => r.json())
+                        .then(data => {
+                            if (Array.isArray(data) && data.length > 0) {
+                                const match = data.find(d => d.name.toLowerCase() === u.name.toLowerCase()) || data[0];
+                                setEditUni(prev => ({
+                                    ...prev,
+                                    city: prev.city || match.state_province || '',
+                                    url: prev.url || (match.web_pages?.[0]?.replace(/\/$/, '') || ''),
+                                    country: prev.country || match.country || ''
+                                }));
+                            }
+                        }).catch(() => {});
+                }
+            };
+
             const handleSave = (e) => {
                 e.preventDefault();
                 if (!editName.trim() || !editUni.name.trim()) return;
                 updateAcademicCalendar(editUni.name);
-                const newCity = editUni.city || user.city || '';
-                const newUrl = editUni.url || user.url || '';
+                // When uni changed: always use fresh values, never inherit old url/city
+                const newCity = uniChanged ? (editUni.city || '') : (editUni.city || user.city || '');
+                const newUrl  = uniChanged ? (editUni.url  || '') : (editUni.url  || user.url  || '');
                 setUser({ ...user, title: editTitle, name: editName, uni: editUni.name, city: newCity, url: newUrl, enablePrayer: editPrayer });
                 setActiveModal(null);
             };
@@ -703,7 +727,7 @@
                             </div>
                             <div>
                                 <label className="text-xs text-slate-400 block mb-1">University</label>
-                                <UniAutocomplete value={editUni.name} onChange={setEditUni} inputClass="w-full input-dark p-3 rounded-lg" />
+                                <UniAutocomplete value={editUni.name} onChange={handleUniChange} inputClass="w-full input-dark p-3 rounded-lg" />
                             </div>
                             <div className="flex items-center gap-3 pt-2">
                                 <input type="checkbox" checked={editPrayer} onChange={e=>setEditPrayer(e.target.checked)} className="w-5 h-5 accent-blue-500" />
