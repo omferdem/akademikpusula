@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Akademik Asistan V2.0</title>
+    <title>Academic Assistant V1.1</title>
     
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -115,7 +115,7 @@
     // EXPO NATIVE BRIDGE - React Native WebView ile haberleşme
     // ============================================================
     
-    // Native taraftan gelen mesajları dinle - Android için her iki yöntem
+    // Listen for native messages - both methods for Android
     function handleNativeMessage(event) {
         try {
             var msg = JSON.parse(event.data);
@@ -126,19 +126,19 @@
                     if(data.user) { localStorage.setItem('user_v48', JSON.stringify(data.user)); }
                     if(data.tasks) { localStorage.setItem('tasks_v48', JSON.stringify(data.tasks)); }
                     if(data.completedTasks) { localStorage.setItem('completed_tasks_v48', JSON.stringify(data.completedTasks)); }
-                    if(data.schedule) { localStorage.setItem('schedule_v48', JSON.stringify(data.schedule)); }
+                    if(data.schedule) { localStorage.setItem('schedule_v49', JSON.stringify(data.schedule)); }
                     if(data.customScores) { localStorage.setItem('scores_v48', JSON.stringify(data.customScores)); }
                     if(data.notes) { localStorage.setItem('notes_v48', JSON.stringify(data.notes)); }
                     if(data.academicCalendarUrl) { localStorage.setItem('academic_calendar_url_v48', JSON.stringify(data.academicCalendarUrl)); }
-                    alert("✅ Yedek başarıyla yüklendi! Uygulama yenileniyor...");
+                    alert("✅ Backup loaded successfully! Reloading app...");
                     setTimeout(function() { window.location.reload(); }, 1000);
                 } catch(err) {
-                    alert("❌ Hata: Dosya bozuk veya geçersiz format.");
+                    alert("❌ Error: File corrupted or invalid format.");
                 }
             } else if (msg.type === 'IMPORT_ERROR') {
-                alert("❌ Dosya açılamadı: " + (msg.error || 'Bilinmeyen hata'));
+                alert("❌ Could not open file: " + (msg.error || 'Unknown error'));
             } else if (msg.type === 'EXPORT_SUCCESS') {
-                alert("✅ Yedek dosyası kaydedildi ve paylaşım menüsü açıldı.");
+                alert("✅ Backup saved and share menu opened.");
             } else if (msg.type === 'PHOTO_SELECTED' && msg.images) {
                 if (window.__addPhotos) window.__addPhotos(msg.images);
             }
@@ -179,11 +179,11 @@
     function scheduleAllNotifications() {
         try {
             var tasks = JSON.parse(localStorage.getItem('tasks_v48') || '[]');
-            var schedule = JSON.parse(localStorage.getItem('schedule_v48') || '{}');
+            var schedule = JSON.parse(localStorage.getItem('schedule_v49') || '{}');
             var now = new Date();
             var minTime = new Date(now.getTime() + 11 * 60 * 1000); // en az 11 dk sonrası
             
-            // Sadece gerçekten gelecekteki görevleri filtrele (tarih + saat bazlı)
+            // Filter only genuinely future tasks (date + time based)
             var upcoming = tasks.filter(function(t) {
                 if (!t.date || !t.time || !t.title) return false;
                 var parts = t.time.split(':');
@@ -192,9 +192,9 @@
                 return taskDate.getTime() > minTime.getTime();
             });
             
-            // Haftalık ders programından bildirim oluştur (7 gün için)
-            var dayNames = ["Pazar","Pazartesi","Sali","Carsamba","Persembe","Cuma","Cumartesi"];
-            var timeSlots = JSON.parse(localStorage.getItem('timeslots_v48') || '["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]');
+            // Build notifications from weekly schedule (7 days)
+            var dayNames = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+            var timeSlots = JSON.parse(localStorage.getItem('timeslots_v49') || '["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:00"]');
             
             for (var dayOffset = 0; dayOffset < 7; dayOffset++) {
                 var d = new Date(now);
@@ -220,7 +220,7 @@
             // Namaz vakitlerini de ekle (bugün ve yarın)
             try {
                 var prayerData = localStorage.getItem('prayer_cache_v48');
-                var prayerMap = {'Fajr':'İmsak','Sunrise':'Güneş','Dhuhr':'Öğle','Asr':'İkindi','Maghrib':'Akşam','Isha':'Yatsı'};
+                var prayerMap = {'Fajr':'Fajr','Sunrise':'Sunrise','Dhuhr':'Dhuhr','Asr':'Asr','Maghrib':'Maghrib','Isha':'Isha'};
                 if (prayerData) {
                     var pt = JSON.parse(prayerData);
                     var todayStr = now.toISOString().split('T')[0];
@@ -229,8 +229,8 @@
                     Object.keys(prayerMap).forEach(function(k) {
                         if (pt[k]) {
                             var time = pt[k].substring(0, 5); // HH:MM
-                            upcoming.push({ id: 'prayer-today-' + k, title: '🕌 ' + prayerMap[k] + ' Vakti', date: todayStr, time: time });
-                            upcoming.push({ id: 'prayer-tmrw-' + k, title: '🕌 ' + prayerMap[k] + ' Vakti', date: tomorrowStr, time: time });
+                            upcoming.push({ id: 'prayer-today-' + k, title: '🕌 ' + prayerMap[k] + ' Prayer', date: todayStr, time: time });
+                            upcoming.push({ id: 'prayer-tmrw-' + k, title: '🕌 ' + prayerMap[k] + ' Prayer', date: tomorrowStr, time: time });
                         }
                     });
                 }
@@ -264,133 +264,26 @@
             } 
         };
 
-        const UNIVERSITIES = [
-            { name: "Abant İzzet Baysal Üni.", city: "Bolu", url: "https://www.ibu.edu.tr/" },
-            { name: "Adıyaman Üni.", city: "Adiyaman", url: "https://adiyaman.edu.tr/" },
-            { name: "Adnan Menderes Üni.", city: "Aydin", url: "https://www.adu.edu.tr/" },
-            { name: "Afyon Kocatepe Üni.", city: "Afyonkarahisar", url: "https://aku.edu.tr/" },
-            { name: "Ağrı İbrahim Çeçen Üni.", city: "Agri", url: "https://www.agri.edu.tr/" },
-            { name: "Akdeniz Üni.", city: "Antalya", url: "https://www.akdeniz.edu.tr/duyurular" },
-            { name: "Aksaray Üni.", city: "Aksaray", url: "https://www.aksaray.edu.tr/" },
-            { name: "Alanya Alaaddin Keykubat Üni.", city: "Antalya", url: "https://www.alanya.edu.tr/" },
-            { name: "Amasya Üni.", city: "Amasya", url: "https://www.amasya.edu.tr/" },
-            { name: "Anadolu Üni.", city: "Eskisehir", url: "https://www.anadolu.edu.tr/duyurular" },
-            { name: "Ankara Hacı Bayram Veli Üni.", city: "Ankara", url: "https://hacibayram.edu.tr/" },
-            { name: "Ankara Sosyal Bilimler Üni.", city: "Ankara", url: "https://www.asbu.edu.tr/" },
-            { name: "Ankara Üni.", city: "Ankara", url: "https://www.ankara.edu.tr/duyurular" },
-            { name: "Ankara Yıldırım Beyazıt Üni.", city: "Ankara", url: "https://aybu.edu.tr/" },
-            { name: "Ardahan Üni.", city: "Ardahan", url: "https://www.ardahan.edu.tr/" },
-            { name: "Artvin Çoruh Üni.", city: "Artvin", url: "https://www.artvin.edu.tr/" },
-            { name: "Atatürk Üni.", city: "Erzurum", url: "https://www.atauni.edu.tr/duyurular" },
-            { name: "Balıkesir Üni.", city: "Balikesir", url: "https://www.balikesir.edu.tr/" },
-            { name: "Bandırma Onyedi Eylül Üni.", city: "Balikesir", url: "https://www.bandirma.edu.tr/" },
-            { name: "Bartın Üni.", city: "Bartin", url: "https://w3.bartin.edu.tr/" },
-            { name: "Batman Üni.", city: "Batman", url: "https://batman.edu.tr/" },
-            { name: "Bayburt Üni.", city: "Bayburt", url: "https://www.bayburt.edu.tr/" },
-            { name: "Bilecik Şeyh Edebali Üni.", city: "Bilecik", url: "http://www.bilecik.edu.tr/" },
-            { name: "Bingöl Üni.", city: "Bingol", url: "http://www.bingol.edu.tr/" },
-            { name: "Bitlis Eren Üni.", city: "Bitlis", url: "https://www.beu.edu.tr/" },
-            { name: "Boğaziçi Üni.", city: "Istanbul", url: "https://bogazici.edu.tr/" },
-            { name: "Bozok Üni.", city: "Yozgat", url: "https://bozok.edu.tr/" },
-            { name: "Bursa Teknik Üni.", city: "Bursa", url: "https://www.btu.edu.tr/" },
-            { name: "Bülent Ecevit Üni.", city: "Zonguldak", url: "https://w3.beun.edu.tr/" },
-            { name: "Celal Bayar Üni.", city: "Manisa", url: "https://www.mcbu.edu.tr/" },
-            { name: "Cumhuriyet Üni.", city: "Sivas", url: "https://www.cumhuriyet.edu.tr/" },
-            { name: "Çanakkale Onsekiz Mart Üni.", city: "Canakkale", url: "https://www.comu.edu.tr/" },
-            { name: "Çankırı Karatekin Üni.", city: "Cankiri", url: "https://karatekin.edu.tr/" },
-            { name: "Çukurova Üni.", city: "Adana", url: "https://www.cu.edu.tr/duyurular" },
-            { name: "Dicle Üni.", city: "Diyarbakir", url: "https://www.dicle.edu.tr/tr/duyurular" },
-            { name: "Dokuz Eylül Üni.", city: "Izmir", url: "https://www.deu.edu.tr/duyurular/" },
-            { name: "Dumlupınar Üni.", city: "Kutahya", url: "https://dpu.edu.tr/" },
-            { name: "Düzce Üni.", city: "Duzce", url: "https://duzce.edu.tr/" },
-            { name: "Ege Üni.", city: "Izmir", url: "https://ege.edu.tr/tr-0/duyurular.html" },
-            { name: "Erciyes Üni.", city: "Kayseri", url: "https://www.erciyes.edu.tr/tr/duyurular" },
-            { name: "Erzincan Binali Yıldırım Üni.", city: "Erzincan", url: "https://ebyu.edu.tr/" },
-            { name: "Erzurum Teknik Üni.", city: "Erzurum", url: "https://www.erzurum.edu.tr/" },
-            { name: "Eskişehir Osmangazi Üni.", city: "Eskisehir", url: "https://ogu.edu.tr/" },
-            { name: "Fırat Üni.", city: "Elazig", url: "http://www.firat.edu.tr/tr/duyurular" },
-            { name: "Galatasaray Üni.", city: "Istanbul", url: "https://gsu.edu.tr/" },
-            { name: "Gazi Üni.", city: "Ankara", url: "https://gazi.edu.tr/duyurular" },
-            { name: "Gaziantep Üni.", city: "Gaziantep", url: "https://www.gantep.edu.tr/" },
-            { name: "Gebze Teknik Üni.", city: "Kocaeli", url: "https://www.gtu.edu.tr/" },
-            { name: "Giresun Üni.", city: "Giresun", url: "https://giresun.edu.tr/" },
-            { name: "Gümüşhane Üni.", city: "Gumushane", url: "https://www.gumushane.edu.tr/" },
-            { name: "Hacettepe Üni.", city: "Ankara", url: "https://www.hacettepe.edu.tr/duyurular" },
-            { name: "Hakkari Üni.", city: "Hakkari", url: "https://www.hakkari.edu.tr/" },
-            { name: "Harran Üni.", city: "Sanliurfa", url: "https://www.harran.edu.tr/" },
-            { name: "Hitit Üni.", city: "Corum", url: "https://www.hitit.edu.tr/" },
-            { name: "Iğdır Üni.", city: "Igdir", url: "https://www.igdir.edu.tr/" },
-            { name: "İnönü Üni.", city: "Malatya", url: "https://www.inonu.edu.tr/" },
-            { name: "İskenderun Teknik Üni.", city: "Hatay", url: "https://iste.edu.tr/" },
-            { name: "İstanbul Medeniyet Üni.", city: "Istanbul", url: "https://medeniyet.edu.tr/" },
-            { name: "İstanbul Teknik Üni. (İTÜ)", city: "Istanbul", url: "https://www.itu.edu.tr/duyurular" },
-            { name: "İstanbul Üni.", city: "Istanbul", url: "https://www.istanbul.edu.tr/tr/duyurular" },
-            { name: "İzmir Katip Çelebi Üni.", city: "Izmir", url: "https://ikcu.edu.tr/" },
-            { name: "İzmir Yüksek Teknoloji Enstitüsü", city: "Izmir", url: "https://iyte.edu.tr/" },
-            { name: "Kafkas Üni.", city: "Kars", url: "https://www.kafkas.edu.tr/" },
-            { name: "Kahramanmaraş Sütçü İmam Üni.", city: "Kahramanmaras", url: "https://ksu.edu.tr/" },
-            { name: "Karabük Üni.", city: "Karabuk", url: "https://karabuk.edu.tr/" },
-            { name: "Karadeniz Teknik Üni. (KTÜ)", city: "Trabzon", url: "https://www.ktu.edu.tr/duyurular" },
-            { name: "Karamanoğlu Mehmetbey Üni.", city: "Karaman", url: "https://www.kmu.edu.tr/" },
-            { name: "Kastamonu Üni.", city: "Kastamonu", url: "https://kastamonu.edu.tr/" },
-            { name: "Kırıkkale Üni.", city: "Kirikkale", url: "https://kku.edu.tr/" },
-            { name: "Kırklareli Üni.", city: "Kirklareli", url: "https://klu.edu.tr/" },
-            { name: "Kilis 7 Aralık Üni.", city: "Kilis", url: "https://kilis.edu.tr/" },
-            { name: "Kocaeli Üni.", city: "Kocaeli", url: "https://kocaeli.edu.tr/" },
-            { name: "Konya Teknik Üni.", city: "Konya", url: "https://www.ktun.edu.tr/tr/Universite/Duyurular" },
-            { name: "KTO Karatay Üni.", city: "Konya", url: "https://www.karatay.edu.tr/duyurular" },
-            { name: "Marmara Üni.", city: "Istanbul", url: "https://www.marmara.edu.tr/duyurular" },
-            { name: "Mehmet Akif Ersoy Üni.", city: "Burdur", url: "https://www.mehmetakif.edu.tr/" },
-            { name: "Mersin Üni.", city: "Mersin", url: "https://mersin.edu.tr/" },
-            { name: "Mimar Sinan Güzel Sanatlar Üni.", city: "Istanbul", url: "https://msgsu.edu.tr/" },
-            { name: "Muğla Sıtkı Koçman Üni.", city: "Mugla", url: "https://mu.edu.tr/" },
-            { name: "Mustafa Kemal Üni.", city: "Hatay", url: "https://www.mku.edu.tr/" },
-            { name: "Muş Alparslan Üni.", city: "Mus", url: "https://alparslan.edu.tr/" },
-            { name: "Namık Kemal Üni.", city: "Tekirdag", url: "http://nku.edu.tr/" },
-            { name: "Necmettin Erbakan Üni.", city: "Konya", url: "https://www.erbakan.edu.tr/duyurular" },
-            { name: "Nevşehir Hacı Bektaş Veli Üni.", city: "Nevsehir", url: "https://nevsehir.edu.tr/" },
-            { name: "Niğde Ömer Halisdemir Üni.", city: "Nigde", url: "https://ohu.edu.tr/" },
-            { name: "Ondokuz Mayıs Üni.", city: "Samsun", url: "https://omu.edu.tr/" },
-            { name: "Ordu Üni.", city: "Ordu", url: "https://odu.edu.tr/" },
-            { name: "Orta Doğu Teknik Üni. (ODTÜ)", city: "Ankara", url: "https://www.metu.edu.tr/tr/duyurular" },
-            { name: "Osmaniye Korkut Ata Üni.", city: "Osmaniye", url: "https://osmaniye.edu.tr/" },
-            { name: "Pamukkale Üni.", city: "Denizli", url: "https://pau.edu.tr/" },
-            { name: "Recep Tayyip Erdoğan Üni.", city: "Rize", url: "https://erdogan.edu.tr/" },
-            { name: "Sakarya Uygulamalı Bilimler Üni.", city: "Sakarya", url: "https://subu.edu.tr/" },
-            { name: "Sakarya Üni.", city: "Sakarya", url: "https://sakarya.edu.tr/" },
-            { name: "Selçuk Üni.", city: "Konya", url: "https://www.selcuk.edu.tr/Duyurular" },
-            { name: "Siirt Üni.", city: "Siirt", url: "https://siirt.edu.tr/" },
-            { name: "Sinop Üni.", city: "Sinop", url: "https://sinop.edu.tr/" },
-            { name: "Süleyman Demirel Üni.", city: "Isparta", url: "https://sdu.edu.tr/" },
-            { name: "Şırnak Üni.", city: "Sirnak", url: "https://sirnak.edu.tr/" },
-            { name: "Trakya Üni.", city: "Edirne", url: "https://trakya.edu.tr/" },
-            { name: "TOBB ETU.", city: "Ankara", url: "https://www.etu.edu.tr/tr/haberler/" },
-            { name: "Tunceli Üni.", city: "Tunceli", url: "https://munzur.edu.tr/" },
-            { name: "Uludağ Üni.", city: "Bursa", url: "https://uludag.edu.tr/" },
-            { name: "Uşak Üni.", city: "Usak", url: "https://usak.edu.tr/" },
-            { name: "Yalova Üni.", city: "Yalova", url: "https://yalova.edu.tr/" },
-            { name: "Yıldız Teknik Üni.", city: "Istanbul", url: "https://yildiz.edu.tr/" },
-            { name: "Yüzüncü Yıl Üni.", city: "Van", url: "https://yyu.edu.tr/" }
-        ].sort((a, b) => a.name.localeCompare(b.name));
 
-        const TITLES = ["Prof. Dr.", "Doç. Dr.", "Dr. Öğr. Üyesi", "Dr. Öğr. Grv.", "Dr. Arş. Grv.", "Öğretmen", "Öğrenci"];
+
+        const TITLES = ["Prof. Dr.", "Assoc. Prof. Dr.", "Asst. Prof. Dr.", "Lecturer Dr.", "Research Asst. Dr.", "Teacher", "Student"];
 
         const ACADEMIC_DATA = {
             "default": [
-                { id: 1, event: "Güz Başlangıcı", date: "2024-09-23", category: "academic" },
-                { id: 2, event: "Vize Haftası", date: "2024-11-16", category: "academic" },
-                { id: 3, event: "Final Haftası", date: "2025-01-06", category: "academic" },
-                { id: 4, event: "Bahar Başlangıcı", date: "2025-02-17", category: "academic" },
-                { id: 5, event: "Doçentlik (Mart)", date: "2025-03-20", type: "critical", category: "academic" },
-                { id: 6, event: "Doçentlik (Ekim)", date: "2025-10-20", type: "critical", category: "academic" }
+                { id: 1, event: "Fall Start", date: "2024-09-23", category: "academic" },
+                { id: 2, event: "Midterm Week", date: "2024-11-16", category: "academic" },
+                { id: 3, event: "Finals Week", date: "2025-01-06", category: "academic" },
+                { id: 4, event: "Spring Start", date: "2025-02-17", category: "academic" },
+                { id: 5, event: "Assoc. Prof. Exam (Mar)", date: "2025-03-20", type: "critical", category: "academic" },
+                { id: 6, event: "Assoc. Prof. Exam (Oct)", date: "2025-10-20", type: "critical", category: "academic" }
             ]
         };
 
         const LESSON_TYPES = {
-            "lisans": { label: "Lisans", className: "lesson-lisans", btnClass: "btn-lisans", tag: "L" },
-            "yuksek": { label: "Y. Lisans", className: "lesson-yuksek", btnClass: "btn-yuksek", tag: "YL" },
-            "doktora": { label: "Doktora", className: "lesson-doktora", btnClass: "btn-doktora", tag: "DR" },
-            "seminer": { label: "Seminer", className: "lesson-seminer", btnClass: "btn-seminer", tag: "SEM" }
+            "lisans": { label: "Undergraduate", className: "lesson-lisans", btnClass: "btn-lisans", tag: "L" },
+            "yuksek": { label: "Graduate", className: "lesson-yuksek", btnClass: "btn-yuksek", tag: "YL" },
+            "doktora": { label: "Doctorate", className: "lesson-doktora", btnClass: "btn-doktora", tag: "DR" },
+            "seminer": { label: "Seminar", className: "lesson-seminer", btnClass: "btn-seminer", tag: "SEM" }
         };
 
         const P2PdfModal = ({ images, setImages, onClose, sendToNative }) => {
@@ -415,12 +308,12 @@
             };
             const generatePdf = async () => {
                 try {
-                    if (!window.jspdf) { alert("PDF kütüphanesi yükleniyor, tekrar dene..."); return; }
+                    if (!window.jspdf) { alert("PDF library loading, try again..."); return; }
                     const { jsPDF } = window.jspdf;
                     const doc = new jsPDF();
                     const w = doc.internal.pageSize.getWidth();
                     const h = doc.internal.pageSize.getHeight();
-                    if (!images.length) { alert("Fotoğraf yok!"); return; }
+                    if (!images.length) { alert("No photos!"); return; }
                     for (let i = 0; i < images.length; i++) {
                         if (i > 0) doc.addPage();
                         try {
@@ -432,17 +325,17 @@
                             try { doc.addImage(images[i], 'PNG', 10, 10, w-20, h-30); } catch(e2) {}
                         }
                         doc.setFontSize(10); doc.setTextColor(120,120,120);
-                        doc.text('Sayfa '+(i+1), w/2, h-8, {align:'center'});
+                        doc.text('Page '+(i+1), w/2, h-8, {align:'center'});
                     }
-                    sendToNative({ type: 'SAVE_PDF', data: doc.output('datauristring'), filename: 'fotograflar.pdf' });
-                } catch(e) { alert('PDF hatası: ' + e.message); }
+                    sendToNative({ type: 'SAVE_PDF', data: doc.output('datauristring'), filename: 'photos.pdf' });
+                } catch(e) { alert('PDF error: ' + e.message); }
             };
             return (
                 <div style={{position:'fixed',inset:0,zIndex:9999,display:'flex',flexDirection:'column',background:'#0f172a'}}>
                     <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',background:'#1e293b',borderBottom:'1px solid #334155',flexShrink:0}}>
                         <div>
-                            <div style={{color:'white',fontWeight:'bold',fontSize:'16px'}}>📸 Fotoğraf → PDF</div>
-                            {images.length > 0 && <div style={{color:'#94a3b8',fontSize:'12px'}}>{images.length} fotoğraf • ↑↓ ile sırala</div>}
+                            <div style={{color:'white',fontWeight:'bold',fontSize:'16px'}}>📸 Photos → PDF</div>
+                            {images.length > 0 && <div style={{color:'#94a3b8',fontSize:'12px'}}>{images.length} photos • ↑↓ to reorder</div>}
                         </div>
                         <button onClick={onClose} style={{background:'#334155',border:'none',color:'#94a3b8',width:'36px',height:'36px',borderRadius:'50%',fontSize:'18px',cursor:'pointer'}}>×</button>
                     </div>
@@ -450,8 +343,8 @@
                         {images.length === 0 ? (
                             <div onClick={() => sendToNative({type:'PICK_PHOTOS'})} style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'240px',border:'2px dashed #6d28d9',borderRadius:'16px',cursor:'pointer',gap:'12px'}}>
                                 <span style={{fontSize:'48px'}}>🖼️</span>
-                                <span style={{color:'#e2e8f0',fontWeight:'bold'}}>Buraya dokun, fotoğraf seç</span>
-                                <span style={{color:'#64748b',fontSize:'13px'}}>Çoklu seçim yapabilirsin</span>
+                                <span style={{color:'#e2e8f0',fontWeight:'bold'}}>Tap here to select photos</span>
+                                <span style={{color:'#64748b',fontSize:'13px'}}>Multiple selection supported</span>
                             </div>
                         ) : (
                             <div style={{display:'flex',flexDirection:'column',gap:'8px'}}>
@@ -459,7 +352,7 @@
                                     <div key={idx} style={{display:'flex',alignItems:'center',gap:'8px',background:'#1e293b',borderRadius:'12px',padding:'8px',border:'1px solid #334155'}}>
                                         <img src={img} style={{width:'72px',height:'72px',objectFit:'cover',borderRadius:'8px',flexShrink:0}} />
                                         <div style={{flex:1,display:'flex',flexDirection:'column',gap:'4px'}}>
-                                            <span style={{color:'#94a3b8',fontSize:'12px'}}>Fotoğraf {idx+1}</span>
+                                            <span style={{color:'#94a3b8',fontSize:'12px'}}>Photo {idx+1}</span>
                                             <div style={{display:'flex',gap:'6px'}}>
                                                 <button onClick={() => moveUp(idx)} disabled={idx===0} style={{flex:1,padding:'4px',background:idx===0?'#1e293b':'#334155',color:idx===0?'#475569':'white',border:'none',borderRadius:'6px',cursor:idx===0?'default':'pointer',fontSize:'14px'}}>↑</button>
                                                 <button onClick={() => moveDown(idx)} disabled={idx===images.length-1} style={{flex:1,padding:'4px',background:idx===images.length-1?'#1e293b':'#334155',color:idx===images.length-1?'#475569':'white',border:'none',borderRadius:'6px',cursor:idx===images.length-1?'default':'pointer',fontSize:'14px'}}>↓</button>
@@ -473,11 +366,11 @@
                     </div>
                     <div style={{flexShrink:0,background:'#1e293b',borderTop:'1px solid #334155',padding:'16px',paddingBottom:'32px',display:'flex',flexDirection:'column',gap:'10px'}}>
                         <button onClick={() => sendToNative({type:'PICK_PHOTOS'})} style={{width:'100%',padding:'14px',background:'#2563eb',color:'white',border:'none',borderRadius:'12px',fontWeight:'bold',fontSize:'15px',cursor:'pointer'}}>
-                            {images.length > 0 ? '➕ Daha Fazla Ekle' : '📷 Fotoğraf Seç'}
+                            {images.length > 0 ? '➕ Add More' : '📷 Select Photos'}
                         </button>
                         {images.length > 0 && (
                             <button onClick={generatePdf} style={{width:'100%',padding:'14px',background:'#16a34a',color:'white',border:'none',borderRadius:'12px',fontWeight:'bold',fontSize:'15px',cursor:'pointer'}}>
-                                📄 PDF Oluştur ve İndir ({images.length} fotoğraf)
+                                📄 Create PDF & Download ({images.length} photos)
                             </button>
                         )}
                     </div>
@@ -485,16 +378,16 @@
             );
         };
 
-                const DAYS_TR = ["Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi", "Pazar"];const App = () => {
+                const DAYS_EN = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];const App = () => {
             // STATE - v48 anahtarı
             const [user, setUser] = useState(() => safeGet('user_v48', null));
             const [tasks, setTasks] = useState(() => safeGet('tasks_v48', []));
             const [completedTasks, setCompletedTasks] = useState(() => safeGet('completed_tasks_v48', []));
             const [notes, setNotes] = useState(() => safeGet('notes_v48', []));
-            const [schedule, setSchedule] = useState(() => safeGet('schedule_v48', {
-                Pazartesi: Array(13).fill(null), Sali: Array(13).fill(null), Carsamba: Array(13).fill(null), Persembe: Array(13).fill(null), Cuma: Array(13).fill(null), Cumartesi: Array(13).fill(null), Pazar: Array(13).fill(null)
+            const [schedule, setSchedule] = useState(() => safeGet('schedule_v49', {
+                'Monday': Array(16).fill(null), 'Tuesday': Array(16).fill(null), 'Wednesday': Array(16).fill(null), 'Thursday': Array(16).fill(null), 'Friday': Array(16).fill(null), 'Saturday': Array(16).fill(null), 'Sunday': Array(16).fill(null)
             }));
-            const [timeSlots, setTimeSlots] = useState(() => safeGet('timeslots_v48', ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"]));
+            const [timeSlots, setTimeSlots] = useState(() => safeGet('timeslots_v49', ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"]));
             const [customScores, setCustomScores] = useState(() => safeGet('scores_v48', [{ id: 1, name: "Makale", value: 20, count: 0 }]));
             const [targetScore, setTargetScore] = useState(() => safeGet('target_score_v48', 100));
             const [calendarEvents, setCalendarEvents] = useState(() => safeGet('calendar_v48', ACADEMIC_DATA['default']));
@@ -502,11 +395,11 @@
             
             // YENİ: Özelleştirilebilir linkler için state
             const [customLinks, setCustomLinks] = useState(() => safeGet('custom_links_v48', [
-                {id: 1, name: "Fakülte", url: "", icon: "building"},
-                {id: 2, name: "Enstitü", url: "", icon: "graduation-cap"},
-                {id: 3, name: "Öğrenci Bilgi Sistemi", url: "", icon: "user-graduate"},
-                {id: 4, name: "Personel Bilgi Sistemi", url: "", icon: "id-card"},
-                {id: 5, name: "EBYS", url: "", icon: "file-alt"}
+                {id: 1, name: "Faculty", url: "", icon: "building"},
+                {id: 2, name: "Institute", url: "", icon: "graduation-cap"},
+                {id: 3, name: "Student Info System", url: "", icon: "user-graduate"},
+                {id: 4, name: "Staff Info System", url: "", icon: "id-card"},
+                {id: 5, name: "Document System", url: "", icon: "file-alt"}
             ]));
             const [editingLinkId, setEditingLinkId] = useState(null);
             const [tempLinkName, setTempLinkName] = useState("");
@@ -564,6 +457,14 @@
             
             // P2PDF fotoğraf ekle
             useEffect(() => {
+                window.__setSsImage = (img) => { setSsImage(img); };
+                window.__deleteSchedule = () => {
+                    const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+                    const empty = {};
+                    days.forEach(d => { empty[d] = Array(16).fill(null); });
+                    setSchedule(empty);
+                    try { localStorage.removeItem('schedule_v49'); } catch(e) {}
+                };
                 window.__addPhotos = (images) => {
                     setP2pdfImages(prev => [...prev, ...images]);
                 };
@@ -571,6 +472,9 @@
             const [dayDetailData, setDayDetailData] = useState(null); 
             const [selectedNode, setSelectedNode] = useState(null);
             const [isScreenshotMode, setIsScreenshotMode] = useState(false);
+            const [ssImage, setSsImage] = useState(null);
+            const [annualMonth, setAnnualMonth] = React.useState(new Date().getMonth());
+            const [annualYear, setAnnualYear] = React.useState(new Date().getFullYear());
             const [alertState, setAlertState] = useState(null); 
             const [conflictWarn, setConflictWarn] = useState(null);
             const [dismissedAlerts, setDismissedAlerts] = useState([]);
@@ -584,7 +488,7 @@
             
             const [lessonSlots, setLessonSlots] = useState([{
                 id: Date.now(),
-                day: "Pazartesi",
+                day: "Monday",
                 startTime: "09:00",
                 endTime: "10:00",
                 classroom: ""
@@ -607,12 +511,31 @@
             useEffect(() => { localStorage.setItem('user_v48', JSON.stringify(user)); }, [user]);
             useEffect(() => { localStorage.setItem('tasks_v48', JSON.stringify(tasks)); }, [tasks]);
             useEffect(() => { localStorage.setItem('completed_tasks_v48', JSON.stringify(completedTasks)); }, [completedTasks]);
-            useEffect(() => { localStorage.setItem('schedule_v48', JSON.stringify(schedule)); }, [schedule]);
+            useEffect(() => {
+                // schedule slot sayısını timeSlots uzunluğuna normalize et
+                const needsResize = Object.values(schedule).some(arr => arr.length !== timeSlots.length);
+                if (needsResize) {
+                    const fixed = {};
+                    Object.keys(schedule).forEach(day => {
+                        const arr = schedule[day] || [];
+                        if (arr.length < timeSlots.length) {
+                            fixed[day] = [...arr, ...Array(timeSlots.length - arr.length).fill(null)];
+                        } else if (arr.length > timeSlots.length) {
+                            fixed[day] = arr.slice(0, timeSlots.length);
+                        } else {
+                            fixed[day] = arr;
+                        }
+                    });
+                    setSchedule(fixed);
+                    return;
+                }
+                localStorage.setItem('schedule_v49', JSON.stringify(schedule));
+            }, [schedule, timeSlots]);
             useEffect(() => { localStorage.setItem('notes_v48', JSON.stringify(notes)); }, [notes]);
             useEffect(() => { localStorage.setItem('calendar_v48', JSON.stringify(calendarEvents)); }, [calendarEvents]);
             useEffect(() => { localStorage.setItem('scores_v48', JSON.stringify(customScores)); }, [customScores]);
             useEffect(() => { localStorage.setItem('target_score_v48', JSON.stringify(targetScore)); }, [targetScore]);
-            useEffect(() => { localStorage.setItem('timeslots_v48', JSON.stringify(timeSlots)); }, [timeSlots]);
+            useEffect(() => { localStorage.setItem('timeslots_v49', JSON.stringify(timeSlots)); }, [timeSlots]);
             useEffect(() => { localStorage.setItem('academic_calendar_url_v48', JSON.stringify(academicCalendarUrl)); }, [academicCalendarUrl]);
             useEffect(() => { safeSave('notif_sound_v48', notifSound); }, [notifSound]);
             
@@ -627,11 +550,11 @@
             }, [aiLinks]);
 
             const getMinutes = (timeStr) => { if(!timeStr) return 0; const [h, m] = timeStr.split(':').map(Number); return h * 60 + m; };
-            const getDayKey = (dateStr) => { const d = new Date(dateStr); const map = ["Pazar", "Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi"]; return map[d.getDay()]; };
+            const getDayKey = (dateStr) => { const d = new Date(dateStr); const map = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]; return map[d.getDay()]; };
 
             const checkConflict = (date, time) => {
                 const taskExists = tasks.find(t => t.date === date && t.time === time && t.id !== editingTask?.id);
-                if (taskExists) return `Çakışma: "${taskExists.title}"`;
+                if (taskExists) return `Conflict: "${taskExists.title}"`;
                 const dayKey = getDayKey(date);
                 const daySchedule = schedule[dayKey];
                 if (daySchedule) {
@@ -642,7 +565,7 @@
                             const slotMin = getMinutes(slotTime);
                             const duration = daySchedule[i].duration ? parseInt(daySchedule[i].duration) : 1;
                             const lessonEndMin = slotMin + (duration * 60);
-                            if (taskMin >= slotMin && taskMin < lessonEndMin) return `Çakışma: "${daySchedule[i].name}" dersi!`;
+                            if (taskMin >= slotMin && taskMin < lessonEndMin) return `Conflict with class: "${daySchedule[i].name}"!`;
                         }
                     }
                 }
@@ -662,9 +585,9 @@
                 const todayStr = new Date().toISOString().split('T')[0];
                 let list = tasks.filter(t => t.date === todayStr).map(t => ({ ...t, sortTime: t.time, displayType: t.category }));
                 if (prayerTimes && user?.enablePrayer) {
-                    const map = { Fajr: "İmsak", Sunrise: "Güneş", Dhuhr: "Öğle", Asr: "İkindi", Maghrib: "Akşam", Isha: "Yatsı" };
+                    const map = { Fajr: "Fajr", Sunrise: "Sunrise", Dhuhr: "Dhuhr", Asr: "Asr", Maghrib: "Maghrib", Isha: "Isha" };
                     Object.keys(map).forEach(k => {
-                        if(prayerTimes[k]) list.push({ id: `p-${k}`, title: map[k], time: prayerTimes[k], type: "prayer", displayType: "prayer", desc: "Vakit", sortTime: prayerTimes[k] });
+                        if(prayerTimes[k]) list.push({ id: `p-${k}`, title: map[k], time: prayerTimes[k], type: "prayer", displayType: "prayer", desc: "Prayer", sortTime: prayerTimes[k] });
                     });
                 }
                 const dayKey = getDayKey(todayStr);
@@ -695,13 +618,13 @@
                     }
                 });
                 if (prayerTimes && user?.enablePrayer) {
-                    const map = { Fajr: "İmsak", Sunrise: "Güneş", Dhuhr: "Öğle", Asr: "İkindi", Maghrib: "Akşam", Isha: "Yatsı" };
+                    const map = { Fajr: "Fajr", Sunrise: "Sunrise", Dhuhr: "Dhuhr", Asr: "Asr", Maghrib: "Maghrib", Isha: "Isha" };
                     [-1, 0, 1].forEach(dayOffset => {
                         Object.keys(map).forEach(k => {
                             if(prayerTimes[k]) {
                                 const tMin = getMinutes(prayerTimes[k]) + (dayOffset * 1440);
                                 if (tMin >= windowStart && tMin <= windowEnd) {
-                                    events.push({ id: `p-${k}-${dayOffset}`, title: map[k], time: prayerTimes[k], relativeMin: tMin, displayType: "prayer", desc: dayOffset === 0 ? "Bugün" : (dayOffset === 1 ? "Yarın" : "Dün") });
+                                    events.push({ id: `p-${k}-${dayOffset}`, title: map[k], time: prayerTimes[k], relativeMin: tMin, displayType: "prayer", desc: dayOffset === 0 ? "Today" : (dayOffset === 1 ? "Tomorrow" : "Yesterday") });
                                 }
                             }
                         });
@@ -760,17 +683,17 @@
                     } else { if(alertState) setAlertState(null); }
 
                     if(pomodoro.active && pomodoro.time > 0) setPomodoro(prev => ({...prev, time: prev.time - 1}));
-                    else if (pomodoro.active && pomodoro.time === 0) { setPomodoro({active: false, time: 25 * 60}); alert("Odaklanma Bitti!"); }
+                    else if (pomodoro.active && pomodoro.time === 0) { setPomodoro({active: false, time: 25 * 60}); alert("Focus Session Complete!"); }
                 };
                 tick(); const timer = setInterval(tick, 1000); 
-                if (user?.enablePrayer && user?.city && !prayerTimes) fetchPrayerTimes(user.city);
+                if (user?.enablePrayer && user?.city && !prayerTimes) fetchPrayerTimes(user.city, user.country);
                 return () => clearInterval(timer);
             }, [getTimelineEvents, alertState, pomodoro.active, user, dismissedAlerts]);
 
             const dismissAlert = () => { if (alertState) { setDismissedAlerts(prev => [...prev, alertState.id]); setAlertState(null); if(audioRef.current) { audioRef.current.pause(); audioRef.current.currentTime = 0; } } };
-            const fetchPrayerTimes = async (city) => { try { const d = new Date(); const res = await fetch(`https://api.aladhan.com/v1/timingsByCity/${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}?city=${city}&country=Turkey&method=13`); const json = await res.json(); if(json.data) setPrayerTimes(json.data.timings); } catch (e) { console.error(e); } };
+            const fetchPrayerTimes = async (city, country) => { try { const d = new Date(); const res = await fetch(`https://api.aladhan.com/v1/timingsByCity/${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country||'')}&method=3`); const json = await res.json(); if(json.data) setPrayerTimes(json.data.timings); } catch (e) { console.error(e); } };
             const updateAcademicCalendar = (uniName) => { const newData = ACADEMIC_DATA[uniName] || ACADEMIC_DATA['default']; setCalendarEvents(newData); };
-            const handleUpdateUser = (e) => { e.preventDefault(); const fd = new FormData(e.target); const u = UNIVERSITIES.find(x => x.name === fd.get('uni')); if (!u) return; updateAcademicCalendar(u.name); const cityChanged = u.city !== user.city; const prayerEnabled = fd.get('enablePrayer') === 'on'; if (cityChanged || (!user.enablePrayer && prayerEnabled)) { setPrayerTimes(null); if (prayerEnabled && u.city) { fetchPrayerTimes(u.city); } } setUser({ ...user, title: fd.get('title'), name: fd.get('name'), uni: u.name, city: u.city, url: u.url, enablePrayer: prayerEnabled }); setActiveModal(null); };const handleAddTask = () => { 
+            const handleUpdateUser = (e) => { e.preventDefault(); const fd = new FormData(e.target); const city = fd.get('city').trim(); const country = fd.get('country').trim(); const cityChanged = city !== user.city || country !== user.country; const prayerEnabled = fd.get('enablePrayer') === 'on'; if (cityChanged || (!user.enablePrayer && prayerEnabled)) { setPrayerTimes(null); if (prayerEnabled && city && country) { fetchPrayerTimes(city, country); } } setUser({ ...user, title: fd.get('title'), name: fd.get('name').trim(), uni: fd.get('uni').trim(), uniUrl: fd.get('uniUrl').trim(), city: city, country: country, enablePrayer: prayerEnabled }); setActiveModal(null); };const handleAddTask = () => { 
                 if(!newTask.title || !newTask.date) return;
                 
                 if (!conflictWarn) {
@@ -778,7 +701,7 @@
                     if (recurringType !== "none" && !editingTask) { 
                         const d = new Date(newTask.date);
                         const check = checkConflict(d.toISOString().split('T')[0], newTask.time);
-                        if(check) msg = "Rutin Başlangıcında: " + check;
+                        if(check) msg = "Recurring Start: " + check;
                     }
                     if (msg) { setConflictWarn(msg); return; }
                 }
@@ -840,7 +763,7 @@
 
             const deleteTask = (e, id) => { 
                 e.stopPropagation();
-                if(confirm("Görevi silmek istediğinize emin misiniz?")) { 
+                if(confirm("Are you sure you want to delete this task?")) { 
                     setTasks(prev => prev.filter(t => t.id !== id)); 
                     setCompletedTasks(prev => prev.filter(tid => tid !== id));
                     if (dayDetailData) {
@@ -852,12 +775,12 @@
             const handleAddNote = () => { if(!newNote) return; setNotes([{id: Date.now(), text: newNote, date: new Date().toLocaleDateString()}, ...notes]); setNewNote(""); };
             const exportData = () => { 
                 const data = JSON.stringify({ user, tasks, completedTasks, schedule, customScores, targetScore, notes, academicCalendarUrl }, null, 2);
-                const nativeSent = sendToNative({ type: 'EXPORT_DATA', data: data, filename: 'akademik_yedek.json' });
+                const nativeSent = sendToNative({ type: 'EXPORT_DATA', data: data, filename: 'academic_backup.json' });
                 if (!nativeSent) {
                     const blob = new Blob([data], {type: "text/plain"}); 
                     const url = URL.createObjectURL(blob); 
                     const a = document.createElement('a'); 
-                    a.href = url; a.download = 'akademik_yedek.txt'; a.click();
+                    a.href = url; a.download = 'academic_backup.txt'; a.click();
                 }
             };
             const importData = () => { 
@@ -870,12 +793,12 @@
                             if(data.completedTasks) setCompletedTasks(data.completedTasks); 
                             if(data.schedule) setSchedule(data.schedule); if(data.customScores) setCustomScores(data.customScores); 
                             if(data.notes) setNotes(data.notes); if(data.academicCalendarUrl) setAcademicCalendarUrl(data.academicCalendarUrl); 
-                            alert("Yedek yüklendi!"); window.location.reload(); 
-                        } catch(err) { alert("Hata! Dosya bozuk."); } }; 
+                            alert("Backup loaded!"); window.location.reload(); 
+                        } catch(err) { alert("Error! File is corrupted."); } }; 
                         reader.readAsText(file); }; input.click(); 
                 }
             };
-            const handleFileUpload = (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { const content = e.target.result; const lines = content.split(/\r\n|\n|\r/); let events = []; let currentEvent = null; lines.forEach(line => { if (line.startsWith('BEGIN:VEVENT')) currentEvent = {}; else if (line.startsWith('END:VEVENT')) { if (currentEvent && currentEvent.SUMMARY && currentEvent.DTSTART) { const rawDate = currentEvent.DTSTART.replace('VALUE=DATE:',''); const y = rawDate.substring(0,4); const m = rawDate.substring(4,6); const d = rawDate.substring(6,8); const h = rawDate.length > 8 ? rawDate.substring(9,11) : "08"; const min = rawDate.length > 8 ? rawDate.substring(11,13) : "00"; events.push({ id: Date.now() + Math.random(), title: currentEvent.SUMMARY, date: `${y}-${m}-${d}`, time: `${h}:${min}`, desc: "Takvimden", type: "task", category: "official", origin: "imported" }); } currentEvent = null; } else if (currentEvent) { const [key, val] = line.split(':'); if(key) currentEvent[key.split(';')[0]] = val; } }); setTasks([...tasks, ...events]); alert(`${events.length} etkinlik eklendi.`); }; reader.readAsText(file); };
+            const handleFileUpload = (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { const content = e.target.result; const lines = content.split(/\r\n|\n|\r/); let events = []; let currentEvent = null; lines.forEach(line => { if (line.startsWith('BEGIN:VEVENT')) currentEvent = {}; else if (line.startsWith('END:VEVENT')) { if (currentEvent && currentEvent.SUMMARY && currentEvent.DTSTART) { const rawDate = currentEvent.DTSTART.replace('VALUE=DATE:',''); const y = rawDate.substring(0,4); const m = rawDate.substring(4,6); const d = rawDate.substring(6,8); const h = rawDate.length > 8 ? rawDate.substring(9,11) : "08"; const min = rawDate.length > 8 ? rawDate.substring(11,13) : "00"; events.push({ id: Date.now() + Math.random(), title: currentEvent.SUMMARY, date: `${y}-${m}-${d}`, time: `${h}:${min}`, desc: "From Calendar", type: "task", category: "official", origin: "imported" }); } currentEvent = null; } else if (currentEvent) { const [key, val] = line.split(':'); if(key) currentEvent[key.split(';')[0]] = val; } }); setTasks([...tasks, ...events]); alert(`${events.length} events added.`); }; reader.readAsText(file); };
             const handleDayClick = (dateStr, events) => { if (events.length > 0) { setDayDetailData({date: dateStr, events}); setActiveModal('dayDetail'); } else { setNewTask({ title: "", date: dateStr, time: "09:00", desc: "", type: "task", category: "daily" }); setActiveModal('task'); } };
             
             const getAllEvents = () => { 
@@ -915,9 +838,10 @@
                 const duration = data.duration ? parseInt(data.duration) : 1;
                 if (!duration) return; 
 
-                if (index + duration > 13) { alert("Ders günün bitiş saatini aşıyor!"); return; } 
+                const actualDuration = Math.min(duration, timeSlots.length - index);
+                if (actualDuration <= 0) return;
                 const batchId = data.batchId || Date.now(); 
-                for (let i = 0; i < duration; i++) { 
+                for (let i = 0; i < actualDuration; i++) { 
                     newSchedule[day][index + i] = { ...data, duration: 1, batchId: batchId }; 
                 } 
                 setSchedule(newSchedule); setActiveModal(null); 
@@ -928,7 +852,7 @@
                 if (!data) { setActiveModal(null); return; } 
                 const newSchedule = { ...schedule }; 
                 if (data.batchId) { 
-                    if (confirm(`"${data.name}" dersinin tümünü sil?`)) { Object.keys(newSchedule).forEach(d => { newSchedule[d] = newSchedule[d].map(l => (l && l.batchId === data.batchId) ? null : l); }); } 
+                    if (confirm(`Delete all sessions of "${data.name}"?`)) { Object.keys(newSchedule).forEach(d => { newSchedule[d] = newSchedule[d].map(l => (l && l.batchId === data.batchId) ? null : l); }); } 
                     else { newSchedule[day][index] = null; } 
                 } else { newSchedule[day][index] = null; } 
                 setSchedule(newSchedule); setActiveModal(null); 
@@ -936,7 +860,7 @@
 
             const handleAddMultiLesson = () => {
                 if (!lessonName) {
-                    alert("Lütfen ders adını girin!");
+                    alert("Please enter the course name!");
                     return;
                 }
 
@@ -948,7 +872,7 @@
                     const endMin = getMinutes(slot.endTime);
                     
                     if (endMin <= startMin) {
-                        alert(`${slot.day} için bitiş saati başlangıç saatinden sonra olmalı!`);
+                        alert(`End time for ${slot.day} must be after start time!`);
                         return;
                     }
 
@@ -961,10 +885,10 @@
                             break;
                         }
                     }
+                    if (startSlotIndex === -1) startSlotIndex = timeSlots.length - 1;
 
-                    if (startSlotIndex === -1) return;
-
-                    for (let i = 0; i < durationHours && (startSlotIndex + i) < timeSlots.length; i++) {
+                    for (let i = 0; (startSlotIndex + i) < timeSlots.length; i++) {
+                        if (i >= durationHours) break;
                         newSchedule[slot.day][startSlotIndex + i] = {
                             name: lessonName,
                             type: lessonType,
@@ -981,7 +905,7 @@
                 setActiveModal(null);
                 setLessonSlots([{
                     id: Date.now(),
-                    day: "Pazartesi",
+                    day: "Monday",
                     startTime: "09:00",
                     endTime: "10:00",
                     classroom: ""
@@ -993,7 +917,7 @@
             const addLessonSlot = () => {
                 setLessonSlots([...lessonSlots, {
                     id: Date.now(),
-                    day: "Pazartesi",
+                    day: "Monday",
                     startTime: "09:00",
                     endTime: "10:00",
                     classroom: ""
@@ -1002,7 +926,7 @@
 
             const removeLessonSlot = (id) => {
                 if (lessonSlots.length === 1) {
-                    alert("En az bir zaman dilimi olmalı!");
+                    alert("At least one time slot is required!");
                     return;
                 }
                 setLessonSlots(lessonSlots.filter(s => s.id !== id));
@@ -1037,109 +961,18 @@
             };
 
             const exportScheduleToPDF = async () => {
-    try {
-    if (!window.jspdf) { alert("PDF kütüphanesi yükleniyor, lütfen bekleyin..."); return; }
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('landscape', 'mm', 'a4');
-    
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.text(`${user.name} - Haftalık Ders Programı`, 148, 15, { align: "center" });
-    
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text(`${user.uni} • ${user.title}`, 148, 22, { align: "center" });
-
-    const days = Object.keys(schedule);
-    const cellWidth = 38;
-    const cellHeight = 12;
-    const startX = 10;
-    const startY = 30;
-
-    // Başlık satırı
-    doc.setFillColor(240, 240, 240);
-    doc.rect(startX, startY, 20, cellHeight, 'F');
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
-    doc.text("Saat", startX + 10, startY + 7, { align: "center" });
-
-    days.forEach((day, i) => {
-        doc.rect(startX + 20 + (i * cellWidth), startY, cellWidth, cellHeight, 'F');
-        doc.text(day, startX + 20 + (i * cellWidth) + (cellWidth / 2), startY + 7, { align: "center" });
-    });
-
-    // Ders satırları
-    timeSlots.forEach((time, timeIndex) => {
-        const y = startY + ((timeIndex + 1) * cellHeight);
-        
-        // Saat kolonu
-        doc.setFillColor(250, 250, 250);
-        doc.rect(startX, y, 20, cellHeight, 'FD');
-        doc.setFont("helvetica", "normal");
-        doc.text(time, startX + 10, y + 7, { align: "center" });
-
-        // Ders hücreleri
-        days.forEach((day, dayIndex) => {
-            const lesson = schedule[day][timeIndex];
-            const x = startX + 20 + (dayIndex * cellWidth);
-            
-            if (lesson) {
-                // Renk seçimi
-                if (lesson.type === 'lisans') doc.setFillColor(13, 148, 136);
-                else if (lesson.type === 'yuksek') doc.setFillColor(79, 70, 229);
-                else if (lesson.type === 'doktora') doc.setFillColor(225, 29, 72);
-                else if (lesson.type === 'seminer') doc.setFillColor(217, 119, 6);
-                
-                doc.rect(x, y, cellWidth, cellHeight, 'FD');
-                doc.setTextColor(255, 255, 255);
-                doc.setFont("helvetica", "bold");
-                doc.setFontSize(7);
-                
-                // DERS ADI
-                doc.text(lesson.name, x + (cellWidth / 2), y + 4, { align: "center", maxWidth: cellWidth - 2 });
-                
-                // YENİ: SAAT ARALIĞI EKLEME
-                if (lesson.startTime && lesson.endTime) {
-                    doc.setFont("helvetica", "bold");
-                    doc.setFillColor(0, 0, 0, 0.3); // Yarı saydam siyah arka plan
-                    doc.rect(x + 1, y + 6, cellWidth - 2, 3, 'F');
-                    doc.setFontSize(6);
-                    doc.text(`${lesson.startTime} - ${lesson.endTime}`, x + (cellWidth / 2), y + 8, { align: "center" });
-                }
-                
-                // SINIF BİLGİSİ
-                if (lesson.classroom) {
-                    doc.setFont("helvetica", "italic");
-                    doc.setFontSize(6);
-                    doc.text(lesson.classroom, x + (cellWidth / 2), y + 11, { align: "center" });
-                }
-                
-                doc.setTextColor(0, 0, 0);
-            } else {
-                doc.rect(x, y, cellWidth, cellHeight, 'D');
-            }
-        });
-    });
-    
-    // YENİ: Alt bilgi ekleme
-    doc.setFontSize(8);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Oluşturulma Tarihi: ${new Date().toLocaleDateString('tr-TR')}`, 148, 200, { align: "center" });
-
-    // PDF'i base64 olarak native'e gönder
-    const pdfBase64 = doc.output('datauristring');
-    if (!sendToNative({ type: 'SAVE_PDF', data: pdfBase64, filename: 'ders-programi.pdf' })) {
-        // Native yoksa blob olarak dene
-        try {
-            const pdfBlob = doc.output('blob');
-            const url = URL.createObjectURL(pdfBlob);
-            const a = document.createElement('a');
-            a.href = url; a.download = 'ders-programi.pdf'; a.click();
-            setTimeout(() => URL.revokeObjectURL(url), 1000);
-        } catch(e2) { alert("PDF kaydedilemedi: " + e2.message); }
-    }
-    } catch(pdfErr) { alert("PDF oluşturma hatası: " + pdfErr.message); }
-};
+                setIsScreenshotMode(true);
+                setSsImage(null);
+                setTimeout(async () => {
+                    try {
+                        const el = document.getElementById('ss-capture-area');
+                        if (!el || typeof html2canvas === 'undefined') return;
+                        const canvas = await html2canvas(el, { backgroundColor: '#ffffff', scale: 2, useCORS: true, logging: false });
+                        const imgData = canvas.toDataURL('image/png');
+                        window.__setSsImage && window.__setSsImage(imgData);
+                    } catch(e) {}
+                }, 300);
+            };
 
             // YENİ: Kalp Atışı Hesaplama
             const getHeartbeatClass = (relativeMin, nowMin) => {
@@ -1208,7 +1041,7 @@
 
             const saveCustomLink = () => {
                 if (!tempLinkName.trim()) {
-                    alert("Lütfen buton adı giriniz!");
+                    alert("Please enter a button name!");
                     return;
                 }
                 
@@ -1241,7 +1074,7 @@
             };
             
             const saveAiLink = () => {
-                if (!tempAiLinkName.trim()) { alert("Lütfen buton adı giriniz!"); return; }
+                if (!tempAiLinkName.trim()) { alert("Please enter a button name!"); return; }
                 setAiLinks(aiLinks.map(link => 
                     link.id === editingAiLinkId 
                         ? { ...link, name: tempAiLinkName, url: fixUrl(tempAiLinkUrl) }
@@ -1259,14 +1092,19 @@
                 return (
                     <div className="min-h-screen flex items-center justify-center p-6 bg-[#0f172a]">
                         <div className="w-full max-w-md glass p-8 rounded-2xl shadow-2xl">
-                            <h1 className="text-2xl font-bold text-white mb-2 text-center">Akademik Asistan</h1>
+                            <h1 className="text-2xl font-bold text-white mb-2 text-center">Academic Assistant</h1>
                             <p className="text-center text-slate-400 mb-6 text-sm">V2.4 • Zaphyros</p>
-                            <form onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.target); const u = UNIVERSITIES.find(x => x.name === fd.get('uni')); if (!u) return; setUser({ title: fd.get('title'), name: fd.get('name'), uni: u.name, city: u.city, url: u.url, enablePrayer: fd.get('enablePrayer') === 'on' }); }} className="space-y-4">
+                            <form onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.target); const country = fd.get('country').trim(); const city = fd.get('city').trim(); const prayerEnabled = fd.get('enablePrayer') === 'on'; const newUser = { title: fd.get('title'), name: fd.get('name').trim(), uni: fd.get('uni').trim(), uniUrl: fd.get('uniUrl').trim(), country: country, city: city, enablePrayer: prayerEnabled }; setUser(newUser); if (prayerEnabled && city && country) { fetchPrayerTimes(city, country); } }} className="space-y-4">
                                 <select name="title" className="w-full input-dark p-3 rounded-lg">{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select>
-                                <input name="name" required placeholder="Ad Soyad" className="w-full input-dark p-3 rounded-lg" />
-                                <select name="uni" className="w-full input-dark p-3 rounded-lg">{UNIVERSITIES.map(u => <option key={u.name} value={u.name}>{u.name}</option>)}</select>
-                                <div className="flex items-center gap-3 pt-2"><input type="checkbox" name="enablePrayer" defaultChecked className="w-5 h-5 accent-blue-500" /><span className="text-sm text-slate-300">Namaz Vakitlerini Göster</span></div>
-                                <button className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl mt-2 hover:bg-blue-500 transition">BAŞLAT</button>
+                                <input name="name" required placeholder="Full Name" className="w-full input-dark p-3 rounded-lg" />
+                                <input name="uni" placeholder="University Name" className="w-full input-dark p-3 rounded-lg" />
+                                <div className="grid grid-cols-2 gap-2">
+                                    <input name="country" required placeholder="Country (e.g. Turkey)" className="w-full input-dark p-3 rounded-lg" />
+                                    <input name="city" required placeholder="City (e.g. Ankara)" className="w-full input-dark p-3 rounded-lg" />
+                                </div>
+                                <input name="uniUrl" placeholder="University URL (optional)" className="w-full input-dark p-3 rounded-lg" />
+                                <div className="flex items-center gap-3 pt-2"><input type="checkbox" name="enablePrayer" defaultChecked className="w-5 h-5 accent-blue-500" /><span className="text-sm text-slate-300">Show Prayer Times</span></div>
+                                <button className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl mt-2 hover:bg-blue-500 transition">GET STARTED</button>
                             </form>
                         </div>
                     </div>
@@ -1281,10 +1119,10 @@
                         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-red-900/95 backdrop-blur-md animate-flash">
                             <div className="bg-white text-red-700 p-6 rounded-3xl shadow-2xl text-center max-w-sm mx-4 transform scale-110">
                                 <i className="fas fa-exclamation-triangle text-6xl mb-4 animate-bounce"></i>
-                                <h1 className="text-3xl font-bold mb-1">DİKKAT!</h1>
+                                <h1 className="text-3xl font-bold mb-1">ATTENTION!</h1>
                                 <p className="text-2xl font-bold text-black mb-2">{alertState.time}</p>
                                 <p className="text-lg font-semibold">{alertState.title}</p>
-                                <button onClick={dismissAlert} className="mt-6 w-full bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700 transition shadow-lg">TAMAM, ANLAŞILDI</button>
+                                <button onClick={dismissAlert} className="mt-6 w-full bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700 transition shadow-lg">OK, GOT IT</button>
                             </div>
                         </div>
                     )}
@@ -1313,8 +1151,8 @@
                         {/* AKIŞ - TİK BUTONU EKLENMİŞ */}
                         {view === 'flow' && (
                             <div className="animate-enter space-y-3">
-                                <h3 className="text-sm font-bold text-slate-400 uppercase border-b border-slate-700 pb-2 mb-4 ml-1">Günlük Akış</h3>
-                                {getTimelineList().length === 0 ? <div className="text-center py-12 opacity-30 text-sm border-2 border-dashed border-slate-700 rounded-xl">Akış boş.</div> : 
+                                <h3 className="text-sm font-bold text-slate-400 uppercase border-b border-slate-700 pb-2 mb-4 ml-1">Daily Flow</h3>
+                                {getTimelineList().length === 0 ? <div className="text-center py-12 opacity-30 text-sm border-2 border-dashed border-slate-700 rounded-xl">No events yet.</div> : 
                                     getTimelineList().map((item, i) => { 
                                         let borderClass = 'border-slate-600'; 
                                         if (item.displayType === 'prayer') borderClass = 'border-white'; 
@@ -1367,14 +1205,28 @@
                         {/* HOME - ÖNEMLİ LİNKLER BUTONU EKLENMİŞ, HAFTALIK DERS PROGRAMI KALDIRILMIŞ */}
                         {view === 'home' && (
                             <div className="animate-enter space-y-4">
-                                {user.url && (
+                                <>
+                                    <div className="grid grid-cols-3 gap-3">
+                                    <button onClick={() => { const today = new Date().toISOString().split('T')[0]; setNewTask({title:"", date:today, time:"", desc:"", type:"task", category:"daily"}); setActiveModal('task'); setConflictWarn(null); }} className="bg-gradient-to-br from-blue-600 to-blue-700 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition">
+                                        <i className="fas fa-bell text-2xl"></i>
+                                        <span className="font-bold text-[10px] tracking-wide">REMINDER</span>
+                                    </button>
+                                    <button onClick={() => setActiveModal('notes')} className="bg-slate-700 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 border border-slate-600 shadow-lg active:scale-95 transition">
+                                        <i className="fas fa-sticky-note text-2xl text-yellow-400"></i>
+                                        <span className="font-bold text-[10px] tracking-wide">NOTEBOOK</span>
+                                    </button>
+                                    <button onClick={() => setActiveModal('aiLinks')} style={{background:'linear-gradient(135deg,#6b4c08 0%,#b8860b 40%,#7c5c0a 70%,#d4a017 100%)'}} className="text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition-all">
+                                        <i className="fas fa-robot text-2xl"></i>
+                                        <span className="font-bold text-[10px] tracking-wide">AI TOOLS</span>
+                                    </button>
+                                </div>
                                     <div className="relative mb-2">
                                     <button onClick={() => { if(academicCalendarUrl) { window.open(fixUrl(academicCalendarUrl), '_blank'); } else { setActiveModal('academicCalendar'); } }} className="w-full bg-slate-800 border border-slate-600 text-blue-300 p-4 rounded-xl flex items-center justify-between hover:bg-slate-700 transition shadow-lg">
                                         <div className="flex items-center gap-4">
                                             <div className="w-10 h-10 rounded-full bg-red-900/50 flex items-center justify-center text-white text-xl"><i className="fas fa-calendar-alt"></i></div>
                                             <div className="text-left">
-                                                <div className="text-xs text-slate-400">{academicCalendarUrl ? 'Linke git' : 'Link ekle'}</div>
-                                                <div className="text-base font-bold text-white">📅 Akademik Takvim</div>
+                                                <div className="text-xs text-slate-400">{academicCalendarUrl ? 'Open Link' : 'Add Link'}</div>
+                                                <div className="text-base font-bold text-white">📅 Academic Calendar</div>
                                             </div>
                                         </div>
                                         {!academicCalendarUrl && <i className="fas fa-plus opacity-50"></i>}
@@ -1383,61 +1235,102 @@
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); setActiveModal('academicCalendar'); }}
                                             className="absolute top-1/2 -translate-y-1/2 right-3 w-7 h-7 bg-blue-600 hover:bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg z-10"
-                                            title="Linki Düzenle"
+                                            title="Edit Link"
                                         >
                                             <i className="fas fa-edit text-xs"></i>
                                         </button>
                                     )}
                                 </div>
-                                )}
-                                <div className="grid grid-cols-3 gap-3">
-                                    <button onClick={() => { const today = new Date().toISOString().split('T')[0]; setNewTask({title:"", date:today, time:"", desc:"", type:"task", category:"daily"}); setActiveModal('task'); setConflictWarn(null); }} className="bg-gradient-to-br from-blue-600 to-blue-700 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition">
-                                        <i className="fas fa-bell text-2xl"></i>
-                                        <span className="font-bold text-[10px] tracking-wide">HATIRLATICI</span>
-                                    </button>
-                                    <button onClick={() => setActiveModal('notes')} className="bg-slate-700 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 border border-slate-600 shadow-lg active:scale-95 transition">
-                                        <i className="fas fa-sticky-note text-2xl text-yellow-400"></i>
-                                        <span className="font-bold text-[10px] tracking-wide">NOT DEFTERİ</span>
-                                    </button>
-                                    <button onClick={() => setActiveModal('aiLinks')} className="bg-gradient-to-br from-violet-600 to-violet-700 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition">
-                                        <i className="fas fa-robot text-2xl"></i>
-                                        <span className="font-bold text-[10px] tracking-wide">AI ARAÇLARI</span>
-                                    </button>
-                                </div>
+                                    </>
+                                
                                 <button onClick={() => setActiveModal('p2pdf')} className="w-full bg-gradient-to-r from-purple-600 to-purple-700 p-4 rounded-xl flex items-center justify-center gap-3 hover:from-purple-700 hover:to-purple-800 transition shadow-lg">
                                     <i className="fas fa-file-pdf text-xl"></i>
                                     <span className="font-bold text-sm">P2PDF</span>
                                 </button>
                                 <button onClick={() => setActiveModal('importantLinks')} className="w-full bg-gradient-to-r from-orange-600 to-orange-700 p-4 rounded-xl flex items-center justify-center gap-3 hover:from-orange-700 hover:to-orange-800 transition shadow-lg">
                                     <i className="fas fa-link text-xl"></i>
-                                    <span className="font-bold text-sm">ÖNEMLİ LİNKLER</span>
+                                    <span className="font-bold text-sm">IMPORTANT LINKS</span>
                                 </button>
-                                <button onClick={exportScheduleToPDF} className="w-full bg-slate-800 p-4 rounded-xl flex items-center justify-between border border-slate-700 hover:bg-slate-700 transition shadow-lg">
-                                    <span className="font-bold text-sm">📄 Ders Programı PDF İndir</span>
-                                    <i className="fas fa-download text-slate-500"></i>
+                                <button onClick={exportScheduleToPDF} className="w-full p-4 rounded-xl flex items-center justify-center gap-2 transition active:scale-95" style={{background:'linear-gradient(135deg,#9ca3af 0%,#f3f4f6 30%,#d1d5db 60%,#9ca3af 100%)',border:'1px solid #6b7280'}}>
+                                    <i className="fas fa-download" style={{color:'#111'}}></i>
+                                    <span style={{color:'#111',fontWeight:'bold',fontSize:'13px'}}>DOWNLOAD SCHEDULE</span>
                                 </button>
-                                <button onClick={() => { setLessonSlots([{ id: Date.now(), day: "Pazartesi", startTime: "09:00", endTime: "10:00", classroom: "" }]); setLessonName(""); setLessonType("lisans"); setActiveModal('addLesson'); }} className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 p-4 rounded-xl flex items-center justify-center gap-3 hover:from-emerald-700 hover:to-emerald-800 transition shadow-lg">
+                                <button onClick={() => { setLessonSlots([{ id: Date.now(), day: "Monday", startTime: "09:00", endTime: "10:00", classroom: "" }]); setLessonName(""); setLessonType("lisans"); setActiveModal('addLesson'); }} className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 p-4 rounded-xl flex items-center justify-center gap-3 hover:from-emerald-700 hover:to-emerald-800 transition shadow-lg">
                                     <i className="fas fa-plus-circle text-xl"></i>
-                                    <span className="font-bold text-sm">YENİ DERS EKLE</span>
+                                    <span className="font-bold text-sm">ADD NEW COURSE</span>
                                 </button>
                             </div>
                         )}{/* ANNUAL VIEW */}
-                        {view === 'annual' && (<div className="animate-enter pb-16"><div className="flex justify-between items-center mb-4"><h3 className="text-slate-300 font-bold text-sm uppercase">Yıllık Takvim</h3><div className="flex gap-2"><button onClick={() => window.open(user.url, '_blank')} className="text-[10px] bg-red-900 px-3 py-1.5 rounded border border-red-700 hover:text-white transition">Üni. Web</button><button onClick={() => fileInputRef.current.click()} className="text-[10px] bg-slate-800 px-3 py-1.5 rounded border border-slate-700 hover:border-blue-500 hover:text-white transition">ICS Yükle</button><input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".ics" /></div></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{Array.from({length: 12}, (_, i) => i).map(monthIdx => { const year = new Date().getFullYear(); const date = new Date(year, monthIdx, 1); const monthName = date.toLocaleString('tr-TR', { month: 'long' }); const daysInMonth = new Date(year, monthIdx + 1, 0).getDate(); const startDay = new Date(year, monthIdx, 1).getDay(); const offset = startDay === 0 ? 6 : startDay - 1; const today = new Date(); const isCurrentMonth = today.getMonth() === monthIdx && today.getFullYear() === year; const currentDay = today.getDate(); return (<div key={monthIdx} className="glass rounded-lg border border-slate-700 overflow-hidden"><div className="bg-slate-800 p-2 text-center font-bold text-blue-200 text-xs uppercase">{monthName}</div><div className="grid grid-cols-7 text-[9px] text-slate-500 text-center py-1 bg-slate-900/30"><span>Pt</span><span>Sa</span><span>Ça</span><span>Pe</span><span>Cu</span><span>Ct</span><span>Pa</span></div><div className="grid grid-cols-7 gap-px bg-slate-800 p-px">{Array(offset).fill(null).map((_,k)=><div key={`e-${k}`} className="bg-slate-900 h-6"></div>)}{Array(daysInMonth).fill(null).map((_,k)=>{ const d = k+1; const dStr = `${year}-${String(monthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; const events = getAllEvents().filter(e => e.date === dStr); let bg = "bg-slate-900 hover:bg-slate-700"; let text = "text-slate-500"; if (isCurrentMonth && d === currentDay) { bg = "bg-cyan-500 shadow-lg shadow-cyan-500/50 z-10 scale-110 rounded"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'academic')) { bg = "bg-red-900"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'special')) { bg = "bg-pink-700"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'official')) { bg = "bg-amber-700"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'daily')) { bg = "bg-blue-900"; text = "text-white font-bold"; } return (<button key={d} onClick={() => handleDayClick(dStr, events)} className={`h-6 flex items-center justify-center text-[9px] ${bg} ${text}`}>{d}</button>) })}</div></div>) })}</div></div>)}
-                        
+                        {view === 'annual' && (
+                        <div className="animate-enter pb-16">
+                            <div className="flex justify-between items-center mb-3">
+                                <div className="flex gap-2">
+                                    <button onClick={() => { if(user.uniUrl) window.open(fixUrl(user.uniUrl), '_blank'); else alert('No University URL set. Please update it in Settings.'); }} className="text-[10px] bg-red-900 px-3 py-1.5 rounded border border-red-700">Uni Web</button>
+                                    <button onClick={() => fileInputRef.current.click()} className="text-[10px] bg-slate-800 px-3 py-1.5 rounded border border-slate-700">Import ICS</button>
+                                    <button onClick={() => { setAnnualMonth(new Date().getMonth()); setAnnualYear(new Date().getFullYear()); }} className="text-[11px] bg-cyan-700 hover:bg-cyan-600 text-white px-4 py-1.5 rounded border border-cyan-500 font-bold flex items-center gap-1"><i className="fas fa-calendar-day"></i> Today</button>
+                                    <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".ics" />
+                                </div>
+                            </div>
+                            <div className="glass rounded-lg border border-slate-700 overflow-hidden">
+                                <div className="bg-slate-800 p-3 flex items-center justify-between">
+                                    <button onClick={() => { if(annualMonth===0){setAnnualMonth(11);setAnnualYear(y=>y-1);}else setAnnualMonth(m=>m-1); }} className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-600 text-slate-200 text-xl font-bold">&lt;</button>
+                                    <span className="font-bold text-blue-200 text-sm uppercase">
+                                        {new Date(annualYear, annualMonth, 1).toLocaleString('en-US', {month:'long', year:'numeric'})}
+                                    </span>
+                                    <button onClick={() => { if(annualMonth===11){setAnnualMonth(0);setAnnualYear(y=>y+1);}else setAnnualMonth(m=>m+1); }} className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-600 text-slate-200 text-xl font-bold">&gt;</button>
+                                </div>
+                                <div className="grid grid-cols-7 text-[10px] text-slate-400 text-center py-2 bg-slate-900/30 font-bold border-b border-slate-700">
+                                    {['Mo','Tu','We','Th','Fr','Sa','Su'].map(d=><span key={d}>{d}</span>)}
+                                </div>
+                                <div className="grid grid-cols-7 p-1 gap-0.5">
+                                    {Array(new Date(annualYear,annualMonth,1).getDay()===0?6:new Date(annualYear,annualMonth,1).getDay()-1).fill(null).map((_,k)=>(
+                                        <div key={"e"+k} className="h-11"></div>
+                                    ))}
+                                    {Array(new Date(annualYear,annualMonth+1,0).getDate()).fill(null).map((_,k)=>{
+                                        const d=k+1;
+                                        const td=new Date();
+                                        const dStr=annualYear+"-"+String(annualMonth+1).padStart(2,'0')+"-"+String(d).padStart(2,'0');
+                                        const events=getAllEvents().filter(e=>e.date===dStr);
+                                        const isToday=td.getFullYear()===annualYear&&td.getMonth()===annualMonth&&td.getDate()===d;
+                                        let bg='bg-slate-900/80 hover:bg-slate-700',text='text-slate-400';
+                                        if(isToday){bg='bg-cyan-500 rounded-lg';text='text-white font-bold';}
+                                        else if(events.some(e=>e.category==='academic')){bg='bg-red-900/80';text='text-white font-bold';}
+                                        else if(events.some(e=>e.category==='special')){bg='bg-pink-700/80';text='text-white font-bold';}
+                                        else if(events.some(e=>e.category==='official')){bg='bg-amber-700/80';text='text-white font-bold';}
+                                        else if(events.some(e=>e.category==='daily')){bg='bg-blue-900/80';text='text-white font-bold';}
+                                        return(
+                                            <button key={d} onClick={()=>handleDayClick(dStr,events)} className={"h-11 flex flex-col items-center justify-center rounded text-xs "+bg+" "+text}>
+                                                <span>{d}</span>
+                                                {events.length>0&&<span className="w-1 h-1 rounded-full bg-white/80 mt-0.5"></span>}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                <div className="p-3 flex flex-wrap gap-2 border-t border-slate-700">
+                                    {[['bg-red-900','Academic'],['bg-pink-700','Special'],['bg-amber-700','Official'],['bg-blue-900','Personal'],['bg-cyan-500','Today']].map(([c,l])=>(
+                                        <div key={l} className="flex items-center gap-1">
+                                            <div className={"w-3 h-3 rounded "+c}></div>
+                                            <span className="text-[10px] text-slate-400">{l}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                         {/* SCHEDULE VIEW */}
                         {view === 'schedule' && (
                             <div className="animate-enter glass rounded-xl overflow-hidden border border-slate-700">
                                 <div className="p-3 bg-slate-800/50 flex justify-between items-center no-screenshot">
-                                    <div className="text-xs font-bold text-slate-400 uppercase">Haftalık Program</div>
-                                    <button onClick={() => setIsScreenshotMode(true)} className="bg-blue-600 text-white px-3 py-1.5 rounded text-[10px] font-bold hover:bg-blue-500 flex items-center gap-1">
-                                        <i className="fas fa-camera"></i> Ekran Görüntüsü
-                                    </button>
+                                    <div className="text-xs font-bold text-slate-400 uppercase">Weekly Schedule</div>
+                                    <div className="flex gap-1"><button onClick={() => sendToNative({type:'CONFIRM_DELETE_SCHEDULE'})} className="bg-red-700 text-white px-2 py-1.5 rounded text-[10px] font-bold flex items-center gap-1"><i className="fas fa-trash"></i> Sil</button><button onClick={exportScheduleToPDF} className="bg-blue-600 text-white px-3 py-1.5 rounded text-[10px] font-bold hover:bg-blue-500 flex items-center gap-1">
+                                        <i className="fas fa-camera"></i> Screenshot
+                                    </button></div>
                                 </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-xs border-collapse">
                                         <thead className="bg-slate-900 text-slate-400">
                                             <tr>
-                                                <th className="p-2 w-16 border border-slate-800 text-center">Saat</th>
+                                                <th className="p-2 w-16 border border-slate-800 text-center">Time</th>
                                                 {Object.keys(schedule).map(d=><th key={d} className="p-2 min-w-[80px] border border-slate-800 text-center">{d.substring(0,3)}</th>)}
                                             </tr>
                                         </thead>
@@ -1488,56 +1381,60 @@
                         )}
                         
                         {/* PROMOTION VIEW */}
-                        {view === 'promotion' && (<div className="animate-enter pb-20"><div className="glass p-4 rounded-xl border border-blue-500/20"><div className="flex justify-between items-center mb-4"><h3 className="font-bold text-slate-300 text-sm">PUAN CETVELİ</h3><button onClick={() => setCustomScores([...customScores, {id:Date.now(), name:"", value:0, count:0}])} className="text-[10px] bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-500"><i className="fas fa-plus mr-1"></i>Ekle</button></div><div className="grid grid-cols-12 gap-1 text-[9px] text-slate-500 uppercase font-bold px-1 mb-2"><div className="col-span-5">Faaliyet</div><div className="col-span-2 text-center">Puan</div><div className="col-span-2 text-center">Adet</div><div className="col-span-2 text-center">Top.</div><div className="col-span-1"></div></div><div className="space-y-2">{customScores.map(s => (<div key={s.id} className="grid grid-cols-12 gap-2 items-center bg-slate-900/50 p-2 rounded border border-slate-700"><div className="col-span-5"><input className="w-full bg-transparent text-sm text-slate-200 focus:outline-none placeholder-slate-600" placeholder="Faaliyet" value={s.name} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,name:e.target.value}:x))} /></div><div className="col-span-2"><input type="number" className="w-full bg-slate-900 text-center text-xs text-slate-400 rounded p-1" value={s.value} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,value:e.target.value}:x))} /></div><div className="col-span-2"><input type="number" className="w-full bg-slate-900 text-center text-xs text-white font-bold rounded p-1 border border-slate-600" value={s.count} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,count:e.target.value}:x))} /></div><div className="col-span-2 text-center text-xs font-bold text-blue-400">{(parseInt(s.value)||0) * (parseInt(s.count)||0)}</div><div className="col-span-1 text-right"><button onClick={()=>setCustomScores(customScores.filter(x=>x.id!==s.id))} className="text-slate-600 hover:text-red-400"><i className="fas fa-trash-alt"></i></button></div></div>))}</div><div className="mt-6 bg-slate-900 p-4 rounded-xl border border-slate-700 shadow-xl"><div className="flex justify-between items-center mb-4"><span className="text-xs text-slate-400 uppercase font-bold">Hedef Puan:</span><input type="number" className="w-20 bg-slate-900 border border-slate-600 rounded p-1 text-center text-sm font-bold text-white focus:border-blue-500 outline-none" value={targetScore} onChange={e => setTargetScore(parseInt(e.target.value)||0)} /></div><div className="flex justify-between text-sm font-bold mb-2"><span className="text-slate-300">MEVCUT</span><span className={totalCalculated>=targetScore?"text-emerald-400":"text-rose-400"}>{totalCalculated} / {targetScore}</span></div><div className="h-3 bg-slate-900 rounded-full overflow-hidden mb-2 border border-slate-700/50"><div className={`h-full transition-all duration-1000 ${totalCalculated>=targetScore?'bg-emerald-500':'bg-gradient-to-r from-blue-600 to-red-600'}`} style={{width: `${Math.min((totalCalculated/targetScore)*100, 100)}%`}}></div></div></div></div></div>)}
+                        {view === 'promotion' && (<div className="animate-enter pb-20"><div className="glass p-4 rounded-xl border border-blue-500/20"><div className="flex justify-between items-center mb-4"><h3 className="font-bold text-slate-300 text-sm">SCORE SHEET</h3><button onClick={() => setCustomScores([...customScores, {id:Date.now(), name:"", value:0, count:0}])} className="text-[10px] bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-500"><i className="fas fa-plus mr-1"></i>Add</button></div><div className="grid grid-cols-12 gap-1 text-[9px] text-slate-500 uppercase font-bold px-1 mb-2"><div className="col-span-5">Activity</div><div className="col-span-2 text-center">Score</div><div className="col-span-2 text-center">Count</div><div className="col-span-2 text-center">Total</div><div className="col-span-1"></div></div><div className="space-y-2">{customScores.map(s => (<div key={s.id} className="grid grid-cols-12 gap-2 items-center bg-slate-900/50 p-2 rounded border border-slate-700"><div className="col-span-5"><input className="w-full bg-transparent text-sm text-slate-200 focus:outline-none placeholder-slate-600" placeholder="Activity" value={s.name} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,name:e.target.value}:x))} /></div><div className="col-span-2"><input type="number" className="w-full bg-slate-900 text-center text-xs text-slate-400 rounded p-1" value={s.value} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,value:e.target.value}:x))} /></div><div className="col-span-2"><input type="number" className="w-full bg-slate-900 text-center text-xs text-white font-bold rounded p-1 border border-slate-600" value={s.count} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,count:e.target.value}:x))} /></div><div className="col-span-2 text-center text-xs font-bold text-blue-400">{(parseInt(s.value)||0) * (parseInt(s.count)||0)}</div><div className="col-span-1 text-right"><button onClick={()=>setCustomScores(customScores.filter(x=>x.id!==s.id))} className="text-slate-600 hover:text-red-400"><i className="fas fa-trash-alt"></i></button></div></div>))}</div><div className="mt-6 bg-slate-900 p-4 rounded-xl border border-slate-700 shadow-xl"><div className="flex justify-between items-center mb-4"><span className="text-xs text-slate-400 uppercase font-bold">Target Score:</span><input type="number" className="w-20 bg-slate-900 border border-slate-600 rounded p-1 text-center text-sm font-bold text-white focus:border-blue-500 outline-none" value={targetScore} onChange={e => setTargetScore(parseInt(e.target.value)||0)} /></div><div className="flex justify-between text-sm font-bold mb-2"><span className="text-slate-300">CURRENT</span><span className={totalCalculated>=targetScore?"text-emerald-400":"text-rose-400"}>{totalCalculated} / {targetScore}</span></div><div className="h-3 bg-slate-900 rounded-full overflow-hidden mb-2 border border-slate-700/50"><div className={`h-full transition-all duration-1000 ${totalCalculated>=targetScore?'bg-emerald-500':'bg-gradient-to-r from-blue-600 to-red-600'}`} style={{width: `${Math.min((totalCalculated/targetScore)*100, 100)}%`}}></div></div></div></div></div>)}
                     </div>
 
                     {/* SCREENSHOT MODE */}
                     {isScreenshotMode && (
-                        <div className="printable-content text-black h-screen p-8 bg-white fixed top-0 left-0 w-full z-[100] overflow-auto">
-                            <div className="text-center mb-6 border-b-2 border-black pb-4">
-                                <h1 className="text-3xl font-bold text-black uppercase tracking-wide">{user.name}</h1>
-                                <p className="text-lg text-gray-700 mt-1">{user.uni} • {user.title}</p>
-                                <p className="text-xs text-cyan-600 mt-1 signature">ZAPHYROS</p>
-                            </div>
-                            <div className="w-full">
-                                <h2 className="text-xl font-bold mb-4 text-center underline">HAFTALIK DERS PROGRAMI</h2>
-                                <table className="w-full text-xs border-collapse">
-                                    <thead>
-                                        <tr>
-                                            <th className="p-3 border border-black bg-gray-100 font-bold text-sm">Saat</th>
-                                            {Object.keys(schedule).map(d => <th key={d} className="p-3 border border-black bg-gray-100 font-bold text-sm">{d}</th>)}
-                                        </tr>
-                                    </thead>
+                        <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:100,background:'#000',display:'flex',flexDirection:'column'}}>
+                            <div id="ss-capture-area" style={{position:'absolute',top:'-9999px',left:0,background:'white',padding:'12px',width:'680px',fontFamily:'Arial,sans-serif'}}>
+                                <div style={{textAlign:'center',marginBottom:'12px',borderBottom:'2px solid black',paddingBottom:'8px'}}>
+                                    <div style={{fontSize:'18px',fontWeight:'bold',color:'black'}}>{user.name}</div>
+                                    <div style={{fontSize:'13px',color:'#555',marginTop:'4px'}}>{user.uni} - {user.title}</div>
+                                </div>
+                                <table style={{width:'100%',borderCollapse:'collapse',fontSize:'10px',tableLayout:'fixed'}}>
+                                    <thead><tr>
+                                        <th style={{padding:'4px',border:'1px solid black',background:'#f3f4f6',width:'48px',fontSize:'9px'}}>Time</th>
+                                        {Object.keys(schedule).map(d=><th key={d} style={{padding:'4px',border:'1px solid black',background:'#f3f4f6',fontSize:'9px',textAlign:'center'}}>{d}</th>)}
+                                    </tr></thead>
                                     <tbody>
-                                        {timeSlots.map((t, i) => (
+                                        {timeSlots.map((t,i)=>(
                                             <tr key={i}>
-                                                <td className="p-2 border border-black text-center font-bold bg-gray-50">{t}</td>
-                                                {Object.keys(schedule).map(d => { 
-                                                    const l = schedule[d][i]; 
-                                                    return (
-                                                        <td key={d} className="p-1 border border-black h-12 text-center relative">
-                                                            {l && (
-                                                                <div className={`text-[10px] font-bold p-2 h-full flex flex-col items-center justify-center ${LESSON_TYPES[l.type].className}`} style={{border: '1px solid black', color: 'white'}}>
-                                                                    <span className="block truncate w-full">{l.name}</span>
-                                                                    {(l.startTime && l.endTime) && <span className="block text-[9px] bg-black/20 px-1 rounded my-0.5">{l.startTime} - {l.endTime}</span>}
-                                                                    {l.classroom && <span className="text-[8px] italic">{l.classroom}</span>}
-                                                                </div>
-                                                            )}
+                                                <td style={{padding:'3px',border:'1px solid black',textAlign:'center',fontWeight:'bold',background:'#fafafa',fontSize:'8px',whiteSpace:'nowrap'}}>{t}</td>
+                                                {Object.keys(schedule).map(d=>{
+                                                    const l=schedule[d][i];
+                                                    const colors={lisans:'#0d9488',yuksek:'#4f46e5',doktora:'#e11d48',seminer:'#d97706'};
+                                                    return(
+                                                        <td key={d} style={{padding:'2px',border:'1px solid #333',textAlign:'center'}}>
+                                                            {l&&<div style={{fontSize:'8px',fontWeight:'bold',padding:'2px',borderRadius:'3px',background:colors[l.type]||'#6b7280',color:'white',overflow:'hidden',wordBreak:'break-word'}}><div>{l.name}</div>{l.startTime&&<div style={{fontSize:'7px',opacity:0.9}}>{l.startTime}-{l.endTime}</div>}{l.classroom&&<div style={{fontSize:'7px',opacity:0.85,fontStyle:'italic'}}>{l.classroom}</div>}</div>}
                                                         </td>
-                                                    )
+                                                    );
                                                 })}
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                             </div>
-                            <div className="mt-10 text-center text-sm text-gray-400 italic">(Moddan çıkmak için ekrana dokunun)</div>
+                            {ssImage ? (
+                                <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'8px'}}>
+                                    <img src={ssImage} style={{maxWidth:'100%',maxHeight:'80vh',objectFit:'contain',borderRadius:'8px'}} alt="program" />
+                                    <div style={{display:'flex',gap:'10px',marginTop:'12px'}}>
+                                        <button onClick={()=>sendToNative({type:'SAVE_PDF',data:ssImage,filename:'ders-programi.png'})} style={{background:'#2563eb',color:'white',border:'none',borderRadius:'10px',padding:'10px 20px',fontWeight:'bold'}}>Save</button>
+                                        <button onClick={()=>{setIsScreenshotMode(false);setSsImage(null);}} style={{background:'#374151',color:'white',border:'none',borderRadius:'10px',padding:'10px 20px',fontWeight:'bold'}}>Close</button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:'12px'}}>
+                                    <div style={{color:'white',fontSize:'16px'}}>Processing...</div>
+                                    <button onClick={()=>{setIsScreenshotMode(false);setSsImage(null);}} style={{background:'#374151',color:'white',border:'none',borderRadius:'10px',padding:'10px 20px'}}>Cancel</button>
+                                </div>
+                            )}
                         </div>
                     )}
 
                     {/* ALT NAVİGASYON */}
                     <div className="fixed bottom-0 w-full max-w-md bg-slate-900/95 backdrop-blur border-t border-slate-800 flex justify-around py-4 pb-8 z-50 no-screenshot">
-                        {[{id: 'flow', icon: 'stream', label: 'Akış'},{id: 'home', icon: 'home', label: 'Ana Sayfa'},{id: 'schedule', icon: 'table', label: 'Ders'},{id: 'annual', icon: 'calendar-alt', label: 'Yıllık'},{id: 'promotion', icon: 'chart-pie', label: 'Puan'}].map(t => (<button key={t.id} onClick={() => navigateTo(t.id)} className={`flex flex-col items-center gap-1 ${view === t.id ? 'text-blue-400' : 'text-slate-500 hover:text-slate-400'}`}><i className={`fas fa-${t.icon} text-lg`}></i><span className="text-[10px] uppercase font-bold">{t.label}</span></button>))}
+                        {[{id: 'flow', icon: 'stream', label: 'Flow'},{id: 'home', icon: 'home', label: 'Home'},{id: 'schedule', icon: 'table', label: 'Schedule'},{id: 'annual', icon: 'calendar-alt', label: 'Annual'},{id: 'promotion', icon: 'chart-pie', label: 'Score'}].map(t => (<button key={t.id} onClick={() => navigateTo(t.id)} className={`flex flex-col items-center gap-1 ${view === t.id ? 'text-blue-400' : 'text-slate-500 hover:text-slate-400'}`}><i className={`fas fa-${t.icon} text-lg`}></i><span className="text-[10px] uppercase font-bold">{t.label}</span></button>))}
                     </div>
 
                     {/* POMODORO BUTTON */}
@@ -1548,7 +1445,7 @@
                         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot">
                             <div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[80vh] overflow-y-auto">
                                 <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-white font-bold">Önemli Akademik Linkler</h3>
+                                    <h3 className="text-white font-bold">Important Academic Links</h3>
                                     <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-white">
                                         <i className="fas fa-times"></i>
                                     </button>
@@ -1558,7 +1455,7 @@
                                     <div className="bg-blue-900/30 p-3 rounded border border-blue-700">
                                         <p className="text-xs text-blue-300 mb-2">
                                             <i className="fas fa-info-circle mr-1"></i>
-                                            Aşağıdaki linklerde adınızla arama yapılacak
+                                            The following links will search by your name
                                         </p>
                                     </div>
                                     
@@ -1575,23 +1472,23 @@
                                     </button>
                                                                         
                                     <button 
-                                        onClick={() => window.open(`https://dergipark.org.tr/en/search?q=${encodeURIComponent(user.name)}`, '_blank')}
+                                        onClick={() => window.open(`https://www.semanticscholar.org/search?q=${encodeURIComponent(user.name)}`, '_blank')}
                                         className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 p-3 rounded-lg text-white flex items-center justify-between hover:from-indigo-700 hover:to-indigo-800 transition"
                                     >
                                         <div className="flex items-center gap-3">
                                             <i className="fas fa-book text-xl"></i>
-                                            <span className="font-semibold text-sm">DergiPark</span>
+                                            <span className="font-semibold text-sm">Semantic Scholar</span>
                                         </div>
                                         <i className="fas fa-external-link-alt text-xs"></i>
                                     </button>
                                     
                                     <button 
-                                        onClick={() => window.open(`https://search.trdizin.gov.tr/tr/yazar/ara?q=${encodeURIComponent(user.name)}`, '_blank')}
+                                        onClick={() => window.open(`https://www.webofscience.com/wos/author/search?queryStr=${encodeURIComponent(user.name)}`, '_blank')}
                                         className="w-full bg-gradient-to-r from-orange-600 to-orange-700 p-3 rounded-lg text-white flex items-center justify-between hover:from-orange-700 hover:to-orange-800 transition"
                                     >
                                         <div className="flex items-center gap-3">
                                             <i className="fas fa-microscope text-xl"></i>
-                                            <span className="font-semibold text-sm">TR DİZİN</span>
+                                            <span className="font-semibold text-sm">Web of Science</span>
                                         </div>
                                         <i className="fas fa-external-link-alt text-xs"></i>
                                     </button>
@@ -1610,29 +1507,29 @@
                                     <hr className="border-slate-600 my-4" />
                                     
                                     <div className="bg-slate-900/50 p-2 rounded">
-                                        <p className="text-[10px] text-slate-400 text-center uppercase font-bold mb-2">Genel Platformlar</p>
+                                        <p className="text-[10px] text-slate-400 text-center uppercase font-bold mb-2">General Platforms</p>
                                     </div>
                                     
                                     {/* Sabit Linkler */}
                                    {/* Sabit Linkler - YÖK Tez ve YÖK Akademik EN ÜSTTE */}
                                     <button 
-                                        onClick={() => window.open('https://tez.yok.gov.tr/UlusalTezMerkezi/', '_blank')}
+                                        onClick={() => window.open('https://pubmed.ncbi.nlm.nih.gov/', '_blank')}
                                         className="w-full bg-slate-700 p-3 rounded-lg text-white flex items-center justify-between hover:bg-slate-600 transition border border-slate-600"
                                     >
                                         <div className="flex items-center gap-3">
                                             <i className="fas fa-database text-lg"></i>
-                                            <span className="font-semibold text-sm">YÖK Tez</span>
+                                            <span className="font-semibold text-sm">PubMed</span>
                                         </div>
                                         <i className="fas fa-external-link-alt text-xs"></i>
                                     </button>
                                     
                                     <button 
-                                        onClick={() => window.open('https://akademik.yok.gov.tr/AkademikArama/', '_blank')}
+                                        onClick={() => window.open('https://www.scopus.com/', '_blank')}
                                         className="w-full bg-slate-700 p-3 rounded-lg text-white flex items-center justify-between hover:bg-slate-600 transition border border-slate-600"
                                     >
                                         <div className="flex items-center gap-3">
                                             <i className="fas fa-newspaper text-lg"></i>
-                                            <span className="font-semibold text-sm">YÖK Akademik</span>
+                                            <span className="font-semibold text-sm">Scopus</span>
                                         </div>
                                         <i className="fas fa-external-link-alt text-xs"></i>
                                     </button>
@@ -1646,7 +1543,7 @@
                                                         <input 
                                                             type="text"
                                                             className="w-full input-dark p-2 rounded text-sm"
-                                                            placeholder="Buton Adı"
+                                                            placeholder="Button Name"
                                                             value={tempLinkName}
                                                             onChange={(e) => setTempLinkName(e.target.value)}
                                                         />
@@ -1662,7 +1559,7 @@
                                                                 onClick={saveCustomLink}
                                                                 className="flex-1 bg-blue-600 text-white py-2 rounded text-sm hover:bg-blue-500"
                                                             >
-                                                                <i className="fas fa-check mr-1"></i> Kaydet
+                                                                <i className="fas fa-check mr-1"></i> Save
                                                             </button>
                                                             <button 
                                                                 onClick={() => {
@@ -1672,11 +1569,11 @@
                                                                 }}
                                                                 className="flex-1 bg-slate-600 text-white py-2 rounded text-sm hover:bg-slate-500"
                                                             >
-                                                                İptal
+                                                                Cancel
                                                             </button>
                                                             <button 
                                                                 onClick={() => {
-                                                                    if(confirm("Bu linki silmek istiyor musunuz?")) {
+                                                                    if(confirm("Are you sure you want to delete this link?")) {
                                                                         setCustomLinks(customLinks.filter(l => l.id !== editingLinkId));
                                                                         setEditingLinkId(null);
                                                                     }
@@ -1719,19 +1616,19 @@
                                     ))}
                                 </div> {/* bg-slate-800 div'ini kapatır */}
                                 
-                                {/* Yeni Link Ekle Butonu */}
+                                {/* Add New Link */}
                                 <div className="mt-4 pt-4 border-t border-slate-700">
                                     <button 
                                         onClick={() => {
-                                            const newLink = {id: Date.now(), name: "Yeni Link", url: "", icon: "link"};
+                                            const newLink = {id: Date.now(), name: "New Link", url: "", icon: "link"};
                                             setCustomLinks([...customLinks, newLink]);
                                             setEditingLinkId(newLink.id);
-                                            setTempLinkName("Yeni Link");
+                                            setTempLinkName("New Link");
                                             setTempLinkUrl("");
                                         }}
                                         className="w-full bg-slate-700 hover:bg-slate-600 border border-dashed border-slate-500 text-slate-300 py-3 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition"
                                     >
-                                        <i className="fas fa-plus"></i> Yeni Link Ekle
+                                        <i className="fas fa-plus"></i> Add New Link
                                     </button>
                                 </div>
                             </div> {/* fixed inset-0 div'ini kapatır */}
@@ -1743,7 +1640,7 @@
                         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot">
                             <div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl">
                                 <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-white font-bold">Akademik Takvim</h3>
+                                    <h3 className="text-white font-bold">Academic Calendar</h3>
                                     <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-white">
                                         <i className="fas fa-times"></i>
                                     </button>
@@ -1751,11 +1648,11 @@
                                 
                                 <div className="space-y-4">
                                     <div>
-                                        <label className="text-xs text-slate-400 block mb-2">Akademik Takvim Linki</label>
+                                        <label className="text-xs text-slate-400 block mb-2">Academic Calendar Link</label>
                                         <input 
                                             type="text" 
                                             className="w-full input-dark p-3 rounded text-sm" 
-                                            placeholder="https:// veya www. ile başlayan link"
+                                            placeholder="Link starting with https:// or www."
                                             value={academicCalendarUrl}
                                             onChange={(e) => setAcademicCalendarUrl(e.target.value)}
                                         />
@@ -1768,7 +1665,7 @@
                                                 className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-500 transition"
                                             >
                                                 <i className="fas fa-external-link-alt mr-2"></i>
-                                                Takvimi Aç
+                                                Open Calendar
                                             </button>
                                         )}
                                         <button 
@@ -1781,7 +1678,7 @@
                                     
                                     {!academicCalendarUrl && (
                                         <p className="text-xs text-slate-500 text-center mt-2">
-                                            www. ile başlayan adreslere otomatik https:// eklenir
+                                            Addresses starting with www. get https:// automatically
                                         </p>
                                     )}
                                 </div>
@@ -1793,21 +1690,21 @@
                     {activeModal === 'addLesson' && (
                         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot overflow-y-auto">
                             <div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl my-8">
-                                <h3 className="text-white font-bold mb-4 text-lg">Yeni Ders Ekle</h3>
+                                <h3 className="text-white font-bold mb-4 text-lg">Add New Course</h3>
                                 
                                 <div className="space-y-4">
                                     <div>
-                                        <label className="text-xs text-slate-400 block mb-1">Ders Adı *</label>
+                                        <label className="text-xs text-slate-400 block mb-1">Course Name *</label>
                                         <input 
                                             className="w-full input-dark p-3 rounded" 
-                                            placeholder="örn: Algoritma ve Veri Yapıları"
+                                            placeholder="e.g. Algorithms & Data Structures"
                                             value={lessonName} 
                                             onChange={e => setLessonName(e.target.value)} 
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="text-xs text-slate-400 block mb-1">Ders Tipi *</label>
+                                        <label className="text-xs text-slate-400 block mb-1">Course Type *</label>
                                         <div className="grid grid-cols-2 gap-2">
                                             {Object.entries(LESSON_TYPES).map(([k, v]) => (
                                                 <button 
@@ -1823,12 +1720,12 @@
 
                                     <div>
                                         <div className="flex justify-between items-center mb-2">
-                                            <label className="text-xs text-slate-400">Zaman Dilimleri ({lessonSlots.length})</label>
+                                            <label className="text-xs text-slate-400">Time Slots ({lessonSlots.length})</label>
                                             <button 
                                                 onClick={addLessonSlot}
                                                 className="text-xs bg-emerald-600 text-white px-3 py-1 rounded hover:bg-emerald-500"
                                             >
-                                                <i className="fas fa-plus mr-1"></i>Ekle
+                                                <i className="fas fa-plus mr-1"></i>Add
                                             </button>
                                         </div>
                                         
@@ -1853,7 +1750,7 @@
                                                             value={slot.day}
                                                             onChange={(e) => updateLessonSlot(slot.id, 'day', e.target.value)}
                                                         >
-                                                            {DAYS_TR.map(day => <option key={day} value={day}>{day}</option>)}
+                                                            {DAYS_EN.map(day => <option key={day} value={day}>{day}</option>)}
                                                         </select>
                                                         
                                                         <div className="grid grid-cols-2 gap-2">
@@ -1873,7 +1770,7 @@
                                                         
                                                         <input 
                                                             className="w-full input-dark p-2 rounded text-sm" 
-                                                            placeholder="Sınıf (örn: A101)"
+                                                            placeholder="Classroom (e.g. A101)"
                                                             value={slot.classroom}
                                                             onChange={(e) => updateLessonSlot(slot.id, 'classroom', e.target.value)}
                                                         />
@@ -1888,13 +1785,13 @@
                                     <button 
                                         onClick={() => {
                                             setActiveModal(null);
-                                            setLessonSlots([{ id: Date.now(), day: "Pazartesi", startTime: "09:00", endTime: "10:00", classroom: "" }]);
+                                            setLessonSlots([{ id: Date.now(), day: "Monday", startTime: "09:00", endTime: "10:00", classroom: "" }]);
                                             setLessonName("");
                                             setLessonType("lisans");
                                         }} 
                                         className="flex-1 py-3 rounded bg-slate-700 text-slate-400 hover:bg-slate-600"
                                     >
-                                        İptal
+                                        Cancel
                                     </button>
                                     <button 
                                         onClick={handleAddMultiLesson} 
@@ -1913,7 +1810,7 @@
                         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot">
                             <div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[85vh] overflow-y-auto">
                                 <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-white font-bold flex items-center gap-2"><i className="fas fa-robot text-violet-400"></i> AI Araçları</h3>
+                                    <h3 className="text-white font-bold flex items-center gap-2"><i className="fas fa-robot text-violet-400"></i> AI Tools</h3>
                                     <button onClick={() => { setActiveModal(null); setEditingAiLinkId(null); }} className="text-slate-400 hover:text-white"><i className="fas fa-times"></i></button>
                                 </div>
                                 
@@ -1926,7 +1823,7 @@
                                                         <input 
                                                             type="text"
                                                             className="w-full input-dark p-2 rounded text-sm"
-                                                            placeholder="Buton adı..."
+                                                            placeholder="Button name..."
                                                             value={tempAiLinkName}
                                                             onChange={(e) => setTempAiLinkName(e.target.value)}
                                                         />
@@ -1939,10 +1836,10 @@
                                                         />
                                                         <div className="flex gap-2">
                                                             <button onClick={saveAiLink} className="flex-1 bg-violet-600 text-white py-2 rounded text-sm hover:bg-violet-500">
-                                                                <i className="fas fa-check mr-1"></i> Kaydet
+                                                                <i className="fas fa-check mr-1"></i> Save
                                                             </button>
-                                                            <button onClick={() => { setEditingAiLinkId(null); setTempAiLinkName(""); setTempAiLinkUrl(""); }} className="flex-1 bg-slate-600 text-white py-2 rounded text-sm hover:bg-slate-500">İptal</button>
-                                                            <button onClick={() => { if(confirm("Bu AI aracını silmek istiyor musunuz?")) { setAiLinks(aiLinks.filter(l => l.id !== editingAiLinkId)); setEditingAiLinkId(null); } }} className="bg-red-700 text-white py-2 px-3 rounded text-sm hover:bg-red-600"><i className="fas fa-trash"></i></button>
+                                                            <button onClick={() => { setEditingAiLinkId(null); setTempAiLinkName(""); setTempAiLinkUrl(""); }} className="flex-1 bg-slate-600 text-white py-2 rounded text-sm hover:bg-slate-500">Cancel</button>
+                                                            <button onClick={() => { if(confirm("Are you sure you want to delete this AI tool?")) { setAiLinks(aiLinks.filter(l => l.id !== editingAiLinkId)); setEditingAiLinkId(null); } }} className="bg-red-700 text-white py-2 px-3 rounded text-sm hover:bg-red-600"><i className="fas fa-trash"></i></button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1973,17 +1870,17 @@
                                 <div className="mt-4 pt-4 border-t border-slate-700">
                                     <button 
                                         onClick={() => {
-                                            const newLink = {id: Date.now(), name: "Yeni AI Aracı", url: "", icon: "robot", color: "from-slate-600 to-slate-700"};
+                                            const newLink = {id: Date.now(), name: "New AI Tool", url: "", icon: "robot", color: "from-slate-600 to-slate-700"};
                                             setAiLinks([...aiLinks, newLink]);
                                             setEditingAiLinkId(newLink.id);
-                                            setTempAiLinkName("Yeni AI Aracı");
+                                            setTempAiLinkName("New AI Tool");
                                             setTempAiLinkUrl("");
                                         }}
                                         className="w-full bg-slate-700 hover:bg-slate-600 border border-dashed border-slate-500 text-slate-300 py-3 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition mb-3"
                                     >
-                                        <i className="fas fa-plus"></i> Yeni AI Aracı Ekle
+                                        <i className="fas fa-plus"></i> Add New AI Tool
                                     </button>
-                                    <p className="text-[10px] text-slate-500 text-center"><i className="fas fa-info-circle mr-1"></i>Buton üzerinde kaydırarak düzenle ikonuna ulaşabilirsiniz</p>
+                                    <p className="text-[10px] text-slate-500 text-center"><i className="fas fa-info-circle mr-1"></i>Swipe the button to access the edit icon</p>
                                 </div>
                             </div>
                         </div>
@@ -1999,15 +1896,15 @@
                         />
                     )}
 
-                    {activeModal === 'settings' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl relative"><button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><i className="fas fa-times"></i></button><h3 className="text-white font-bold mb-4">Ayarlar</h3><form onSubmit={handleUpdateUser} className="space-y-4"><div><label className="text-xs text-slate-400">Unvan</label><select name="title" defaultValue={user.title} className="w-full input-dark p-3 rounded-lg">{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select></div><div><label className="text-xs text-slate-400">Ad Soyad</label><input name="name" defaultValue={user.name} required className="w-full input-dark p-3 rounded-lg" /></div><div><label className="text-xs text-slate-400">Üniversite</label><select name="uni" defaultValue={user.uni} className="w-full input-dark p-3 rounded-lg">{UNIVERSITIES.map(u => <option key={u.name} value={u.name}>{u.name}</option>)}</select></div><div className="flex items-center gap-3 pt-2"><input type="checkbox" name="enablePrayer" defaultChecked={user.enablePrayer} className="w-5 h-5 accent-blue-500" /><span className="text-sm text-slate-300">Namaz Vakitlerini Göster</span></div><button className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-500">Kaydet</button></form><hr className="border-slate-700 my-4" />
+                    {activeModal === 'settings' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl relative"><button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><i className="fas fa-times"></i></button><h3 className="text-white font-bold mb-4">Settings</h3><form onSubmit={handleUpdateUser} className="space-y-4"><div><label className="text-xs text-slate-400">Title</label><select name="title" defaultValue={user.title} className="w-full input-dark p-3 rounded-lg">{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select></div><div><label className="text-xs text-slate-400">Full Name</label><input name="name" defaultValue={user.name} required className="w-full input-dark p-3 rounded-lg" /></div><div><label className="text-xs text-slate-400">University</label><input name="uni" defaultValue={user.uni} placeholder="University Name" className="w-full input-dark p-3 rounded-lg" /></div><div><label className="text-xs text-slate-400">University URL</label><input name="uniUrl" defaultValue={user.uniUrl} placeholder="https://..." className="w-full input-dark p-3 rounded-lg" /></div><div className="grid grid-cols-2 gap-2"><div><label className="text-xs text-slate-400">Country</label><input name="country" defaultValue={user.country} required placeholder="e.g. Turkey" className="w-full input-dark p-3 rounded-lg" /></div><div><label className="text-xs text-slate-400">City</label><input name="city" defaultValue={user.city} required placeholder="e.g. Ankara" className="w-full input-dark p-3 rounded-lg" /></div></div><div className="flex items-center gap-3 pt-2"><input type="checkbox" name="enablePrayer" defaultChecked={user.enablePrayer} className="w-5 h-5 accent-blue-500" /><span className="text-sm text-slate-300">Show Prayer Times</span></div><button className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-500">Save</button></form><hr className="border-slate-700 my-4" />
                                 <div className="mb-4">
-                                    <label className="text-xs text-slate-400 block mb-2">🔔 Bildirim Sesi</label>
+                                    <label className="text-xs text-slate-400 block mb-2">🔔 Notification Sound</label>
                                     <div className="grid grid-cols-2 gap-2">
                                         {[
-                                            {id:'default', label:'🔔 Varsayılan'},
+                                            {id:'default', label:'🔔 Default'},
                                             {id:'alarm', label:'⏰ Alarm'},
-                                            {id:'chime', label:'🎵 Çan'},
-                                            {id:'silent', label:'🔇 Sessiz'},
+                                            {id:'chime', label:'🎵 Chime'},
+                                            {id:'silent', label:'🔇 Silent'},
                                         ].map(s => (
                                             <button 
                                                 key={s.id}
@@ -2017,23 +1914,23 @@
                                         ))}
                                     </div>
                                 </div>
-                                <hr className="border-slate-700 my-4" /><div className="flex gap-2"><button onClick={exportData} className="flex-1 bg-green-900/50 border border-green-800 text-green-100 text-xs py-2 rounded hover:bg-green-800">Yedek İndir (.json)</button><button onClick={importData} className="flex-1 bg-blue-900/50 border border-blue-800 text-blue-100 text-xs py-2 rounded hover:bg-blue-800">Yedek Yükle</button></div></div></div>)}
+                                <hr className="border-slate-700 my-4" /><div className="flex gap-2"><button onClick={exportData} className="flex-1 bg-green-900/50 border border-green-800 text-green-100 text-xs py-2 rounded hover:bg-green-800">Download Backup (.json)</button><button onClick={importData} className="flex-1 bg-blue-900/50 border border-blue-800 text-blue-100 text-xs py-2 rounded hover:bg-blue-800">Import Backup</button></div></div></div>)}
                     
                     {/* GÖREV EKLEME/DÜZENLEME MODAL */}
-                    {activeModal === 'task' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto"><h3 className="text-white font-bold mb-4">{editingTask ? 'Görevi Düzenle' : 'Yeni Hatırlatıcı'}</h3><div className="space-y-3"><input className="w-full input-dark p-3 rounded" placeholder="Başlık" value={newTask.title} onChange={e=>{setNewTask({...newTask,title:e.target.value}); setConflictWarn(null);}} /><div className="grid grid-cols-2 gap-2"><select className="w-full input-dark p-3 rounded" value={newTask.category} onChange={e=>setNewTask({...newTask,category:e.target.value})}><option value="daily">Gündelik İş (Mavi)</option><option value="official">Resmi Toplantı (Sarı)</option><option value="special">Özel Gün (Pembe - Yıllık Tekrar)</option></select><input type="time" className="w-full input-dark p-3 rounded" value={newTask.time} onChange={e=>{setNewTask({...newTask,time:e.target.value}); setConflictWarn(null);}} /></div><input type="date" className="w-full input-dark p-3 rounded" value={newTask.date} onChange={e=>{setNewTask({...newTask,date:e.target.value}); setConflictWarn(null);}} /><textarea className="w-full input-dark p-3 rounded h-20 resize-none" placeholder="Açıklama..." value={newTask.desc} onChange={e=>setNewTask({...newTask,desc:e.target.value})}></textarea>{newTask.category !== 'special' && (<div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700"><div className="mb-2"><span className="text-xs text-slate-300 font-bold">Rutin Tekrar Seçeneği</span></div><select className="w-full input-dark p-2 rounded text-sm" value={recurringType} onChange={e=>setRecurringType(e.target.value)} disabled={!!editingTask}><option value="none">Tekrar Yok</option><option value="weekly">Haftalık</option><option value="biweekly">İki Haftada Bir</option><option value="monthly">Aylık</option></select>{recurringType !== "none" && recurringType !== "monthly" && (<div className="flex items-center gap-2 mt-2 animate-enter"><span className="text-[10px] text-slate-400">Kaç Kez?</span><input type="number" value={recurringWeeks} onChange={e=>setRecurringWeeks(parseInt(e.target.value))} className="w-16 bg-slate-900 border border-slate-600 rounded p-1 text-center text-white text-xs" /></div>)}{recurringType === "monthly" && (<p className="text-[10px] text-slate-400 mt-2">12 ay boyunca her ay tekrarlanacak</p>)}</div>)}{newTask.category === 'special' && (<div className="bg-pink-900/20 p-3 rounded-lg border border-pink-700"><p className="text-xs text-pink-300"><i className="fas fa-info-circle mr-1"></i>Özel günler her yıl otomatik olarak tekrarlanır</p></div>)}</div><div className="flex gap-2 mt-4"><button onClick={()=>{setActiveModal(null); setEditingTask(null); setNewTask({title:"", date:"", time:"", desc:"", type:"task", category:"daily"}); setRecurringType("none");}} className="flex-1 py-3 rounded bg-slate-700 text-slate-400 hover:bg-slate-600">İptal</button><button onClick={handleAddTask} className={`flex-1 py-3 rounded text-white font-bold transition ${conflictWarn ? 'bg-red-600 hover:bg-red-700 animate-pulse' : 'bg-blue-600 hover:bg-blue-500'}`}>{conflictWarn ? '⚠️ Yine de Ekle?' : (editingTask ? 'Güncelle' : 'Kaydet')}</button></div>{conflictWarn && <div className="mt-2 text-center text-xs text-red-300 bg-red-900/20 p-2 rounded">{conflictWarn}</div>}</div></div>)}
+                    {activeModal === 'task' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto"><h3 className="text-white font-bold mb-4">{editingTask ? 'Edit Task' : 'New Reminder'}</h3><div className="space-y-3"><input className="w-full input-dark p-3 rounded" placeholder="Title" value={newTask.title} onChange={e=>{setNewTask({...newTask,title:e.target.value}); setConflictWarn(null);}} /><div className="grid grid-cols-2 gap-2"><select className="w-full input-dark p-3 rounded" value={newTask.category} onChange={e=>setNewTask({...newTask,category:e.target.value})}><option value="daily">Daily Task (Blue)</option><option value="academic">Academic (Red)</option><option value="official">Official Meeting (Yellow)</option><option value="special">Special Day (Pink - Annual)</option></select><input type="time" className="w-full input-dark p-3 rounded" value={newTask.time} onChange={e=>{setNewTask({...newTask,time:e.target.value}); setConflictWarn(null);}} /></div><input type="date" className="w-full input-dark p-3 rounded" value={newTask.date} onChange={e=>{setNewTask({...newTask,date:e.target.value}); setConflictWarn(null);}} /><textarea className="w-full input-dark p-3 rounded h-20 resize-none" placeholder="Description..." value={newTask.desc} onChange={e=>setNewTask({...newTask,desc:e.target.value})}></textarea>{newTask.category !== 'special' && (<div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700"><div className="mb-2"><span className="text-xs text-slate-300 font-bold">Recurring Option</span></div><select className="w-full input-dark p-2 rounded text-sm" value={recurringType} onChange={e=>setRecurringType(e.target.value)} disabled={!!editingTask}><option value="none">No Recurrence</option><option value="weekly">Weekly</option><option value="biweekly">Biweekly</option><option value="monthly">Monthly</option></select>{recurringType !== "none" && recurringType !== "monthly" && (<div className="flex items-center gap-2 mt-2 animate-enter"><span className="text-[10px] text-slate-400">How Many?</span><input type="number" value={recurringWeeks} onChange={e=>setRecurringWeeks(parseInt(e.target.value))} className="w-16 bg-slate-900 border border-slate-600 rounded p-1 text-center text-white text-xs" /></div>)}{recurringType === "monthly" && (<p className="text-[10px] text-slate-400 mt-2">Will repeat monthly for 12 months</p>)}</div>)}{newTask.category === 'special' && (<div className="bg-pink-900/20 p-3 rounded-lg border border-pink-700"><p className="text-xs text-pink-300"><i className="fas fa-info-circle mr-1"></i>Special days automatically repeat every year</p></div>)}</div><div className="flex gap-2 mt-4"><button onClick={()=>{setActiveModal(null); setEditingTask(null); setNewTask({title:"", date:"", time:"", desc:"", type:"task", category:"daily"}); setRecurringType("none");}} className="flex-1 py-3 rounded bg-slate-700 text-slate-400 hover:bg-slate-600">Cancel</button><button onClick={handleAddTask} className={`flex-1 py-3 rounded text-white font-bold transition ${conflictWarn ? 'bg-red-600 hover:bg-red-700 animate-pulse' : 'bg-blue-600 hover:bg-blue-500'}`}>{conflictWarn ? '⚠️ Add Anyway?' : (editingTask ? 'Update' : 'Save')}</button></div>{conflictWarn && <div className="mt-2 text-center text-xs text-red-300 bg-red-900/20 p-2 rounded">{conflictWarn}</div>}</div></div>)}
                     
                     {/* NOTLAR MODAL */}
-                    {activeModal === 'notes' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl h-[60vh] flex flex-col"><div className="flex justify-between mb-4"><h3 className="text-white font-bold">Not Defteri</h3><button onClick={()=>setActiveModal(null)}><i className="fas fa-times text-slate-400"></i></button></div><div className="flex gap-2 mb-4"><input className="flex-1 input-dark p-2 rounded" placeholder="Notunuz..." value={newNote} onChange={e=>setNewNote(e.target.value)} /><button onClick={handleAddNote} className="bg-blue-600 px-4 rounded text-white"><i className="fas fa-plus"></i></button></div><div className="flex-1 overflow-y-auto space-y-2">{notes.map(n=><div key={n.id} className="bg-slate-700 p-3 rounded flex justify-between items-start"><div><p className="text-sm text-white">{n.text}</p><p className="text-[10px] text-slate-400">{n.date}</p></div><button onClick={()=>setNotes(notes.filter(x=>x.id!==n.id))} className="text-red-400"><i className="fas fa-trash"></i></button></div>)}</div></div></div>)}
+                    {activeModal === 'notes' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl h-[60vh] flex flex-col"><div className="flex justify-between mb-4"><h3 className="text-white font-bold">Notebook</h3><button onClick={()=>setActiveModal(null)}><i className="fas fa-times text-slate-400"></i></button></div><div className="flex gap-2 mb-4"><input className="flex-1 input-dark p-2 rounded" placeholder="Your note..." value={newNote} onChange={e=>setNewNote(e.target.value)} /><button onClick={handleAddNote} className="bg-blue-600 px-4 rounded text-white"><i className="fas fa-plus"></i></button></div><div className="flex-1 overflow-y-auto space-y-2">{notes.map(n=><div key={n.id} className="bg-slate-700 p-3 rounded flex justify-between items-start"><div><p className="text-sm text-white">{n.text}</p><p className="text-[10px] text-slate-400">{n.date}</p></div><button onClick={()=>setNotes(notes.filter(x=>x.id!==n.id))} className="text-red-400"><i className="fas fa-trash"></i></button></div>)}</div></div></div>)}
                     
                     {/* DERS DÜZENLEME MODALI */}
                     {activeModal === 'lesson' && editingLesson && (
                         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot">
                             <div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto">
-                                <h3 className="text-white font-bold mb-4">Ders Düzenle</h3>
+                                <h3 className="text-white font-bold mb-4">Edit Course</h3>
                                 
                                 <div className="space-y-4">
                                     <div>
-                                        <label className="text-xs text-slate-400 block mb-1">Ders Adı</label>
+                                        <label className="text-xs text-slate-400 block mb-1">Course Name</label>
                                         <input 
                                             className="w-full input-dark p-3 rounded" 
                                             value={editingLesson.data.name} 
@@ -2043,7 +1940,7 @@
 
                                     <div className="grid grid-cols-2 gap-2">
                                         <div>
-                                            <label className="text-xs text-slate-400 block mb-1">Başlangıç</label>
+                                            <label className="text-xs text-slate-400 block mb-1">Start</label>
                                             <input 
                                                 type="time" 
                                                 className="w-full input-dark p-3 rounded" 
@@ -2052,7 +1949,7 @@
                                             />
                                         </div>
                                         <div>
-                                            <label className="text-xs text-slate-400 block mb-1">Bitiş</label>
+                                            <label className="text-xs text-slate-400 block mb-1">End</label>
                                             <input 
                                                 type="time" 
                                                 className="w-full input-dark p-3 rounded" 
@@ -2063,17 +1960,17 @@
                                     </div>
 
                                     <div>
-                                        <label className="text-xs text-slate-400 block mb-1">Sınıf/Derslik</label>
+                                        <label className="text-xs text-slate-400 block mb-1">Classroom</label>
                                         <input 
                                             className="w-full input-dark p-3 rounded" 
-                                            placeholder="örn: A101" 
+                                            placeholder="e.g. A101" 
                                             value={editingLesson.data.classroom || ""} 
                                             onChange={e=>setEditingLesson({...editingLesson,data:{...editingLesson.data,classroom:e.target.value}})} 
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="text-xs text-slate-400 block mb-1">Süre (Saat)</label>
+                                        <label className="text-xs text-slate-400 block mb-1">Duration (Hours)</label>
                                         <input 
                                             type="number" 
                                             min="1" 
@@ -2085,7 +1982,7 @@
                                     </div>
 
                                     <div>
-                                        <label className="text-xs text-slate-400 block mb-1">Tür (Renk Seçimi)</label>
+                                        <label className="text-xs text-slate-400 block mb-1">Type (Color)</label>
                                         <div className="grid grid-cols-2 gap-2">
                                             {Object.entries(LESSON_TYPES).map(([k,v])=>(
                                                 <button 
@@ -2105,19 +2002,19 @@
                                         onClick={() => {setActiveModal(null); setEditingLesson(null);}}
                                         className="py-3 rounded bg-slate-700 text-slate-400 hover:bg-slate-600"
                                     >
-                                        Vazgeç
+                                        Cancel
                                     </button>
                                     <button 
                                         onClick={deleteLesson} 
                                         className="py-3 rounded bg-red-900/50 text-red-400 hover:bg-red-900/70 border border-red-800"
                                     >
-                                        Sil
+                                        Delete
                                     </button>
                                     <button 
                                         onClick={saveLesson} 
                                         className="py-3 rounded bg-blue-600 text-white font-bold hover:bg-blue-500"
                                     >
-                                        Kaydet
+                                        Save
                                     </button>
                                 </div>
                             </div>
@@ -2125,7 +2022,7 @@
                     )}
                     
                     {/* GÜN DETAY MODALI */}
-                    {activeModal === 'dayDetail' && dayDetailData && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[80vh] overflow-y-auto"><div className="flex justify-between items-center mb-4"><h3 className="text-white font-bold">{dayDetailData.date} Detayı</h3><button onClick={() => { setActiveModal(null); setDayDetailData(null); }} className="text-slate-400 hover:text-white"><i className="fas fa-times"></i></button></div><div className="space-y-3">{dayDetailData.events.map((ev, i) => (<div key={i} className={`p-3 rounded border-l-4 flex justify-between items-center ${ev.category==='academic'?'bg-red-900/30 border-red-500': ev.category==='official'?'bg-amber-900/30 border-amber-500': ev.category==='special'?'bg-pink-900/30 border-pink-500':'bg-blue-900/30 border-blue-500'}`} onClick={() => { if(ev.origin === 'personal' && !ev.isRecurring) { openEditTask(ev); setDayDetailData(null); } }}><div><div className="text-sm font-bold text-white">{ev.event}{ev.isRecurring && <span className="text-[10px] ml-2 bg-pink-600 px-2 py-0.5 rounded">Döngüsel</span>}</div>{ev.time && <div className="text-xs text-slate-400 mt-1"><i className="far fa-clock mr-1"></i>{ev.time}</div>}<div className="text-[10px] text-slate-500 mt-1 uppercase">{ev.origin}</div></div>{ev.origin === 'personal' && !ev.isRecurring && <button onClick={(e) => deleteTask(e, ev.id)} className="text-red-400 hover:text-red-300 px-2 ml-2"><i className="fas fa-trash"></i></button>}</div>))}</div><div className="mt-6 pt-4 border-t border-slate-700"><button onClick={() => { setNewTask({ title: "", date: dayDetailData.date, time: "09:00", desc: "", type: "task", category: "daily" }); setActiveModal('task'); }} className="w-full bg-slate-700 text-white py-2 rounded-lg text-sm hover:bg-slate-600 transition flex items-center justify-center gap-2"><i className="fas fa-plus"></i> Bu Güne Hatırlatıcı Ekle</button></div></div></div>)}
+                    {activeModal === 'dayDetail' && dayDetailData && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[80vh] overflow-y-auto"><div className="flex justify-between items-center mb-4"><h3 className="text-white font-bold">{dayDetailData.date} Details</h3><button onClick={() => { setActiveModal(null); setDayDetailData(null); }} className="text-slate-400 hover:text-white"><i className="fas fa-times"></i></button></div><div className="space-y-3">{dayDetailData.events.map((ev, i) => (<div key={i} className={`p-3 rounded border-l-4 flex justify-between items-center ${ev.category==='academic'?'bg-red-900/30 border-red-500': ev.category==='official'?'bg-amber-900/30 border-amber-500': ev.category==='special'?'bg-pink-900/30 border-pink-500':'bg-blue-900/30 border-blue-500'}`} onClick={() => { if(ev.origin === 'personal' && !ev.isRecurring) { openEditTask(ev); setDayDetailData(null); } }}><div><div className="text-sm font-bold text-white">{ev.event}{ev.isRecurring && <span className="text-[10px] ml-2 bg-pink-600 px-2 py-0.5 rounded">Recurring</span>}</div>{ev.time && <div className="text-xs text-slate-400 mt-1"><i className="far fa-clock mr-1"></i>{ev.time}</div>}<div className="text-[10px] text-slate-500 mt-1 uppercase">{ev.origin}</div></div>{ev.origin === 'personal' && !ev.isRecurring && <button onClick={(e) => deleteTask(e, ev.id)} className="text-red-400 hover:text-red-300 px-2 ml-2"><i className="fas fa-trash"></i></button>}</div>))}</div><div className="mt-6 pt-4 border-t border-slate-700"><button onClick={() => { setNewTask({ title: "", date: dayDetailData.date, time: "09:00", desc: "", type: "task", category: "daily" }); setActiveModal('task'); }} className="w-full bg-slate-700 text-white py-2 rounded-lg text-sm hover:bg-slate-600 transition flex items-center justify-center gap-2"><i className="fas fa-plus"></i> Add Reminder to This Day</button></div></div></div>)}
                 </div>
             );
         }; // App fonksiyon kapanışı
