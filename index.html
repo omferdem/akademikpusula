@@ -686,14 +686,14 @@
                     else if (pomodoro.active && pomodoro.time === 0) { setPomodoro({active: false, time: 25 * 60}); alert("Focus Session Complete!"); }
                 };
                 tick(); const timer = setInterval(tick, 1000); 
-                if (user?.enablePrayer && user?.city && !prayerTimes) fetchPrayerTimes(user.city, user.country);
+                if (user?.enablePrayer && user?.city && user?.country && !prayerTimes) fetchPrayerTimes(user.city, user.country);
                 return () => clearInterval(timer);
             }, [getTimelineEvents, alertState, pomodoro.active, user, dismissedAlerts]);
 
             const dismissAlert = () => { if (alertState) { setDismissedAlerts(prev => [...prev, alertState.id]); setAlertState(null); if(audioRef.current) { audioRef.current.pause(); audioRef.current.currentTime = 0; } } };
             const fetchPrayerTimes = async (city, country) => { try { const d = new Date(); const res = await fetch(`https://api.aladhan.com/v1/timingsByCity/${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country||'')}&method=3`); const json = await res.json(); if(json.data) setPrayerTimes(json.data.timings); } catch (e) { console.error(e); } };
             const updateAcademicCalendar = (uniName) => { const newData = ACADEMIC_DATA[uniName] || ACADEMIC_DATA['default']; setCalendarEvents(newData); };
-            const handleUpdateUser = (e) => { e.preventDefault(); const fd = new FormData(e.target); const city = fd.get('city').trim(); const country = fd.get('country').trim(); const cityChanged = city !== user.city || country !== user.country; const prayerEnabled = fd.get('enablePrayer') === 'on'; if (cityChanged || (!user.enablePrayer && prayerEnabled)) { setPrayerTimes(null); if (prayerEnabled && city && country) { fetchPrayerTimes(city, country); } } setUser({ ...user, title: fd.get('title'), name: fd.get('name').trim(), uni: fd.get('uni').trim(), uniUrl: fd.get('uniUrl').trim(), city: city, country: country, enablePrayer: prayerEnabled }); setActiveModal(null); };const handleAddTask = () => { 
+            const handleUpdateUser = (e) => { e.preventDefault(); const fd = new FormData(e.target); const city = fd.get('city').trim(); const country = fd.get('country').trim(); const prayerEnabled = fd.get('enablePrayer') === 'on'; const newUser = { ...user, title: fd.get('title'), name: fd.get('name').trim(), uni: fd.get('uni').trim(), uniUrl: fd.get('uniUrl').trim(), city: city, country: country, enablePrayer: prayerEnabled }; setPrayerTimes(null); try { localStorage.removeItem('prayer_cache_v48'); } catch(e) {} setUser(newUser); if (prayerEnabled && city && country) { fetchPrayerTimes(city, country); } setActiveModal(null); };const handleAddTask = () => { 
                 if(!newTask.title || !newTask.date) return;
                 
                 if (!conflictWarn) {
